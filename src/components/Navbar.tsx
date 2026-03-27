@@ -1,28 +1,34 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { navigationItems } from "@/data/navigation";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="container flex items-center justify-between h-16">
-        <a href="#" className="font-heading text-lg font-bold tracking-tight text-foreground">
+        <Link to="/" className="font-heading text-lg font-bold tracking-tight text-foreground">
           Atelje <span className="text-primary">Lučka</span> & Avgust
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <ul className="hidden md:flex items-center gap-8">
           {navigationItems.map((item) => (
             <li key={item.id}>
-              <a
-                href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              <Link
+                to={item.href}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === item.href
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-primary"
+                }`}
               >
                 {item.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -50,13 +56,17 @@ const Navbar = () => {
             <ul className="container py-4 space-y-1">
               {navigationItems.map((item) => (
                 <li key={item.id}>
-                  <a
-                    href={item.href}
+                  <Link
+                    to={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block py-3 px-4 rounded-lg text-foreground hover:bg-secondary transition-colors font-medium"
+                    className={`block py-3 px-4 rounded-lg transition-colors font-medium ${
+                      location.pathname === item.href
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-secondary"
+                    }`}
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -39,7 +39,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          href="#gallery"
+          href="/gallery"
           className="inline-block mt-10 px-8 py-3.5 bg-primary text-primary-foreground rounded-full font-body font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity"
         >
           View Gallery
