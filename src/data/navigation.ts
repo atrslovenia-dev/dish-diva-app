@@ -5,10 +5,10 @@ export interface NavItem {
 }
 
 export const navigationItems: NavItem[] = [
-  { id: "about", label: "Why Art?", href: "/about" },
-  { id: "gallery", label: "Gallery", href: "/gallery" },
-  { id: "exhibitions", label: "Exhibitions", href: "/exhibitions" },
-  { id: "events", label: "Events", href: "/events" },
-  { id: "gifts", label: "Gifts", href: "/gifts" },
-  { id: "contact", label: "Contact", href: "/contact" },
+  { id: "about", label: "Zakaj umetnost?", href: "/about" },
+  { id: "gallery", label: "Galerija", href: "/gallery" },
+  { id: "exhibitions", label: "Razstave", href: "/exhibitions" },
+  { id: "events", label: "Dogodki", href: "/events" },
+  { id: "gifts", label: "Darila", href: "/gifts" },
+  { id: "contact", label: "Kontakt", href: "/contact" },
 ];
