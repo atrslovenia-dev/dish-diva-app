@@ -3,46 +3,55 @@ import tuttaImage from "@/assets/tutta-exhibition.png";
 
 const ExhibitionsSection = () => {
   return (
-    <section id="exhibitions" className="py-20 md:py-28 bg-background">
+    <section className="py-24 md:py-32 bg-background">
       <div className="container max-w-4xl">
-        <motion.h2
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="font-heading text-3xl md:text-4xl font-semibold text-center mb-12 text-foreground"
+          className="text-center mb-14"
         >
-          Current Exhibitions
-        </motion.h2>
+          <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-4">Trenutno na ogled</p>
+          <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground">
+            Razstave
+          </h2>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="bg-card rounded-2xl overflow-hidden shadow-lg"
+          className="bg-card rounded-sm overflow-hidden shadow-sm"
         >
-          <div className="p-6 md:p-8">
-            <img
-              src={tuttaImage}
-              alt="Klavdij Tutta — Mediterranean Gardens and Voyages"
-              className="w-full rounded-xl mb-6"
-            />
-            <h3 className="font-heading text-xl md:text-2xl font-semibold text-primary mb-2">
-              Klavdij Tutta: Mediterranean Gardens and Voyages 2021–2025
+          <img
+            src={tuttaImage}
+            alt="Klavdij Tutta — Sredozemski vrtovi in potovanja"
+            className="w-full"
+          />
+          <div className="p-8 md:p-10">
+            <h3 className="font-heading text-2xl md:text-3xl font-light text-foreground mb-2">
+              Klavdij Tutta: <span className="italic">Sredozemski vrtovi in potovanja</span> 2021–2025
             </h3>
-            <p className="text-sm text-muted-foreground font-medium mb-4">
-              Exhibition Opening and Wine Label Presentation
+            <p className="text-sm text-muted-foreground font-medium mb-6 uppercase tracking-wider">
+              Otvoritev razstave in predstavitev vinske etikete
             </p>
-            <div className="space-y-2 text-sm text-foreground/80">
-              <p><strong>When:</strong> Wednesday, November 5, 2025, at 6:00 PM</p>
-              <p><strong>Location:</strong> Atelje Lučka & Avgust, Novi trg 6, Ljubljana</p>
-              <p><strong>Presented by:</strong> Art historian Judita Krivec Dragan</p>
-              <p><strong>Open until:</strong> November 30, 2025</p>
+            <div className="grid sm:grid-cols-2 gap-4 text-sm text-foreground/80">
+              <div className="space-y-3">
+                <p><span className="font-medium text-foreground">Kdaj:</span> Sreda, 5. november 2025, ob 18.00</p>
+                <p><span className="font-medium text-foreground">Kje:</span> Atelje Lučka & Avgust, Novi trg 6, Ljubljana</p>
+              </div>
+              <div className="space-y-3">
+                <p><span className="font-medium text-foreground">Predstavi:</span> Umetnostna zgodovinarka Judita Krivec Dragan</p>
+                <p><span className="font-medium text-foreground">Na ogled do:</span> 30. november 2025</p>
+              </div>
             </div>
-            <p className="text-center text-primary font-semibold mt-6 text-sm">
-              🎨 We look forward to seeing you! 🍷
-            </p>
+            <div className="mt-8 pt-6 border-t border-border">
+              <p className="text-center text-primary font-heading text-lg italic">
+                🎨 Vabljeni! 🍷
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>
