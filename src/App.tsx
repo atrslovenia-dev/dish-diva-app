@@ -8,7 +8,9 @@ import AboutPage from "./pages/AboutPage";
 import GalleryPage from "./pages/GalleryPage";
 import ExhibitionsPage from "./pages/ExhibitionsPage";
 import EventsPage from "./pages/EventsPage";
+import AuctionsPage from "./pages/AuctionsPage";
 import GiftsPage from "./pages/GiftsPage";
+import ClubPage from "./pages/ClubPage";
 import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 
