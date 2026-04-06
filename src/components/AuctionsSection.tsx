@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gavel, TrendingUp, Eye, History, ChevronDown, SlidersHorizontal, Search, Sparkles } from "lucide-react";
+import { Gavel, TrendingUp, Eye, History, ChevronDown, Search, Sparkles } from "lucide-react";
 import { auctionsData, type AuctionItem } from "@/data/auctions";
 import CountdownTimer from "@/components/auction/CountdownTimer";
 import BidModal from "@/components/auction/BidModal";
