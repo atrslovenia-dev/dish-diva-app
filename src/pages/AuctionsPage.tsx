@@ -3,7 +3,7 @@ import AuctionsSection from "@/components/AuctionsSection";
 import Footer from "@/components/Footer";
 
 const AuctionsPage = () => (
-  <div className="min-h-screen pt-16">
+  <div className="min-h-screen">
     <Navbar />
     <AuctionsSection />
     <Footer />
