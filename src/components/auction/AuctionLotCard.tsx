@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gavel, TrendingUp, ChevronDown } from "lucide-react";
+import { Gavel, TrendingUp, ChevronDown, History } from "lucide-react";
 import { type AuctionItem } from "@/data/auctions";
 import CountdownTimer from "@/components/auction/CountdownTimer";
 
@@ -12,56 +13,88 @@ interface Props {
 }
 
 const AuctionLotCard = ({ item, index, expandedLot, setExpandedLot, openBid }: Props) => {
+  const [activeImg, setActiveImg] = useState(0);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.08 }}
-      className="group bg-card border border-border/50 rounded-sm overflow-hidden hover:border-primary/30 transition-all duration-500 hover:shadow-xl hover:shadow-primary/5"
+      transition={{ duration: 0.4, delay: index * 0.06 }}
+      className="group bg-card border border-border/50 rounded-sm overflow-hidden hover:border-primary/20 transition-all duration-300"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Image */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
         <img
-          src={item.images[0]}
+          src={item.images[activeImg]}
           alt={item.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <div className="absolute top-3 left-3 bg-foreground/80 text-background px-2.5 py-1 rounded-sm text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm">
+        <div className="absolute top-2 left-2 bg-foreground/80 text-background px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider backdrop-blur-sm">
           Lot {item.lotNumber}
         </div>
+        {/* Image dots */}
+        {item.images.length > 1 && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {item.images.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImg(idx)}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${idx === activeImg ? "bg-background w-3" : "bg-background/50"}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="p-5 md:p-6">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-primary font-semibold mb-1">{item.artist}</p>
-        <h3 className="font-heading text-xl font-medium text-foreground mb-1">{item.title}</h3>
-        <p className="text-xs text-muted-foreground mb-5">{item.medium} · {item.dimensions}</p>
+      <div className="p-4">
+        {/* Artist & title */}
+        <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">{item.artist}</p>
+        <h3 className="font-heading text-base font-medium text-foreground mb-0.5">{item.title}</h3>
+        <p className="text-[10px] text-muted-foreground mb-3">{item.medium} · {item.dimensions}</p>
 
-        <div className="flex justify-between items-baseline mb-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Trenutna</p>
-            <p className="font-heading text-2xl font-semibold text-primary">€{item.currentBid}</p>
-          </div>
-          <div className="text-right text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><TrendingUp size={11} /> {item.bidCount} ponudb</span>
+        {/* Current bid — prominent box */}
+        <div className="bg-primary/5 border border-primary/10 rounded-sm p-2.5 mb-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Trenutna ponudba</p>
+              <p className="font-heading text-xl font-bold text-primary">€{item.currentBid.toLocaleString()}</p>
+            </div>
+            <div className="text-right">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <TrendingUp size={10} /> {item.bidCount}
+              </span>
+            </div>
           </div>
         </div>
 
+        {/* Top bids mini-leaderboard */}
+        <div className="mb-2 px-1">
+          {item.bids.slice(0, 3).map((bid, bi) => (
+            <div key={bid.id} className={`flex items-center justify-between text-[10px] py-0.5 ${bi === 0 ? "text-primary font-semibold" : "text-foreground/50"}`}>
+              <span>{bi + 1}. {bid.bidder}</span>
+              <span className="font-heading">€{bid.amount}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Countdown */}
         <CountdownTimer endDate={item.endDate} compact />
 
-        <div className="flex gap-2 mt-5">
+        {/* Actions */}
+        <div className="flex gap-1.5 mt-3">
           <button
             onClick={() => openBid(item)}
-            className="flex-1 py-3 bg-primary text-primary-foreground text-xs uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm flex items-center justify-center gap-1.5 shadow-sm shadow-primary/15"
+            className="flex-1 py-2.5 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm flex items-center justify-center gap-1"
           >
-            <Gavel size={13} /> Ponudi
+            <Gavel size={11} /> Ponudi
           </button>
           <button
             onClick={() => setExpandedLot(expandedLot === item.id ? null : item.id)}
-            className="px-3 py-3 border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all rounded-sm"
+            className="px-2.5 py-2.5 border border-border text-muted-foreground hover:text-foreground transition-all rounded-sm"
           >
-            <ChevronDown size={14} className={`transition-transform duration-300 ${expandedLot === item.id ? "rotate-180" : ""}`} />
+            <ChevronDown size={12} className={`transition-transform duration-300 ${expandedLot === item.id ? "rotate-180" : ""}`} />
           </button>
         </div>
       </div>
@@ -76,16 +109,16 @@ const AuctionLotCard = ({ item, index, expandedLot, setExpandedLot, openBid }: P
             transition={{ duration: 0.3 }}
             className="overflow-hidden border-t border-border/50"
           >
-            <div className="p-5 bg-secondary/30">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Zadnje ponudbe</p>
-              <div className="space-y-1.5">
-                {item.bids.slice(0, 4).map((bid, bi) => (
-                  <div key={bid.id} className={`flex items-center justify-between text-xs py-1.5 ${bi === 0 ? "text-primary font-medium" : "text-foreground/60"}`}>
-                    <span>{bid.bidder}</span>
-                    <span className="font-heading font-semibold">€{bid.amount}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="p-3 bg-secondary/20">
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5 flex items-center gap-1">
+                <History size={9} /> Vse ponudbe ({item.bidCount})
+              </p>
+              {item.bids.slice(0, 5).map((bid, bi) => (
+                <div key={bid.id} className={`flex items-center justify-between text-[10px] py-0.5 ${bi === 0 ? "text-primary font-medium" : "text-foreground/50"}`}>
+                  <span>{bid.bidder}</span>
+                  <span className="font-heading font-semibold">€{bid.amount}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}
