@@ -1,45 +1,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
-
-interface GalleryImage {
-  src: string;
-  artist: string;
-  title: string;
-  description: string;
-}
-
-import auctionTondi from "@/assets/auction-tondi.jpg";
-import auctionAbstractBlue from "@/assets/auction-abstract-blue.jpg";
-import auctionMixedMedia from "@/assets/auction-mixed-media.jpg";
-import auctionMediterranean from "@/assets/auction-mediterranean.jpg";
-
-const galleryImages: GalleryImage[] = [
-  {
-    src: auctionTondi,
-    artist: "Marjanca Jemec Božič",
-    title: "Devet svetov — serija tondijev",
-    description: "Ciklus devetih okroglih slik, ki raziskuje kozmične in krajinske svetove skozi naivistični idiom.",
-  },
-  {
-    src: auctionAbstractBlue,
-    artist: "Ana Koželj",
-    title: "Modra eksplozija",
-    description: "Abstraktni ekspresionizem v modrih in rumenih tonih — intimno, a monumentalno.",
-  },
-  {
-    src: auctionMixedMedia,
-    artist: "Klavdij Tutta",
-    title: "Kompozicija s čolnom",
-    description: "Minimalistična poetika predmetov in krajine v mešani tehniki.",
-  },
-  {
-    src: auctionMediterranean,
-    artist: "Peter Marolt",
-    title: "Mediteranski cipresi — triptih",
-    description: "Istrska krajina s kolesarji, cipresami in morjem v živahni paleti.",
-  },
-];
+import { galleryImages } from "@/data/gallery";
 
 const GallerySection = () => {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
