@@ -166,7 +166,7 @@ const GallerySection = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={galleryImages[lightboxIndex].src.replace("w=600&h=600", "w=1600&h=1600")}
+                src={galleryImages[lightboxIndex].src}
                 alt={galleryImages[lightboxIndex].title}
                 className="max-w-full max-h-[75vh] object-contain rounded-sm shadow-2xl"
               />
