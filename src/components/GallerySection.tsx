@@ -9,42 +9,35 @@ interface GalleryImage {
   description: string;
 }
 
+import auctionTondi from "@/assets/auction-tondi.jpg";
+import auctionAbstractBlue from "@/assets/auction-abstract-blue.jpg";
+import auctionMixedMedia from "@/assets/auction-mixed-media.jpg";
+import auctionMediterranean from "@/assets/auction-mediterranean.jpg";
+
 const galleryImages: GalleryImage[] = [
   {
-    src: "https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=600&h=600&fit=crop",
+    src: auctionTondi,
     artist: "Marjanca Jemec Božič",
-    title: "Odsev jeseni",
-    description: "Impresionistični prikaz jesenskega gozda v toplih odtenkih zlate in rdeče.",
+    title: "Devet svetov — serija tondijev",
+    description: "Ciklus devetih okroglih slik, ki raziskuje kozmične in krajinske svetove skozi naivistični idiom.",
   },
   {
-    src: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&h=600&fit=crop",
-    artist: "Klavdij Tutta",
-    title: "Mediteranski veter",
-    description: "Poetična krajina istrske obale — turkizno morje, beli kamni in olivna drevesa.",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&h=600&fit=crop",
+    src: auctionAbstractBlue,
     artist: "Ana Koželj",
-    title: "Urbana simfonija",
-    description: "Dinamično delo, ki združuje kolažne elemente in akrilne ploskve.",
+    title: "Modra eksplozija",
+    description: "Abstraktni ekspresionizem v modrih in rumenih tonih — intimno, a monumentalno.",
   },
   {
-    src: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=600&fit=crop",
+    src: auctionMixedMedia,
+    artist: "Klavdij Tutta",
+    title: "Kompozicija s čolnom",
+    description: "Minimalistična poetika predmetov in krajine v mešani tehniki.",
+  },
+  {
+    src: auctionMediterranean,
     artist: "Peter Marolt",
-    title: "Tišina v modrem",
-    description: "Minimalistična meditacija o morju in nebu v neskončnih odtenkih modre.",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&h=600&fit=crop",
-    artist: "Maja Kovač",
-    title: "Pomladno prebujanje",
-    description: "Eksplozija barv in svetlobe, ki praznuje moč narave.",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=600&fit=crop",
-    artist: "Tomaž Bernik",
-    title: "Nocturne — Ljubljana",
-    description: "Nočna veduta Ljubljane — odsevi luči na Ljubljanici in silhueta gradu.",
+    title: "Mediteranski cipresi — triptih",
+    description: "Istrska krajina s kolesarji, cipresami in morjem v živahni paleti.",
   },
 ];
 
@@ -173,7 +166,7 @@ const GallerySection = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <img
-                src={galleryImages[lightboxIndex].src.replace("w=600&h=600", "w=1600&h=1600")}
+                src={galleryImages[lightboxIndex].src}
                 alt={galleryImages[lightboxIndex].title}
                 className="max-w-full max-h-[75vh] object-contain rounded-sm shadow-2xl"
               />
