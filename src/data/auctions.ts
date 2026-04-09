@@ -141,6 +141,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 1000,
     estimateHigh: 2000,
     images: [akr0645],
+    startDate: "2026-03-22T10:00:00",
     endDate: "2026-05-22T17:00:00",
     bidCount: 7,
     bids: [
