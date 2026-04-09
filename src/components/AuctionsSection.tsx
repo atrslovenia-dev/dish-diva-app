@@ -6,13 +6,14 @@ import BidModal from "@/components/auction/BidModal";
 import AuctionHeroBanner from "@/components/auction/AuctionHeroBanner";
 import AuctionFeaturedCard from "@/components/auction/AuctionFeaturedCard";
 import AuctionLotCard from "@/components/auction/AuctionLotCard";
+import AuctionFullscreen from "@/components/auction/AuctionFullscreen";
 
 type SortOption = "ending" | "price-asc" | "price-desc" | "bids";
 
 const AuctionsSection = () => {
   const [selectedItem, setSelectedItem] = useState<AuctionItem | null>(null);
   const [bidModalOpen, setBidModalOpen] = useState(false);
-  const [expandedLot, setExpandedLot] = useState<string | null>(null);
+  const [fullscreenItem, setFullscreenItem] = useState<AuctionItem | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>("ending");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -35,6 +36,7 @@ const AuctionsSection = () => {
   const regular = sorted.filter((i) => !i.featured);
 
   const openBid = (item: AuctionItem) => {
+    setFullscreenItem(null);
     setSelectedItem(item);
     setBidModalOpen(true);
   };
@@ -68,60 +70,41 @@ const AuctionsSection = () => {
           </select>
         </div>
 
-        {/* Featured lots */}
+        {/* Featured */}
         {featured.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
               <Sparkles size={13} className="text-accent" />
               <p className="text-[10px] uppercase tracking-[0.2em] text-accent font-semibold">Izpostavljeni loti</p>
               <span className="flex-1 h-px bg-accent/20" />
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
               {featured.map((item, i) => (
-                <AuctionFeaturedCard
-                  key={item.id}
-                  item={item}
-                  index={i}
-                  expandedLot={expandedLot}
-                  setExpandedLot={setExpandedLot}
-                  openBid={openBid}
-                />
+                <AuctionFeaturedCard key={item.id} item={item} index={i} openBid={openBid} openFullscreen={setFullscreenItem} />
               ))}
             </div>
           </div>
         )}
 
-        {/* Regular lots */}
+        {/* Regular */}
         {regular.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
               <Gavel size={13} className="text-muted-foreground" />
               <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">Vsi loti</p>
               <span className="flex-1 h-px bg-border" />
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {regular.map((item, i) => (
-                <AuctionLotCard
-                  key={item.id}
-                  item={item}
-                  index={i}
-                  expandedLot={expandedLot}
-                  setExpandedLot={setExpandedLot}
-                  openBid={openBid}
-                />
+                <AuctionLotCard key={item.id} item={item} index={i} openBid={openBid} openFullscreen={setFullscreenItem} />
               ))}
             </div>
           </div>
         )}
 
-        {/* How it works — compact */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="border-t border-border/50 pt-8 pb-4"
-        >
-          <h3 className="font-heading text-xl font-light text-foreground mb-6 text-center">
+        {/* How it works */}
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="border-t border-border/50 pt-6 pb-4">
+          <h3 className="font-heading text-xl font-light text-foreground mb-4 text-center">
             Kako poteka <span className="italic font-medium text-primary">dražba</span>?
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -143,15 +126,12 @@ const AuctionsSection = () => {
         </motion.div>
       </div>
 
+      {/* Fullscreen viewer */}
+      <AuctionFullscreen item={fullscreenItem} onClose={() => setFullscreenItem(null)} onBid={openBid} />
+
+      {/* Bid modal */}
       {selectedItem && (
-        <BidModal
-          item={selectedItem}
-          isOpen={bidModalOpen}
-          onClose={() => {
-            setBidModalOpen(false);
-            setSelectedItem(null);
-          }}
-        />
+        <BidModal item={selectedItem} isOpen={bidModalOpen} onClose={() => { setBidModalOpen(false); setSelectedItem(null); }} />
       )}
     </section>
   );
