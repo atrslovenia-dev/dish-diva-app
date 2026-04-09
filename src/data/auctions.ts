@@ -13,6 +13,7 @@ export interface AuctionItem {
   estimateLow: number;
   estimateHigh: number;
   images: string[];
+  startDate: string;
   endDate: string;
   bidCount: number;
   bids: AuctionBid[];
