@@ -63,7 +63,7 @@ const AuctionLotCard = ({ item, index, openBid, openFullscreen }: Props) => {
           ))}
         </div>
 
-        <CountdownTimer endDate={item.endDate} compact />
+        <CountdownTimer endDate={item.endDate} startDate={item.startDate} compact />
 
         <button
           onClick={() => openBid(item)}
