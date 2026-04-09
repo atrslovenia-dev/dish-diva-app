@@ -13,6 +13,7 @@ export interface AuctionItem {
   estimateLow: number;
   estimateHigh: number;
   images: string[];
+  startDate: string;
   endDate: string;
   bidCount: number;
   bids: AuctionBid[];
@@ -53,6 +54,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 3500,
     estimateHigh: 7000,
     images: [akr0086],
+    startDate: "2026-03-15T10:00:00",
     endDate: "2026-05-15T18:00:00",
     bidCount: 16,
     bids: [
@@ -82,6 +84,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 3000,
     estimateHigh: 5500,
     images: [akr0137],
+    startDate: "2026-03-18T10:00:00",
     endDate: "2026-05-18T19:00:00",
     bidCount: 12,
     bids: [
@@ -110,6 +113,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 1400,
     estimateHigh: 2500,
     images: [akr0010],
+    startDate: "2026-03-20T10:00:00",
     endDate: "2026-05-20T20:00:00",
     bidCount: 9,
     bids: [
@@ -137,6 +141,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 1000,
     estimateHigh: 2000,
     images: [akr0645],
+    startDate: "2026-03-22T10:00:00",
     endDate: "2026-05-22T17:00:00",
     bidCount: 7,
     bids: [
@@ -164,6 +169,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 450,
     estimateHigh: 900,
     images: [akr0209],
+    startDate: "2026-03-25T10:00:00",
     endDate: "2026-05-25T18:00:00",
     bidCount: 11,
     bids: [
@@ -192,6 +198,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 400,
     estimateHigh: 800,
     images: [akr0613],
+    startDate: "2026-03-28T10:00:00",
     endDate: "2026-05-28T19:00:00",
     bidCount: 8,
     bids: [
@@ -219,6 +226,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 1800,
     estimateHigh: 3200,
     images: [akr0637],
+    startDate: "2026-03-16T10:00:00",
     endDate: "2026-05-16T20:00:00",
     bidCount: 10,
     bids: [
@@ -247,6 +255,7 @@ export const auctionsData: AuctionItem[] = [
     estimateLow: 2000,
     estimateHigh: 4000,
     images: [akr0624],
+    startDate: "2026-03-19T10:00:00",
     endDate: "2026-05-19T17:00:00",
     bidCount: 13,
     bids: [

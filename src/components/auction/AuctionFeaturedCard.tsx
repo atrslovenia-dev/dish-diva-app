@@ -50,7 +50,7 @@ const AuctionFeaturedCard = ({ item, index, openBid, openFullscreen }: Props) =>
             <p className="text-[10px] text-muted-foreground mt-0.5">Ocena: €{item.estimateLow.toLocaleString()}–€{item.estimateHigh.toLocaleString()}</p>
           </div>
 
-          <CountdownTimer endDate={item.endDate} compact />
+          <CountdownTimer endDate={item.endDate} startDate={item.startDate} compact />
 
           {/* Bid leaderboard */}
           <div className="border border-border/50 rounded-sm p-2 my-2 bg-secondary/20">
