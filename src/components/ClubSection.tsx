@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight, MapPin, Calendar, X, ChevronDown, ChevronUp, Clock, Navigation } from "lucide-react";
+import { Check, ArrowRight, MapPin, Calendar, X, ChevronDown, ChevronUp, Clock, Navigation, Maximize2, RotateCcw } from "lucide-react";
 import { clubBenefits, clubTrips, clubTiers, clubSubmenus } from "@/data/club";
+
+const VRGallery = lazy(() => import("@/components/VRGallery"));
 
 const ClubSection = () => {
   const [expandedBenefit, setExpandedBenefit] = useState<string | null>(null);
@@ -222,48 +224,54 @@ const ClubSection = () => {
           </div>
         </motion.div>
 
-        {/* VR Modal */}
+        {/* VR Gallery Modal — full 3D experience */}
         <AnimatePresence>
           {vrModalOpen && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-foreground/90 flex items-center justify-center p-4"
-              onClick={() => setVrModalOpen(false)}
+              className="fixed inset-0 z-50 bg-foreground/95"
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-card rounded-sm max-w-4xl w-full max-h-[85vh] overflow-y-auto"
-              >
-                <div className="relative aspect-video bg-foreground/5 flex items-center justify-center">
+              {/* 3D Canvas */}
+              <Suspense fallback={
+                <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
-                    <span className="text-6xl mb-4 block">🥽</span>
-                    <h3 className="font-heading text-2xl text-foreground mb-2">Virtualna galerija 360°</h3>
-                    <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
-                      Sprehajajte se po naših razstavnih prostorih v virtualni resničnosti.
-                      Oglejte si dela od blizu, preberite opise in doživite atmosfero ateljeja.
-                    </p>
-                    <div className="flex flex-wrap gap-3 justify-center">
-                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">Podpira VR očala</span>
-                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">360° pogled</span>
-                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">Interaktivni opisi del</span>
-                    </div>
-                    <button className="mt-6 bg-primary text-primary-foreground px-8 py-3 text-sm uppercase tracking-[0.12em] font-medium rounded-sm hover:opacity-90 transition-opacity">
-                      Kmalu na voljo
-                    </button>
+                    <RotateCcw size={32} className="text-primary animate-spin mx-auto mb-4" />
+                    <p className="text-primary-foreground/70 text-sm">Nalagam galerijo...</p>
                   </div>
-                  <button
-                    onClick={() => setVrModalOpen(false)}
-                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
                 </div>
-              </motion.div>
+              }>
+                <VRGallery className="w-full h-full" />
+              </Suspense>
+
+              {/* Overlay UI */}
+              <div className="absolute top-0 left-0 right-0 p-6 flex items-start justify-between pointer-events-none">
+                <div>
+                  <h3 className="font-heading text-xl text-primary-foreground/90 font-medium">
+                    Virtualna galerija 360°
+                  </h3>
+                  <p className="text-primary-foreground/50 text-xs mt-1">
+                    Klikni in povleci za ogled • Kolešček za približanje • Lebdi nad sliko za opis
+                  </p>
+                </div>
+                <button
+                  onClick={() => setVrModalOpen(false)}
+                  className="pointer-events-auto w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/20 transition-all"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Bottom badge */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 pointer-events-none">
+                <span className="bg-primary-foreground/10 text-primary-foreground/60 text-[11px] px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  🥽 360° pogled
+                </span>
+                <span className="bg-primary-foreground/10 text-primary-foreground/60 text-[11px] px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  8 del na ogled
+                </span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
