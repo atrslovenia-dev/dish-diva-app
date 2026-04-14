@@ -1,8 +1,17 @@
-import { motion } from "framer-motion";
-import { Check, ArrowRight, MapPin, Calendar } from "lucide-react";
-import { clubBenefits, clubTrips, clubTiers } from "@/data/club";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ArrowRight, MapPin, Calendar, X, ChevronDown, ChevronUp, Clock, Navigation } from "lucide-react";
+import { clubBenefits, clubTrips, clubTiers, clubSubmenus } from "@/data/club";
 
 const ClubSection = () => {
+  const [expandedBenefit, setExpandedBenefit] = useState<string | null>(null);
+  const [showAllTrips, setShowAllTrips] = useState(false);
+  const [vrModalOpen, setVrModalOpen] = useState(false);
+
+  const internationalTrips = clubTrips.filter(t => parseInt(t.distance || "0") > 200);
+  const localTrips = clubTrips.filter(t => parseInt(t.distance || "0") <= 200);
+  const visibleLocalTrips = showAllTrips ? localTrips : localTrips.slice(0, 6);
+
   return (
     <section className="py-24 md:py-32 bg-background">
       <div className="container">
@@ -22,35 +31,100 @@ const ClubSection = () => {
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base font-light">
             Člani kluba periodično prejemajo ekskluzivno gradivo — voščilnice, darila,
-            promocijske izdelke — ter se udeležujejo umetniških potovanj po Evropi.
+            promocijske izdelke — ter se udeležujejo umetniških potovanj po Evropi in Sloveniji.
           </p>
         </motion.div>
 
-        {/* Benefits grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-24">
-          {clubBenefits.map((benefit, i) => (
-            <motion.div
-              key={benefit.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-              className="bg-card border border-border/50 rounded-sm p-6 hover:border-primary/30 hover:shadow-md transition-all duration-400"
-            >
-              <span className="text-3xl mb-4 block">{benefit.icon}</span>
-              <h3 className="font-heading text-lg font-medium text-foreground mb-2">{benefit.title}</h3>
-              <p className="text-sm text-muted-foreground font-light leading-relaxed">{benefit.description}</p>
-            </motion.div>
-          ))}
+        {/* Benefits grid — expandable */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
+          {clubBenefits.map((benefit, i) => {
+            const isExpanded = expandedBenefit === benefit.id;
+            const hasDetails = benefit.details.length > 0;
+
+            return (
+              <motion.div
+                key={benefit.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.06 }}
+                className={`bg-card border rounded-sm overflow-hidden transition-all duration-400 ${
+                  isExpanded ? "border-primary/40 shadow-lg col-span-1 md:col-span-2 lg:col-span-3" : "border-border/50 hover:border-primary/30 hover:shadow-md"
+                }`}
+              >
+                <div
+                  className={`p-6 ${hasDetails ? "cursor-pointer" : ""}`}
+                  onClick={() => hasDetails && setExpandedBenefit(isExpanded ? null : benefit.id)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <span className="text-3xl mb-4 block">{benefit.icon}</span>
+                      <h3 className="font-heading text-lg font-medium text-foreground mb-2">{benefit.title}</h3>
+                      <p className="text-sm text-muted-foreground font-light leading-relaxed">{benefit.description}</p>
+                    </div>
+                    {hasDetails && (
+                      <span className="text-primary mt-1 ml-2 shrink-0">
+                        {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {isExpanded && hasDetails && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 pt-2 border-t border-border/30">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {benefit.details.map((detail, di) => (
+                            <motion.div
+                              key={di}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: di * 0.05 }}
+                              className="bg-background/50 border border-border/30 rounded-sm overflow-hidden"
+                            >
+                              {detail.image && (
+                                <div className="aspect-square overflow-hidden">
+                                  <img
+                                    src={detail.image}
+                                    alt={detail.title}
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                    loading="lazy"
+                                  />
+                                </div>
+                              )}
+                              <div className="p-4">
+                                <h4 className="text-sm font-medium text-foreground mb-1">{detail.title}</h4>
+                                <p className="text-xs text-muted-foreground leading-relaxed mb-2">{detail.description}</p>
+                                {detail.price && (
+                                  <p className="text-xs font-semibold text-primary">{detail.price}</p>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Trips */}
+        {/* Trips — International */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-24"
+          className="mb-16"
         >
           <div className="text-center mb-12">
             <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-3">
@@ -62,42 +136,137 @@ const ClubSection = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {clubTrips.map((trip, i) => (
+            {internationalTrips.map((trip, i) => (
+              <TripCard key={trip.id} trip={trip} delay={i * 0.1} />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Trips — Local (100 km) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-24"
+        >
+          <div className="text-center mb-12">
+            <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-3">
+              V bližini Ljubljane
+            </p>
+            <h3 className="font-heading text-3xl md:text-4xl font-light text-foreground">
+              Umetniški <span className="italic font-medium">aranžmaji</span> do 100 km
+            </h3>
+            <p className="text-muted-foreground text-sm mt-3 max-w-xl mx-auto">
+              Pol- ali celodnevni izleti z vodenim ogledom galerij, muzejev in skritih kulturnih biserov.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visibleLocalTrips.map((trip, i) => (
+              <TripCard key={trip.id} trip={trip} delay={i * 0.06} compact />
+            ))}
+          </div>
+
+          {localTrips.length > 6 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={() => setShowAllTrips(!showAllTrips)}
+                className="text-primary text-sm uppercase tracking-[0.12em] font-medium flex items-center gap-1 mx-auto hover:gap-2 transition-all duration-300"
+              >
+                {showAllTrips ? "Prikaži manj" : `Prikaži vseh ${localTrips.length} aranžmajev`}
+                {showAllTrips ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Submenus — VR, Video, etc. */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-24"
+        >
+          <div className="text-center mb-12">
+            <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-3">
+              Več za člane
+            </p>
+            <h3 className="font-heading text-3xl md:text-4xl font-light text-foreground">
+              Digitalna <span className="italic font-medium">doživetja</span>
+            </h3>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {clubSubmenus.map((item, i) => (
               <motion.div
-                key={trip.id}
-                initial={{ opacity: 0, y: 20 }}
+                key={item.id}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group rounded-sm overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-lg"
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="bg-card border border-border/50 rounded-sm p-6 hover:border-primary/30 hover:shadow-md transition-all duration-300 cursor-pointer group"
+                onClick={() => item.id === "vr-gallery" && setVrModalOpen(true)}
               >
-                <div className="aspect-[3/2] overflow-hidden relative">
-                  <img
-                    src={trip.image}
-                    alt={trip.destination}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <p className="text-primary-foreground font-heading text-lg font-medium">{trip.destination}</p>
-                    <p className="text-primary-foreground/80 text-xs">{trip.highlight}</p>
-                  </div>
-                </div>
-                <div className="p-5 bg-card">
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                    <span className="flex items-center gap-1"><Calendar size={12} /> {trip.date}</span>
-                    <span className="flex items-center gap-1"><MapPin size={12} /> {trip.destination.split("—")[0].trim()}</span>
-                  </div>
-                  <p className="text-sm text-foreground/80 font-light leading-relaxed">{trip.description}</p>
-                  <button className="mt-4 text-primary text-xs uppercase tracking-[0.12em] font-medium flex items-center gap-1 hover:gap-2 transition-all duration-300">
-                    Več informacij <ArrowRight size={13} />
-                  </button>
-                </div>
+                <span className="text-4xl mb-4 block">{item.icon}</span>
+                <h4 className="font-heading text-base font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
+                  {item.title}
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                <span className="mt-4 text-primary text-xs uppercase tracking-[0.12em] font-medium flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                  {item.id === "vr-gallery" ? "Vstopi v galerijo" : "Več"} <ArrowRight size={12} />
+                </span>
               </motion.div>
             ))}
           </div>
         </motion.div>
+
+        {/* VR Modal */}
+        <AnimatePresence>
+          {vrModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-foreground/90 flex items-center justify-center p-4"
+              onClick={() => setVrModalOpen(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-card rounded-sm max-w-4xl w-full max-h-[85vh] overflow-y-auto"
+              >
+                <div className="relative aspect-video bg-foreground/5 flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-6xl mb-4 block">🥽</span>
+                    <h3 className="font-heading text-2xl text-foreground mb-2">Virtualna galerija 360°</h3>
+                    <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
+                      Sprehajajte se po naših razstavnih prostorih v virtualni resničnosti.
+                      Oglejte si dela od blizu, preberite opise in doživite atmosfero ateljeja.
+                    </p>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">Podpira VR očala</span>
+                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">360° pogled</span>
+                      <span className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-sm">Interaktivni opisi del</span>
+                    </div>
+                    <button className="mt-6 bg-primary text-primary-foreground px-8 py-3 text-sm uppercase tracking-[0.12em] font-medium rounded-sm hover:opacity-90 transition-opacity">
+                      Kmalu na voljo
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setVrModalOpen(false)}
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Pricing tiers */}
         <motion.div
@@ -164,5 +333,46 @@ const ClubSection = () => {
     </section>
   );
 };
+
+/* Reusable trip card */
+const TripCard = ({ trip, delay, compact }: { trip: typeof clubTrips[0]; delay: number; compact?: boolean }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay }}
+    className="group rounded-sm overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-lg"
+  >
+    <div className={`${compact ? "aspect-[2/1]" : "aspect-[3/2]"} overflow-hidden relative`}>
+      <img
+        src={trip.image}
+        alt={trip.destination}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+      <div className="absolute bottom-4 left-4 right-4">
+        <p className="text-primary-foreground font-heading text-lg font-medium">{trip.destination}</p>
+        <p className="text-primary-foreground/80 text-xs">{trip.highlight}</p>
+      </div>
+    </div>
+    <div className="p-5 bg-card">
+      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3 flex-wrap">
+        <span className="flex items-center gap-1"><Calendar size={12} /> {trip.date}</span>
+        <span className="flex items-center gap-1"><MapPin size={12} /> {trip.destination.split("—")[0].trim()}</span>
+        {trip.distance && (
+          <span className="flex items-center gap-1"><Navigation size={12} /> {trip.distance}</span>
+        )}
+        {trip.duration && (
+          <span className="flex items-center gap-1"><Clock size={12} /> {trip.duration}</span>
+        )}
+      </div>
+      <p className="text-sm text-foreground/80 font-light leading-relaxed">{trip.description}</p>
+      <button className="mt-4 text-primary text-xs uppercase tracking-[0.12em] font-medium flex items-center gap-1 hover:gap-2 transition-all duration-300">
+        Več informacij <ArrowRight size={13} />
+      </button>
+    </div>
+  </motion.div>
+);
 
 export default ClubSection;
