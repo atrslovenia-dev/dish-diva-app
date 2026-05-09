@@ -59,6 +59,8 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   }, [art.rotation, basePos]);
 
   const baseQuat = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...art.rotation)), [art.rotation]);
+  const { camera } = useThree();
+  const tmpObj = useMemo(() => new THREE.Object3D(), []);
 
   useFrame(() => {
     if (!groupRef.current) return;
@@ -69,8 +71,14 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
-    // Keep facing original wall orientation
-    groupRef.current.quaternion.slerp(baseQuat, 0.1);
+    // When focused, rotate to face the camera (viewer); otherwise return to wall orientation
+    let targetQuat = baseQuat;
+    if (focused) {
+      tmpObj.position.copy(groupRef.current.position);
+      tmpObj.lookAt(camera.position);
+      targetQuat = tmpObj.quaternion;
+    }
+    groupRef.current.quaternion.slerp(targetQuat, 0.1);
   });
 
   const frameW = art.scale[0] + 0.15;
