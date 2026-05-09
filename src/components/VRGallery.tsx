@@ -135,55 +135,200 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   );
 }
 
+// Build a wall shape with an arched opening (pointed/round arch carved out)
+function makeArchedWallShape(width: number, height: number, archWidth: number, archHeight: number, archBase: number) {
+  const shape = new THREE.Shape();
+  const w = width / 2;
+  shape.moveTo(-w, 0);
+  shape.lineTo(w, 0);
+  shape.lineTo(w, height);
+  shape.lineTo(-w, height);
+  shape.lineTo(-w, 0);
+
+  const hole = new THREE.Path();
+  const aw = archWidth / 2;
+  const segs = 24;
+  hole.moveTo(-aw, archBase);
+  hole.lineTo(-aw, archBase + archHeight - aw);
+  // semicircular top
+  for (let i = 0; i <= segs; i++) {
+    const t = Math.PI - (i / segs) * Math.PI;
+    hole.lineTo(Math.cos(t) * aw, archBase + archHeight - aw + Math.sin(t) * aw);
+  }
+  hole.lineTo(aw, archBase);
+  hole.lineTo(-aw, archBase);
+  shape.holes.push(hole);
+  return shape;
+}
+
+function ArchedWall({ position, rotation, length = 10, height = 4, color = "#faf8f5" }: { position: [number, number, number]; rotation: [number, number, number]; length?: number; height?: number; color?: string }) {
+  const geom = useMemo(() => {
+    // two arched bays per wall
+    const shape = new THREE.Shape();
+    const w = length / 2;
+    shape.moveTo(-w, 0);
+    shape.lineTo(w, 0);
+    shape.lineTo(w, height);
+    shape.lineTo(-w, height);
+    shape.lineTo(-w, 0);
+
+    const bays = 2;
+    const archWidth = 1.6;
+    const archHeight = 2.4;
+    const archBase = 0.2;
+    for (let i = 0; i < bays; i++) {
+      const cx = -length / 2 + (length / (bays + 1)) * (i + 1);
+      const aw = archWidth / 2;
+      const hole = new THREE.Path();
+      hole.moveTo(cx - aw, archBase);
+      hole.lineTo(cx - aw, archBase + archHeight - aw);
+      const segs = 20;
+      for (let j = 0; j <= segs; j++) {
+        const t = Math.PI - (j / segs) * Math.PI;
+        hole.lineTo(cx + Math.cos(t) * aw, archBase + archHeight - aw + Math.sin(t) * aw);
+      }
+      hole.lineTo(cx + aw, archBase);
+      hole.lineTo(cx - aw, archBase);
+      shape.holes.push(hole);
+    }
+    return new THREE.ShapeGeometry(shape);
+  }, [length, height]);
+
+  return (
+    <mesh geometry={geom} position={position} rotation={rotation}>
+      <meshStandardMaterial color={color} roughness={0.9} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+// Decorative column
+function Column({ position, height = 3.2 }: { position: [number, number, number]; height?: number }) {
+  return (
+    <group position={position}>
+      <mesh position={[0, 0.1, 0]}>
+        <boxGeometry args={[0.5, 0.2, 0.5]} />
+        <meshStandardMaterial color="#e8e2d8" roughness={0.7} />
+      </mesh>
+      <mesh position={[0, height / 2, 0]}>
+        <cylinderGeometry args={[0.18, 0.2, height - 0.4, 16]} />
+        <meshStandardMaterial color="#f0ebe2" roughness={0.6} />
+      </mesh>
+      <mesh position={[0, height - 0.1, 0]}>
+        <boxGeometry args={[0.5, 0.2, 0.5]} />
+        <meshStandardMaterial color="#e8e2d8" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+// Vaulted ceiling rib (arch)
+function CeilingArch({ position, rotation = [0, 0, 0] as [number, number, number], span = 10, rise = 1.2 }: { position: [number, number, number]; rotation?: [number, number, number]; span?: number; rise?: number }) {
+  const geom = useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3(
+      Array.from({ length: 24 }, (_, i) => {
+        const t = i / 23;
+        const x = -span / 2 + t * span;
+        const y = Math.sin(t * Math.PI) * rise;
+        return new THREE.Vector3(x, y, 0);
+      })
+    );
+    return new THREE.TubeGeometry(curve, 32, 0.08, 8, false);
+  }, [span, rise]);
+  return (
+    <mesh geometry={geom} position={position} rotation={rotation}>
+      <meshStandardMaterial color="#d8cfc0" roughness={0.6} />
+    </mesh>
+  );
+}
+
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
   const floorTexture = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#2a2520";
+    ctx.fillStyle = "#3a2f25";
     ctx.fillRect(0, 0, 512, 512);
-    for (let i = 0; i < 512; i += 32) {
-      ctx.strokeStyle = `rgba(60, 50, 40, ${0.3 + Math.random() * 0.2})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, i);
-      ctx.lineTo(512, i + (Math.random() - 0.5) * 8);
-      ctx.stroke();
+    for (let i = 0; i < 512; i += 64) {
+      for (let j = 0; j < 512; j += 128) {
+        const off = (i / 64) % 2 === 0 ? 0 : 64;
+        ctx.fillStyle = `rgba(${60 + Math.random() * 30}, ${48 + Math.random() * 20}, ${36 + Math.random() * 15}, 1)`;
+        ctx.fillRect(j + off, i, 124, 60);
+      }
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(4, 4);
+    tex.repeat.set(3, 3);
     return tex;
   }, []);
 
+  const wallColor = "#f4ede0";
+  const accentColor = "#ebe1cf";
+
+  // Column positions around perimeter
+  const columns: [number, number, number][] = [
+    [-5, 0, -5], [0, 0, -5], [5, 0, -5],
+    [-5, 0, 0], [5, 0, 0],
+    [-5, 0, 5], [0, 0, 5], [5, 0, 5],
+  ];
+
   return (
     <group>
+      {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} onClick={() => setFocusedId(null)}>
         <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial map={floorTexture} roughness={0.6} />
+        <meshStandardMaterial map={floorTexture} roughness={0.55} />
       </mesh>
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3.2, 0]}>
+      {/* Ceiling */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 3.4, 0]}>
         <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial color="#f5f0eb" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 1.6, -5]}>
-        <planeGeometry args={[10, 3.2]} />
-        <meshStandardMaterial color="#faf8f5" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 1.6, 5]} rotation={[0, Math.PI, 0]}>
-        <planeGeometry args={[10, 3.2]} />
-        <meshStandardMaterial color="#faf8f5" roughness={0.85} />
-      </mesh>
-      <mesh position={[-5, 1.6, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[10, 3.2]} />
-        <meshStandardMaterial color="#f5f2ee" roughness={0.85} />
-      </mesh>
-      <mesh position={[5, 1.6, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[10, 3.2]} />
-        <meshStandardMaterial color="#f5f2ee" roughness={0.85} />
+        <meshStandardMaterial color="#ede4d2" roughness={0.95} />
       </mesh>
 
+      {/* Arched walls (arches carved as windows) */}
+      <ArchedWall position={[0, 0, -5]} rotation={[0, 0, 0]} color={wallColor} />
+      <ArchedWall position={[0, 0, 5]} rotation={[0, Math.PI, 0]} color={wallColor} />
+      <ArchedWall position={[-5, 0, 0]} rotation={[0, Math.PI / 2, 0]} color={accentColor} />
+      <ArchedWall position={[5, 0, 0]} rotation={[0, -Math.PI / 2, 0]} color={accentColor} />
+
+      {/* Outer "sky" walls behind the arches so openings show warm light, not void */}
+      <mesh position={[0, 1.7, -5.6]}>
+        <planeGeometry args={[10, 3.4]} />
+        <meshBasicMaterial color="#3d2a20" />
+      </mesh>
+      <mesh position={[0, 1.7, 5.6]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[10, 3.4]} />
+        <meshBasicMaterial color="#3d2a20" />
+      </mesh>
+      <mesh position={[-5.6, 1.7, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[10, 3.4]} />
+        <meshBasicMaterial color="#3d2a20" />
+      </mesh>
+      <mesh position={[5.6, 1.7, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[10, 3.4]} />
+        <meshBasicMaterial color="#3d2a20" />
+      </mesh>
+
+      {/* Columns at corners and midpoints */}
+      {columns.map((p, i) => (
+        <Column key={`col-${i}`} position={p} />
+      ))}
+
+      {/* Vaulted ceiling ribs forming a cross-vault feel */}
+      <CeilingArch position={[0, 3.0, -2.5]} rotation={[0, 0, 0]} span={10} rise={0.35} />
+      <CeilingArch position={[0, 3.0, 0]} rotation={[0, 0, 0]} span={10} rise={0.35} />
+      <CeilingArch position={[0, 3.0, 2.5]} rotation={[0, 0, 0]} span={10} rise={0.35} />
+      <CeilingArch position={[-2.5, 3.0, 0]} rotation={[0, Math.PI / 2, 0]} span={10} rise={0.35} />
+      <CeilingArch position={[0, 3.0, 0]} rotation={[0, Math.PI / 2, 0]} span={10} rise={0.35} />
+      <CeilingArch position={[2.5, 3.0, 0]} rotation={[0, Math.PI / 2, 0]} span={10} rise={0.35} />
+
+      {/* Warm light spilling from arches */}
+      <pointLight position={[0, 1.4, -5.4]} intensity={1.2} distance={6} color="#ffd9a3" />
+      <pointLight position={[0, 1.4, 5.4]} intensity={1.2} distance={6} color="#ffd9a3" />
+      <pointLight position={[-5.4, 1.4, 0]} intensity={1.0} distance={6} color="#ffd9a3" />
+      <pointLight position={[5.4, 1.4, 0]} intensity={1.0} distance={6} color="#ffd9a3" />
+
+      {/* Spotlights on artworks */}
       {artworks.map((art) => (
         <pointLight
           key={`l-${art.id}`}
@@ -193,7 +338,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
           color="#fff5e6"
         />
       ))}
-      <ambientLight intensity={0.35} color="#ffeedd" />
+      <ambientLight intensity={0.4} color="#ffeedd" />
 
       {artworks.map((art) => (
         <Painting
