@@ -47,38 +47,38 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
 
   // Compute "approach viewer" target: move from wall toward room center along wall normal
   const basePos = useMemo(() => new THREE.Vector3(...art.position), [art.position]);
-  const focusPos = useMemo(() => {
-    // Wall normal points inward (opposite of position direction on its dominant axis)
-    const normal = new THREE.Vector3(0, 0, 0);
-    if (art.rotation[1] === 0) normal.set(0, 0, 1);            // back wall -> +z
-    else if (art.rotation[1] === Math.PI) normal.set(0, 0, -1); // front -> -z
-    else if (art.rotation[1] === Math.PI / 2) normal.set(1, 0, 0); // left -> +x
-    else normal.set(-1, 0, 0);                                   // right -> -x
-    // Approach toward center & slightly toward camera height
-    return basePos.clone().add(normal.multiplyScalar(2.2)).setY(1.6);
-  }, [art.rotation, basePos]);
 
   const baseQuat = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...art.rotation)), [art.rotation]);
   const { camera } = useThree();
   const tmpObj = useMemo(() => new THREE.Object3D(), []);
+  const tmpVec = useMemo(() => new THREE.Vector3(), []);
+  const focusTarget = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(() => {
     if (!groupRef.current) return;
-    const target = focused ? focusPos : basePos;
-    groupRef.current.position.lerp(target, 0.08);
 
-    const targetScale = focused ? 1.35 : 1;
+    let target: THREE.Vector3;
+    if (focused) {
+      camera.getWorldDirection(tmpVec);
+      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.1));
+      focusTarget.y = camera.position.y - 0.05;
+      target = focusTarget;
+    } else {
+      target = basePos;
+    }
+    groupRef.current.position.lerp(target, 0.1);
+
+    const targetScale = focused ? 1.5 : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
-    // When focused, rotate to face the camera (viewer); otherwise return to wall orientation
     let targetQuat = baseQuat;
     if (focused) {
       tmpObj.position.copy(groupRef.current.position);
       tmpObj.lookAt(camera.position);
       targetQuat = tmpObj.quaternion;
     }
-    groupRef.current.quaternion.slerp(targetQuat, 0.1);
+    groupRef.current.quaternion.slerp(targetQuat, 0.12);
   });
 
   const frameW = art.scale[0] + 0.15;
@@ -96,12 +96,27 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     >
       <mesh position={[0, 0, -0.02]}>
         <boxGeometry args={[frameW, frameH, 0.04]} />
-        <meshStandardMaterial color={hovered || focused ? "#8B7355" : "#3a3028"} roughness={0.4} metalness={0.3} transparent opacity={dimmed ? 0.35 : 1} />
+        <meshStandardMaterial color={hovered || focused ? "#a8895f" : "#3a3028"} roughness={0.4} metalness={0.4} transparent opacity={dimmed ? 0.25 : 1} />
       </mesh>
       <mesh position={[0, 0, 0.005]}>
         <planeGeometry args={art.scale} />
-        <meshStandardMaterial map={texture} toneMapped={false} transparent opacity={dimmed ? 0.35 : 1} />
+        <meshStandardMaterial
+          map={texture}
+          toneMapped={false}
+          transparent
+          opacity={dimmed ? 0.25 : 1}
+          emissive={focused ? new THREE.Color("#ffffff") : new THREE.Color("#000000")}
+          emissiveMap={focused ? texture : null}
+          emissiveIntensity={focused ? 0.6 : 0}
+        />
       </mesh>
+      {focused && (
+        <>
+          <pointLight position={[0, 0, 0.6]} intensity={2.2} distance={2.5} color="#fff4dd" />
+          <pointLight position={[0.6, 0.4, 0.4]} intensity={0.8} distance={2} color="#ffe9c2" />
+          <pointLight position={[-0.6, 0.4, 0.4]} intensity={0.8} distance={2} color="#ffe9c2" />
+        </>
+      )}
       {(hovered || focused) && (
         <group position={[0, -(art.scale[1] / 2 + 0.25), 0.05]}>
           <mesh>
