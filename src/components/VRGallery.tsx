@@ -305,12 +305,13 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   // Solid stone walls (no arches now — open courtyard concept, walls support pergola)
   const wallH = 5.2;
 
-  // Plečnik column positions: along inner perimeter, regularly spaced
+  // Plečnik column positions: only at the 4 corners + 1 midpoint per wall
+  // (paintings sit at x=±2.5 on the front/back walls and z=±2 on side walls,
+  // so columns must hug the walls and avoid those zones)
   const columns: [number, number, number][] = [
-    [-4.5, 0, -4.5], [-1.5, 0, -4.5], [1.5, 0, -4.5], [4.5, 0, -4.5],
-    [-4.5, 0, 4.5],  [-1.5, 0, 4.5],  [1.5, 0, 4.5],  [4.5, 0, 4.5],
-    [-4.5, 0, -1.5], [-4.5, 0, 1.5],
-    [4.5, 0, -1.5],  [4.5, 0, 1.5],
+    [-4.7, 0, -4.7], [4.7, 0, -4.7], [-4.7, 0, 4.7], [4.7, 0, 4.7], // corners
+    [0, 0, -4.7], [0, 0, 4.7], // midpoint of front/back walls (between paintings)
+    [-4.7, 0, 0], [4.7, 0, 0], // midpoint of side walls (between paintings)
   ];
 
   // Pergola beams across the top — daylight streams through the gaps
