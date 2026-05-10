@@ -143,11 +143,18 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   );
 }
 
-// Plečnik-style classical column with capital and base
-function PlecnikColumn({ position, height = 5.5 }: { position: [number, number, number]; height?: number }) {
+// Plečnik-style classical column with capital and base, sitting flush on the floor
+function PlecnikColumn({ position, height = 5.15 }: { position: [number, number, number]; height?: number }) {
+  // Layout (bottom-up):
+  //  base1: y 0.00 - 0.10 (0.10 tall)
+  //  base2: y 0.10 - 0.26 (0.16 tall)
+  //  shaft: y 0.26 - height-0.26 (height-0.52 tall)
+  //  cap1:  y height-0.26 - height-0.10 (0.16 tall)
+  //  cap2:  y height-0.10 - height (0.10 tall)
+  const shaftH = height - 0.52;
+  const shaftCenterY = 0.26 + shaftH / 2;
   return (
     <group position={position}>
-      {/* Stepped base (Plečnik signature) */}
       <mesh position={[0, 0.05, 0]}>
         <boxGeometry args={[0.7, 0.1, 0.7]} />
         <meshStandardMaterial color="#d8cfbf" roughness={0.85} />
@@ -156,27 +163,24 @@ function PlecnikColumn({ position, height = 5.5 }: { position: [number, number, 
         <boxGeometry args={[0.55, 0.16, 0.55]} />
         <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
       </mesh>
-      {/* Shaft - slight entasis via two cylinders */}
-      <mesh position={[0, height / 2 + 0.26, 0]}>
-        <cylinderGeometry args={[0.18, 0.22, height - 0.7, 24]} />
+      <mesh position={[0, shaftCenterY, 0]}>
+        <cylinderGeometry args={[0.18, 0.22, shaftH, 24]} />
         <meshStandardMaterial color="#f0e8d6" roughness={0.7} />
       </mesh>
-      {/* Fluting suggestion via dark vertical groove */}
-      <mesh position={[0.18, height / 2 + 0.26, 0]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[0.005, height - 0.8, 0.04]} />
+      <mesh position={[0.18, shaftCenterY, 0]}>
+        <boxGeometry args={[0.005, shaftH - 0.1, 0.04]} />
         <meshStandardMaterial color="#bcb09a" />
       </mesh>
-      <mesh position={[-0.18, height / 2 + 0.26, 0]}>
-        <boxGeometry args={[0.005, height - 0.8, 0.04]} />
+      <mesh position={[-0.18, shaftCenterY, 0]}>
+        <boxGeometry args={[0.005, shaftH - 0.1, 0.04]} />
         <meshStandardMaterial color="#bcb09a" />
       </mesh>
-      <mesh position={[0, height / 2 + 0.26, 0.18]}>
-        <boxGeometry args={[0.04, height - 0.8, 0.005]} />
+      <mesh position={[0, shaftCenterY, 0.18]}>
+        <boxGeometry args={[0.04, shaftH - 0.1, 0.005]} />
         <meshStandardMaterial color="#bcb09a" />
       </mesh>
-      {/* Capital */}
       <mesh position={[0, height - 0.18, 0]}>
-        <cylinderGeometry args={[0.28, 0.18, 0.18, 16]} />
+        <cylinderGeometry args={[0.28, 0.18, 0.16, 16]} />
         <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
       </mesh>
       <mesh position={[0, height - 0.05, 0]}>
