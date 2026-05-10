@@ -397,30 +397,68 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         <PlecnikColumn key={`col-${i}`} position={p} />
       ))}
 
-      {/* Pergola beams (open ceiling — daylight streams through) */}
-      {beamsX.map((x, i) => (
-        <PergolaBeam key={`bx-${i}`} position={[x, 5.4, 0]} rotation={[0, Math.PI / 2, 0]} length={10} />
+      {/* Semicircular stone arches between columns (Plečnik arcade) */}
+      {archesXAxis.map((p, i) => (
+        <mesh key={`ax-${i}`} position={p}>
+          <torusGeometry args={[archR, archTube, 10, 28, Math.PI]} />
+          <meshStandardMaterial color="#ede4d0" roughness={0.85} />
+        </mesh>
       ))}
-      {beamsZ.map((z, i) => (
-        <PergolaBeam key={`bz-${i}`} position={[0, 5.55, z]} length={10} />
+      {archesZAxis.map((p, i) => (
+        <mesh key={`az-${i}`} position={p} rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[archR, archTube, 10, 28, Math.PI]} />
+          <meshStandardMaterial color="#ede4d0" roughness={0.85} />
+        </mesh>
       ))}
 
-      {/* Top architrave on top of columns */}
-      {[
-        [0, 5.15, -4.5], [0, 5.15, 4.5],
-      ].map((p, i) => (
-        <mesh key={`arch-x-${i}`} position={p as [number, number, number]}>
-          <boxGeometry args={[10, 0.22, 0.5]} />
-          <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
+      {/* BARREL VAULT — half-cylinder ceiling, axis along X, interior visible */}
+      <mesh position={[0, vaultY, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <cylinderGeometry args={[vaultRadius, vaultRadius, vaultLength, 48, 1, true, 0, Math.PI]} />
+        <meshStandardMaterial color="#f2e9d4" roughness={0.85} side={THREE.BackSide} />
+      </mesh>
+
+      {/* Transverse stone ribs inside the vault */}
+      {[-3.75, -1.25, 1.25, 3.75].map((x, i) => (
+        <mesh key={`rib-${i}`} position={[x, vaultY, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[vaultRadius - 0.02, 0.08, 8, 32, Math.PI]} />
+          <meshStandardMaterial color="#d8cdb2" roughness={0.8} />
         </mesh>
       ))}
-      {[
-        [-4.5, 5.15, 0], [4.5, 5.15, 0],
-      ].map((p, i) => (
-        <mesh key={`arch-z-${i}`} position={p as [number, number, number]}>
-          <boxGeometry args={[0.5, 0.22, 10]} />
-          <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
-        </mesh>
+
+      {/* End-wall lunettes — bright sky tint above front/back walls */}
+      {[-1, 1].map((sign) => (
+        <group key={`lunette-${sign}`}>
+          <mesh position={[0, vaultY, sign * 4.99]} rotation={[0, sign === 1 ? Math.PI : 0, 0]}>
+            <circleGeometry args={[vaultRadius - 0.05, 48, 0, Math.PI]} />
+            <meshBasicMaterial color="#fff7e0" side={THREE.DoubleSide} />
+          </mesh>
+          <mesh position={[0, vaultY, sign * 4.97]} rotation={[0, sign === 1 ? Math.PI : 0, 0]}>
+            <torusGeometry args={[vaultRadius - 0.05, 0.1, 8, 32, Math.PI]} />
+            <meshStandardMaterial color="#d8cdb2" roughness={0.8} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Skylight oculi along vault crown */}
+      {[-3, 0, 3].map((x, i) => (
+        <group key={`ocu-${i}`}>
+          <mesh position={[x, vaultY + vaultRadius - 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.55, 32]} />
+            <meshBasicMaterial color="#fff8e0" side={THREE.DoubleSide} />
+          </mesh>
+          <mesh position={[x, vaultY + vaultRadius - 0.04, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.55, 0.7, 32]} />
+            <meshStandardMaterial color="#c9bfa5" roughness={0.8} side={THREE.DoubleSide} />
+          </mesh>
+          <spotLight
+            position={[x, vaultY + vaultRadius + 1.5, 0]}
+            angle={0.45}
+            penumbra={0.6}
+            intensity={2.2}
+            distance={14}
+            color="#fff2cc"
+          />
+        </group>
       ))}
 
       {/* Soft spotlights to lift artwork legibility */}
