@@ -314,9 +314,24 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     [-4.7, 0, 0], [4.7, 0, 0], // midpoint of side walls (between paintings)
   ];
 
-  // Pergola beams across the top — daylight streams through the gaps
-  const beamsX: number[] = [-4, -2.5, -1, 0.5, 2, 3.5];
-  const beamsZ: number[] = [-4, -2.5, -1, 0.5, 2, 3.5];
+  // Semicircular arches between adjacent perimeter columns (Plečnik arcade)
+  // Adjacent columns are 4.7 m apart, so arch radius = 2.35
+  const archR = 2.35;
+  const archTube = 0.13;
+  const colTopY = 5.15;
+  const archesXAxis: [number, number, number][] = [
+    [-2.35, colTopY, -4.7], [2.35, colTopY, -4.7],
+    [-2.35, colTopY, 4.7],  [2.35, colTopY, 4.7],
+  ];
+  const archesZAxis: [number, number, number][] = [
+    [-4.7, colTopY, -2.35], [-4.7, colTopY, 2.35],
+    [4.7, colTopY, -2.35],  [4.7, colTopY, 2.35],
+  ];
+
+  // Barrel-vault ceiling running E-W (axis along X)
+  const vaultRadius = 5.0;
+  const vaultLength = 10;
+  const vaultY = colTopY;
 
   return (
     <group>
