@@ -318,7 +318,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   // Modern Černigoj-style constructivist roof: bold geometric beams with skylight strips
   // Roof sits at colTopY (5.15) with a gentle one-way pitch up to 6.0 in the centre
   const roofY = 5.2;
-  const roofPeakY = 5.9;
 
   return (
     <group>
