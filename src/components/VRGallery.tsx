@@ -263,28 +263,35 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#e8dcc4";
+    // Cream stone slab floor — same palette as walls, with discreet warm-grey grout
+    // and a single thin black accent line per slab (Černigoj nuance, not loud).
+    ctx.fillStyle = "#efe6d2";
     ctx.fillRect(0, 0, 512, 512);
-    const tile = 64;
+    const tile = 128;
     for (let i = 0; i < 512; i += tile) {
       for (let j = 0; j < 512; j += tile) {
-        const isDark = ((i / tile) + (j / tile)) % 2 === 0;
-        ctx.fillStyle = isDark ? "#b8895a" : "#ede0c6";
-        ctx.fillRect(j, i, tile - 2, tile - 2);
+        // alternating very subtle warm tones, no high contrast
+        const alt = ((i / tile) + (j / tile)) % 2 === 0;
+        ctx.fillStyle = alt ? "#ece2cc" : "#f2ead6";
+        ctx.fillRect(j, i, tile - 1, tile - 1);
+        // soft inner shading to suggest stone grain
+        const grad = ctx.createRadialGradient(j + tile / 2, i + tile / 2, 4, j + tile / 2, i + tile / 2, tile);
+        grad.addColorStop(0, "rgba(255,245,220,0.18)");
+        grad.addColorStop(1, "rgba(180,160,120,0.08)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(j, i, tile - 1, tile - 1);
       }
     }
-    // Černigoj black accent line grid
-    ctx.strokeStyle = "#1a1a1a";
-    ctx.lineWidth = 2;
+    // Warm-grey grout lines (matches wall ashlar)
+    ctx.strokeStyle = "#cdbfa0";
+    ctx.lineWidth = 1.5;
     for (let i = 0; i <= 512; i += tile) {
-      ctx.beginPath();
-      ctx.moveTo(0, i);
-      ctx.lineTo(512, i);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3, 3);
+    tex.repeat.set(2.5, 2.5);
     return tex;
   }, []);
 
