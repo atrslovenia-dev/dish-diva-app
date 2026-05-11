@@ -394,9 +394,36 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       <ConstructivistPanel position={[-4.95, 1.7, 0]} rotation={[0, Math.PI / 2, 0]} />
       <ConstructivistPanel position={[4.95, 1.7, 0]} rotation={[0, -Math.PI / 2, 0]} />
 
-      {/* Plečnik columns lining the perimeter */}
+      {/* Pillars lining the perimeter */}
       {columns.map((p, i) => (
         <PlecnikColumn key={`col-${i}`} position={p} />
+      ))}
+
+      {/* PERIMETER ARCHITRAVE — continuous cream + black band sitting on column capitals,
+          visibly carrying the roof beams above (so columns don't appear to support nothing). */}
+      {[
+        { p: [0, 5.0, -4.7] as [number, number, number], r: [0, 0, 0] as [number, number, number], len: 9.4 },
+        { p: [0, 5.0, 4.7] as [number, number, number], r: [0, 0, 0] as [number, number, number], len: 9.4 },
+        { p: [-4.7, 5.0, 0] as [number, number, number], r: [0, Math.PI / 2, 0] as [number, number, number], len: 9.4 },
+        { p: [4.7, 5.0, 0] as [number, number, number], r: [0, Math.PI / 2, 0] as [number, number, number], len: 9.4 },
+      ].map((a, i) => (
+        <group key={`arch-${i}`} position={a.p} rotation={a.r}>
+          {/* Cream beam */}
+          <mesh>
+            <boxGeometry args={[a.len, 0.22, 0.28]} />
+            <meshStandardMaterial color="#efe6d2" roughness={0.8} />
+          </mesh>
+          {/* Black bottom trim */}
+          <mesh position={[0, -0.13, 0]}>
+            <boxGeometry args={[a.len, 0.05, 0.3]} />
+            <meshStandardMaterial color="#0a0a0a" roughness={0.55} />
+          </mesh>
+          {/* Red top trim */}
+          <mesh position={[0, 0.135, 0]}>
+            <boxGeometry args={[a.len, 0.04, 0.3]} />
+            <meshStandardMaterial color="#a01818" roughness={0.5} />
+          </mesh>
+        </group>
       ))}
 
       {/* MODERN ČERNIGOJ-STYLE ROOF — bold geometric beams + skylight strips
