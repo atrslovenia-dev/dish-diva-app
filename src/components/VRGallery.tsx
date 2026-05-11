@@ -58,15 +58,16 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     let target: THREE.Vector3;
     if (focused) {
       camera.getWorldDirection(tmpVec);
-      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.1));
-      focusTarget.y = camera.position.y - 0.05;
+      // Suitable observation distance — far enough to see whole work, close enough for detail
+      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.8));
+      focusTarget.y = camera.position.y;
       target = focusTarget;
     } else {
       target = basePos;
     }
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.5 : 1;
+    const targetScale = focused ? 1.35 : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
@@ -314,24 +315,9 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     [-4.7, 0, 0], [4.7, 0, 0], // midpoint of side walls (between paintings)
   ];
 
-  // Semicircular arches between adjacent perimeter columns (Plečnik arcade)
-  // Adjacent columns are 4.7 m apart, so arch radius = 2.35
-  const archR = 2.35;
-  const archTube = 0.13;
-  const colTopY = 5.15;
-  const archesXAxis: [number, number, number][] = [
-    [-2.35, colTopY, -4.7], [2.35, colTopY, -4.7],
-    [-2.35, colTopY, 4.7],  [2.35, colTopY, 4.7],
-  ];
-  const archesZAxis: [number, number, number][] = [
-    [-4.7, colTopY, -2.35], [-4.7, colTopY, 2.35],
-    [4.7, colTopY, -2.35],  [4.7, colTopY, 2.35],
-  ];
-
-  // Barrel-vault ceiling running E-W (axis along X)
-  const vaultRadius = 5.0;
-  const vaultLength = 10;
-  const vaultY = colTopY;
+  // Modern Černigoj-style constructivist roof: bold geometric beams with skylight strips
+  // Roof sits at colTopY (5.15) with a gentle one-way pitch up to 6.0 in the centre
+  const roofY = 5.2;
 
   return (
     <group>
@@ -397,68 +383,69 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         <PlecnikColumn key={`col-${i}`} position={p} />
       ))}
 
-      {/* Semicircular stone arches between columns (Plečnik arcade) */}
-      {archesXAxis.map((p, i) => (
-        <mesh key={`ax-${i}`} position={p}>
-          <torusGeometry args={[archR, archTube, 10, 28, Math.PI]} />
-          <meshStandardMaterial color="#ede4d0" roughness={0.85} />
-        </mesh>
-      ))}
-      {archesZAxis.map((p, i) => (
-        <mesh key={`az-${i}`} position={p} rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[archR, archTube, 10, 28, Math.PI]} />
-          <meshStandardMaterial color="#ede4d0" roughness={0.85} />
+      {/* MODERN ČERNIGOJ-STYLE ROOF — bold geometric beams + skylight strips
+          Slight one-way pitch, daylight rakes through the gaps onto the artwork. */}
+      {/* Five black structural beams running E-W (between paintings on N/S walls) */}
+      {[-4.0, -2.0, 0, 2.0, 4.0].map((z, i) => {
+        const isAccent = i === 2;
+        return (
+          <mesh key={`beam-x-${i}`} position={[0, roofY + (isAccent ? 0.35 : 0), z]}>
+            <boxGeometry args={[10, isAccent ? 0.45 : 0.28, 0.32]} />
+            <meshStandardMaterial color={isAccent ? "#a01818" : "#0a0a0a"} roughness={0.55} />
+          </mesh>
+        );
+      })}
+
+      {/* Three black perpendicular cross-beams (constructivist grid) */}
+      {[-3.5, 0, 3.5].map((x, i) => (
+        <mesh key={`beam-z-${i}`} position={[x, roofY + 0.45, 0]}>
+          <boxGeometry args={[0.22, 0.22, 10]} />
+          <meshStandardMaterial color="#0a0a0a" roughness={0.55} />
         </mesh>
       ))}
 
-      {/* BARREL VAULT — half-cylinder ceiling, axis along X, interior visible */}
-      <mesh position={[0, vaultY, 0]} rotation={[0, 0, -Math.PI / 2]}>
-        <cylinderGeometry args={[vaultRadius, vaultRadius, vaultLength, 48, 1, true, 0, Math.PI]} />
-        <meshStandardMaterial color="#f2e9d4" roughness={0.85} side={THREE.BackSide} />
+      {/* Translucent skylight strips between the main beams — daylight passes through */}
+      {[-3.0, -1.0, 1.0, 3.0].map((z, i) => (
+        <mesh key={`sky-${i}`} position={[0, roofY + 0.05, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[9.4, 1.6]} />
+          <meshStandardMaterial
+            color="#fff6dc"
+            transparent
+            opacity={0.55}
+            emissive="#fff2c8"
+            emissiveIntensity={0.6}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
+      {/* Černigoj geometric accents on the roof — red square + ochre circle + black bar */}
+      <mesh position={[-3.2, roofY + 0.5, -3.0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.1, 1.1]} />
+        <meshBasicMaterial color="#a01818" side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[3.0, roofY + 0.5, 3.2]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.55, 32]} />
+        <meshBasicMaterial color="#c9962b" side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[2.8, roofY + 0.5, -2.6]} rotation={[-Math.PI / 2, 0, Math.PI / 6]}>
+        <planeGeometry args={[2.4, 0.12]} />
+        <meshBasicMaterial color="#0a0a0a" side={THREE.DoubleSide} />
       </mesh>
 
-      {/* Transverse stone ribs inside the vault */}
-      {[-3.75, -1.25, 1.25, 3.75].map((x, i) => (
-        <mesh key={`rib-${i}`} position={[x, vaultY, 0]} rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[vaultRadius - 0.02, 0.08, 8, 32, Math.PI]} />
-          <meshStandardMaterial color="#d8cdb2" roughness={0.8} />
-        </mesh>
-      ))}
-
-      {/* End-wall lunettes — bright sky tint above front/back walls */}
-      {[-1, 1].map((sign) => (
-        <group key={`lunette-${sign}`}>
-          <mesh position={[0, vaultY, sign * 4.99]} rotation={[0, sign === 1 ? Math.PI : 0, 0]}>
-            <circleGeometry args={[vaultRadius - 0.05, 48, 0, Math.PI]} />
-            <meshBasicMaterial color="#fff7e0" side={THREE.DoubleSide} />
-          </mesh>
-          <mesh position={[0, vaultY, sign * 4.97]} rotation={[0, sign === 1 ? Math.PI : 0, 0]}>
-            <torusGeometry args={[vaultRadius - 0.05, 0.1, 8, 32, Math.PI]} />
-            <meshStandardMaterial color="#d8cdb2" roughness={0.8} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* Skylight oculi along vault crown */}
-      {[-3, 0, 3].map((x, i) => (
-        <group key={`ocu-${i}`}>
-          <mesh position={[x, vaultY + vaultRadius - 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.55, 32]} />
-            <meshBasicMaterial color="#fff8e0" side={THREE.DoubleSide} />
-          </mesh>
-          <mesh position={[x, vaultY + vaultRadius - 0.04, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[0.55, 0.7, 32]} />
-            <meshStandardMaterial color="#c9bfa5" roughness={0.8} side={THREE.DoubleSide} />
-          </mesh>
-          <spotLight
-            position={[x, vaultY + vaultRadius + 1.5, 0]}
-            angle={0.45}
-            penumbra={0.6}
-            intensity={2.2}
-            distance={14}
-            color="#fff2cc"
-          />
-        </group>
+      {/* Daylight raking through skylight strips — angled spotlights aimed at walls */}
+      {[-3.0, -1.0, 1.0, 3.0].map((z, i) => (
+        <spotLight
+          key={`sun-${i}`}
+          position={[0, roofY + 4, z]}
+          target-position={[0, 1.7, z * 1.5]}
+          angle={0.55}
+          penumbra={0.7}
+          intensity={1.8}
+          distance={14}
+          color="#fff2cc"
+          castShadow
+        />
       ))}
 
       {/* Soft spotlights to lift artwork legibility */}
