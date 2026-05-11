@@ -388,11 +388,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </group>
       ))}
 
-      {/* Černigoj constructivist murals on walls between paintings */}
-      <ConstructivistPanel position={[0, 1.7, -4.95]} rotation={[0, 0, 0]} />
-      <ConstructivistPanel position={[0, 1.7, 4.95]} rotation={[0, Math.PI, 0]} />
-      <ConstructivistPanel position={[-4.95, 1.7, 0]} rotation={[0, Math.PI / 2, 0]} />
-      <ConstructivistPanel position={[4.95, 1.7, 0]} rotation={[0, -Math.PI / 2, 0]} />
 
       {/* Pillars lining the perimeter */}
       {columns.map((p, i) => (
