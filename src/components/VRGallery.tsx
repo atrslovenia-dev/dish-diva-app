@@ -58,15 +58,16 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     let target: THREE.Vector3;
     if (focused) {
       camera.getWorldDirection(tmpVec);
-      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.1));
-      focusTarget.y = camera.position.y - 0.05;
+      // Suitable observation distance — far enough to see whole work, close enough for detail
+      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.8));
+      focusTarget.y = camera.position.y;
       target = focusTarget;
     } else {
       target = basePos;
     }
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.5 : 1;
+    const targetScale = focused ? 1.35 : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
