@@ -257,110 +257,112 @@ function PergolaBeam({ position, rotation = [0, 0, 0] as [number, number, number
 }
 
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
-  // Stone tile floor with checkered Plečnik pattern (cream + terracotta diamonds)
+  // Floor: light modern wood planks (pale oak / ash)
   const floorTexture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext("2d")!;
-    // Cream stone slab floor — same palette as walls, with discreet warm-grey grout
-    // and a single thin black accent line per slab (Černigoj nuance, not loud).
-    ctx.fillStyle = "#efe6d2";
-    ctx.fillRect(0, 0, 512, 512);
-    const tile = 128;
-    for (let i = 0; i < 512; i += tile) {
-      for (let j = 0; j < 512; j += tile) {
-        // alternating very subtle warm tones, no high contrast
-        const alt = ((i / tile) + (j / tile)) % 2 === 0;
-        ctx.fillStyle = alt ? "#ece2cc" : "#f2ead6";
-        ctx.fillRect(j, i, tile - 1, tile - 1);
-        // soft inner shading to suggest stone grain
-        const grad = ctx.createRadialGradient(j + tile / 2, i + tile / 2, 4, j + tile / 2, i + tile / 2, tile);
-        grad.addColorStop(0, "rgba(255,245,220,0.18)");
-        grad.addColorStop(1, "rgba(180,160,120,0.08)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(j, i, tile - 1, tile - 1);
-      }
-    }
-    // Warm-grey grout lines (matches wall ashlar)
-    ctx.strokeStyle = "#cdbfa0";
-    ctx.lineWidth = 1.5;
-    for (let i = 0; i <= 512; i += tile) {
-      ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
-    }
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2.5, 2.5);
-    return tex;
-  }, []);
-
-  // Wall texture: light modern wood paneling (vertical planks, pale oak / ash)
-  const wallTexture = useMemo(() => {
     const W = 512, H = 512;
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext("2d")!;
-    // base warm pale wood
     ctx.fillStyle = "#e8d6b6";
     ctx.fillRect(0, 0, W, H);
-
-    // vertical planks
-    const plankW = 64;
-    for (let x = 0; x < W; x += plankW) {
-      // subtle per-plank tonal variation
-      const tones = ["#ecdcbe", "#e3cfac", "#efe1c4", "#dec5a0", "#e8d4b0"];
-      const base = tones[(x / plankW) % tones.length];
+    const plankH = 64;
+    const tones = ["#ecdcbe", "#e3cfac", "#efe1c4", "#dec5a0", "#e8d4b0"];
+    for (let y = 0; y < H; y += plankH) {
+      const base = tones[(y / plankH) % tones.length];
       ctx.fillStyle = base;
-      ctx.fillRect(x, 0, plankW, H);
-
-      // wood grain — soft horizontal-ish streaks
-      for (let i = 0; i < 22; i++) {
-        const y = Math.random() * H;
+      ctx.fillRect(0, y, W, plankH);
+      // grain streaks
+      for (let i = 0; i < 28; i++) {
+        const x = Math.random() * W;
         const alpha = 0.04 + Math.random() * 0.07;
         ctx.strokeStyle = `rgba(120,85,45,${alpha})`;
         ctx.lineWidth = 0.6 + Math.random() * 0.8;
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.bezierCurveTo(
-          x + plankW * 0.3, y + (Math.random() - 0.5) * 6,
-          x + plankW * 0.7, y + (Math.random() - 0.5) * 6,
-          x + plankW, y + (Math.random() - 0.5) * 4
+          x + (Math.random() - 0.5) * 6, y + plankH * 0.3,
+          x + (Math.random() - 0.5) * 6, y + plankH * 0.7,
+          x + (Math.random() - 0.5) * 4, y + plankH
         );
         ctx.stroke();
       }
-      // a few darker knots
-      if (Math.random() < 0.35) {
-        const ky = Math.random() * H;
+      // occasional knot
+      if (Math.random() < 0.3) {
+        const kx = Math.random() * W;
         const kr = 2 + Math.random() * 3;
-        const kg = ctx.createRadialGradient(x + plankW / 2, ky, 0.5, x + plankW / 2, ky, kr);
+        const kg = ctx.createRadialGradient(kx, y + plankH / 2, 0.5, kx, y + plankH / 2, kr);
         kg.addColorStop(0, "rgba(90,60,30,0.55)");
         kg.addColorStop(1, "rgba(90,60,30,0)");
         ctx.fillStyle = kg;
         ctx.beginPath();
-        ctx.arc(x + plankW / 2, ky, kr, 0, Math.PI * 2);
+        ctx.arc(kx, y + plankH / 2, kr, 0, Math.PI * 2);
         ctx.fill();
       }
-
-      // crisp seam between planks
+      // plank seam
       ctx.strokeStyle = "rgba(110,80,45,0.35)";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x + plankW, 0);
-      ctx.lineTo(x + plankW, H);
+      ctx.moveTo(0, y + plankH);
+      ctx.lineTo(W, y + plankH);
       ctx.stroke();
     }
-
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2, 1);
+    tex.repeat.set(3, 3);
     tex.anisotropy = 8;
     return tex;
   }, []);
 
-  // Solid stone walls (no arches now — open courtyard concept, walls support pergola)
+  // Walls: modern painted finish — soft cream base with sparse contemporary
+  // color blocks (terracotta, ochre, deep teal, burgundy) — Černigoj-inspired
+  // but quiet, like a modern gallery accent wall.
+  const wallTexture = useMemo(() => {
+    const W = 1024, H = 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext("2d")!;
+
+    // Warm cream base with subtle paint roller texture
+    ctx.fillStyle = "#f1e7d2";
+    ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 1800; i++) {
+      ctx.fillStyle = `rgba(${200 + Math.random() * 30},${185 + Math.random() * 25},${155 + Math.random() * 25},${0.05 + Math.random() * 0.07})`;
+      ctx.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
+    }
+
+    // Modern color blocks — large, calm, asymmetric
+    const blocks: Array<{ x: number; y: number; w: number; h: number; c: string }> = [
+      { x: 60,  y: 70,  w: 220, h: 320, c: "#b85c3a" },   // terracotta
+      { x: 360, y: 200, w: 180, h: 180, c: "#1f4a4a" },   // deep teal
+      { x: 600, y: 90,  w: 260, h: 90,  c: "#d8a14a" },   // ochre band
+      { x: 720, y: 260, w: 150, h: 200, c: "#6b1f2a" },   // burgundy
+    ];
+    blocks.forEach(b => {
+      ctx.fillStyle = b.c;
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+      // soft brush edge
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(b.x, b.y, b.w, 4);
+    });
+
+    // Two thin gold accent lines crossing the field (modern graphic gesture)
+    ctx.strokeStyle = "rgba(180,140,70,0.55)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, 430); ctx.lineTo(W, 430); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, 50);  ctx.lineTo(W, 50);  ctx.stroke();
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1, 1);
+    tex.anisotropy = 8;
+    return tex;
+  }, []);
+
+  // Solid walls
   const wallH = 5.2;
+
 
   // Plečnik column positions: only at the 4 corners + 1 midpoint per wall
   // (paintings sit at x=±2.5 on the front/back walls and z=±2 on side walls,
