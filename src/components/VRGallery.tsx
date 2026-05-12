@@ -332,26 +332,24 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       ctx.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
     }
 
-    // Modern color blocks — large, calm, asymmetric
+    // Very subtle ton-sur-ton color fields — barely visible, never compete with art.
+    // Low alpha so they read as a quiet painted accent, not decoration.
     const blocks: Array<{ x: number; y: number; w: number; h: number; c: string }> = [
-      { x: 60,  y: 70,  w: 220, h: 320, c: "#b85c3a" },   // terracotta
-      { x: 360, y: 200, w: 180, h: 180, c: "#1f4a4a" },   // deep teal
-      { x: 600, y: 90,  w: 260, h: 90,  c: "#d8a14a" },   // ochre band
-      { x: 720, y: 260, w: 150, h: 200, c: "#6b1f2a" },   // burgundy
+      { x: 60,  y: 70,  w: 220, h: 320, c: "rgba(184,92,58,0.10)" },   // terracotta wash
+      { x: 360, y: 200, w: 180, h: 180, c: "rgba(31,74,74,0.07)" },    // teal wash
+      { x: 600, y: 90,  w: 260, h: 90,  c: "rgba(216,161,74,0.09)" },  // ochre wash
+      { x: 720, y: 260, w: 150, h: 200, c: "rgba(107,31,42,0.08)" },   // burgundy wash
     ];
     blocks.forEach(b => {
       ctx.fillStyle = b.c;
       ctx.fillRect(b.x, b.y, b.w, b.h);
-      // soft brush edge
-      ctx.fillStyle = "rgba(255,255,255,0.06)";
-      ctx.fillRect(b.x, b.y, b.w, 4);
     });
 
-    // Two thin gold accent lines crossing the field (modern graphic gesture)
-    ctx.strokeStyle = "rgba(180,140,70,0.55)";
-    ctx.lineWidth = 1.5;
+    // Single hairline gold accent — quiet horizon line
+    ctx.strokeStyle = "rgba(180,140,70,0.18)";
+    ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, 430); ctx.lineTo(W, 430); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, 50);  ctx.lineTo(W, 50);  ctx.stroke();
+
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
