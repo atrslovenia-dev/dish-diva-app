@@ -51,20 +51,27 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const tmpObj = useMemo(() => new THREE.Object3D(), []);
   const tmpVec = useMemo(() => new THREE.Vector3(), []);
   const focusTarget = useMemo(() => new THREE.Vector3(), []);
+  const focusAnchor = useRef<THREE.Vector3 | null>(null);
+
+  // When focus changes, snapshot a stable world-space anchor in front of the
+  // viewer. The painting then stays there so the wheel can dolly in for detail.
+  useEffect(() => {
+    if (focused) {
+      camera.getWorldDirection(tmpVec);
+      const anchor = new THREE.Vector3()
+        .copy(camera.position)
+        .add(tmpVec.multiplyScalar(1.8));
+      anchor.y = camera.position.y;
+      focusAnchor.current = anchor;
+    } else {
+      focusAnchor.current = null;
+    }
+  }, [focused, camera, tmpVec]);
 
   useFrame(() => {
     if (!groupRef.current) return;
 
-    let target: THREE.Vector3;
-    if (focused) {
-      camera.getWorldDirection(tmpVec);
-      // Bring artwork close enough that the signature is clearly readable
-      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.5));
-      focusTarget.y = camera.position.y;
-      target = focusTarget;
-    } else {
-      target = basePos;
-    }
+    const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
     groupRef.current.position.lerp(target, 0.1);
 
     const targetScale = focused ? 1.4 : 1;
@@ -555,18 +562,27 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
 
-  useFrame(() => {
+  // When a painting is focused, snap the orbit target to the spot 1.8m in
+  // front of the camera (where the painting parks). This lets the wheel
+  // dolly straight toward the artwork for detail inspection.
+  useEffect(() => {
     if (!controlsRef.current) return;
     if (focusedId) {
-      controlsRef.current.autoRotate = false;
-      const art = artworks.find((a) => a.id === focusedId);
-      if (art) {
-        targetLookAt.current.set(art.position[0] * 0.4, 1.6, art.position[2] * 0.4);
-      }
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      const anchor = new THREE.Vector3()
+        .copy(camera.position)
+        .add(dir.multiplyScalar(1.8));
+      anchor.y = camera.position.y;
+      targetLookAt.current.copy(anchor);
     } else {
-      controlsRef.current.autoRotate = true;
       targetLookAt.current.set(0, 1.6, 0);
     }
+  }, [focusedId, camera]);
+
+  useFrame(() => {
+    if (!controlsRef.current) return;
+    controlsRef.current.autoRotate = !focusedId;
     controlsRef.current.target.lerp(targetLookAt.current, 0.08);
     controlsRef.current.update();
   });
@@ -580,13 +596,14 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       ref={controlsRef}
       enableZoom={true}
       enablePan={false}
-      minDistance={1}
-      maxDistance={4.5}
+      minDistance={focusedId ? 0.35 : 1}
+      maxDistance={focusedId ? 2.2 : 4.5}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
       target={[0, 1.6, 0]}
       autoRotate
       autoRotateSpeed={0.4}
+      zoomSpeed={1.2}
     />
   );
 }
