@@ -67,7 +67,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     }
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.35 : 1;
+    const targetScale = focused ? 1.9 : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
