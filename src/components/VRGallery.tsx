@@ -562,13 +562,6 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
 
-  useFrame(() => {
-    if (!controlsRef.current) return;
-function CameraRig({ focusedId }: { focusedId: string | null }) {
-  const { camera } = useThree();
-  const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
-
   // When a painting is focused, snap the orbit target to the spot 1.8m in
   // front of the camera (where the painting parks). This lets the wheel
   // dolly straight toward the artwork for detail inspection.
