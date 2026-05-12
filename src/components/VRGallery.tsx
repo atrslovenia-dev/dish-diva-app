@@ -58,8 +58,8 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     let target: THREE.Vector3;
     if (focused) {
       camera.getWorldDirection(tmpVec);
-      // Suitable observation distance — far enough to see whole work, close enough for detail
-      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.8));
+      // Bring artwork close enough that the signature is clearly readable
+      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(0.95));
       focusTarget.y = camera.position.y;
       target = focusTarget;
     } else {
