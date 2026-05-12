@@ -295,34 +295,67 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     return tex;
   }, []);
 
-  // Wall texture: cream stone with subtle ashlar lines
+  // Wall texture: light modern wood paneling (vertical planks, pale oak / ash)
   const wallTexture = useMemo(() => {
+    const W = 512, H = 512;
     const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 256;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#efe6d2";
-    ctx.fillRect(0, 0, 256, 256);
-    ctx.strokeStyle = "#d4c8ad";
-    ctx.lineWidth = 1;
-    for (let y = 0; y < 256; y += 32) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(256, y);
-      ctx.stroke();
-    }
-    for (let y = 0; y < 256; y += 64) {
-      for (let x = 0; x < 256; x += 64) {
-        const off = (y / 32) % 2 === 0 ? 0 : 32;
+    // base warm pale wood
+    ctx.fillStyle = "#e8d6b6";
+    ctx.fillRect(0, 0, W, H);
+
+    // vertical planks
+    const plankW = 64;
+    for (let x = 0; x < W; x += plankW) {
+      // subtle per-plank tonal variation
+      const tones = ["#ecdcbe", "#e3cfac", "#efe1c4", "#dec5a0", "#e8d4b0"];
+      const base = tones[(x / plankW) % tones.length];
+      ctx.fillStyle = base;
+      ctx.fillRect(x, 0, plankW, H);
+
+      // wood grain — soft horizontal-ish streaks
+      for (let i = 0; i < 22; i++) {
+        const y = Math.random() * H;
+        const alpha = 0.04 + Math.random() * 0.07;
+        ctx.strokeStyle = `rgba(120,85,45,${alpha})`;
+        ctx.lineWidth = 0.6 + Math.random() * 0.8;
         ctx.beginPath();
-        ctx.moveTo(x + off, y);
-        ctx.lineTo(x + off, y + 32);
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(
+          x + plankW * 0.3, y + (Math.random() - 0.5) * 6,
+          x + plankW * 0.7, y + (Math.random() - 0.5) * 6,
+          x + plankW, y + (Math.random() - 0.5) * 4
+        );
         ctx.stroke();
       }
+      // a few darker knots
+      if (Math.random() < 0.35) {
+        const ky = Math.random() * H;
+        const kr = 2 + Math.random() * 3;
+        const kg = ctx.createRadialGradient(x + plankW / 2, ky, 0.5, x + plankW / 2, ky, kr);
+        kg.addColorStop(0, "rgba(90,60,30,0.55)");
+        kg.addColorStop(1, "rgba(90,60,30,0)");
+        ctx.fillStyle = kg;
+        ctx.beginPath();
+        ctx.arc(x + plankW / 2, ky, kr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // crisp seam between planks
+      ctx.strokeStyle = "rgba(110,80,45,0.35)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + plankW, 0);
+      ctx.lineTo(x + plankW, H);
+      ctx.stroke();
     }
+
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3, 1.5);
+    tex.repeat.set(2, 1);
+    tex.anisotropy = 8;
     return tex;
   }, []);
 
