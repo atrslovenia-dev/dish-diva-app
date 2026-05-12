@@ -51,20 +51,27 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const tmpObj = useMemo(() => new THREE.Object3D(), []);
   const tmpVec = useMemo(() => new THREE.Vector3(), []);
   const focusTarget = useMemo(() => new THREE.Vector3(), []);
+  const focusAnchor = useRef<THREE.Vector3 | null>(null);
+
+  // When focus changes, snapshot a stable world-space anchor in front of the
+  // viewer. The painting then stays there so the wheel can dolly in for detail.
+  useEffect(() => {
+    if (focused) {
+      camera.getWorldDirection(tmpVec);
+      const anchor = new THREE.Vector3()
+        .copy(camera.position)
+        .add(tmpVec.multiplyScalar(1.8));
+      anchor.y = camera.position.y;
+      focusAnchor.current = anchor;
+    } else {
+      focusAnchor.current = null;
+    }
+  }, [focused, camera, tmpVec]);
 
   useFrame(() => {
     if (!groupRef.current) return;
 
-    let target: THREE.Vector3;
-    if (focused) {
-      camera.getWorldDirection(tmpVec);
-      // Bring artwork close enough that the signature is clearly readable
-      focusTarget.copy(camera.position).add(tmpVec.multiplyScalar(1.5));
-      focusTarget.y = camera.position.y;
-      target = focusTarget;
-    } else {
-      target = basePos;
-    }
+    const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
     groupRef.current.position.lerp(target, 0.1);
 
     const targetScale = focused ? 1.4 : 1;
