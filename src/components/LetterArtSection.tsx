@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Mail, Heart, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import letterArtIllustration from "@/assets/letter-art-illustration.png.asset.json";
+import logoRound from "@/assets/logo-lucka-round.png.asset.json";
+import logoText from "@/assets/logo-lucka-text.png.asset.json";
 
 
 const LetterArtSection = () => {
