@@ -134,6 +134,27 @@ const LetterArtSection = () => {
           Naročila se sprejemajo do 10. v mesecu. Pošiljko prejmete do konca meseca. Začnemo v juniju!
         </p>
 
+        {/* Signature with logos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-14 mb-14 pb-14 border-b border-border/60"
+        >
+          <img
+            src={logoText.url}
+            alt="Lučka & Avgust — Založba slovenskih avtorskih voščilnic"
+            className="h-20 md:h-24 w-auto mix-blend-multiply"
+          />
+          <div className="hidden sm:block w-px h-16 bg-border" />
+          <img
+            src={logoRound.url}
+            alt="Lučka & Avgust — Umetnost, oblikovanje in unikatni izdelki iz Slovenije"
+            className="h-24 md:h-28 w-auto mix-blend-multiply"
+          />
+        </motion.div>
+
         {/* Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
