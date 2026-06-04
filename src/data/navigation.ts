@@ -6,7 +6,7 @@ export interface NavItem {
 
 export const navigationItems: NavItem[] = [
   { id: "about", label: "Zakaj umetnost?", href: "/about" },
-  { id: "letter-art", label: "Umetnost v pismu", href: "/letter-art" },
+  { id: "letter-art", label: "V pismu", href: "/letter-art" },
   { id: "gallery", label: "Galerija", href: "/gallery" },
   { id: "exhibitions", label: "Razstave", href: "/exhibitions" },
   { id: "events", label: "Dogodki", href: "/events" },
