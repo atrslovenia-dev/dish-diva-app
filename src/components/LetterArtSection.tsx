@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Heart, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import letterArtIllustration from "@/assets/letter-art-illustration.png.asset.json";
+
 
 const LetterArtSection = () => {
   const [recipient, setRecipient] = useState<"self" | "other">("self");
@@ -33,6 +35,22 @@ const LetterArtSection = () => {
             Hommage Srečku Kosovelu
           </p>
         </motion.div>
+
+        {/* Illustration */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="flex justify-center mb-12"
+        >
+          <img
+            src={letterArtIllustration.url}
+            alt="Ilustracija pisma s pečatom in trakovi"
+            className="w-full max-w-xs md:max-w-sm h-auto mix-blend-multiply"
+          />
+        </motion.div>
+
 
         {/* Intro */}
         <motion.div
