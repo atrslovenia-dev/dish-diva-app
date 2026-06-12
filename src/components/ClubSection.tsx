@@ -1,18 +1,13 @@
 import { useState, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight, MapPin, Calendar, X, ChevronDown, ChevronUp, Clock, Navigation, Maximize2, RotateCcw } from "lucide-react";
-import { clubBenefits, clubTrips, clubTiers, clubSubmenus } from "@/data/club";
+import { Check, ArrowRight, X, ChevronDown, ChevronUp, RotateCcw } from "lucide-react";
+import { clubBenefits, clubTiers, clubSubmenus } from "@/data/club";
 
 const VRGallery = lazy(() => import("@/components/VRGallery"));
 
 const ClubSection = () => {
   const [expandedBenefit, setExpandedBenefit] = useState<string | null>(null);
-  const [showAllTrips, setShowAllTrips] = useState(false);
   const [vrModalOpen, setVrModalOpen] = useState(false);
-
-  const internationalTrips = clubTrips.filter(t => parseInt(t.distance || "0") > 200);
-  const localTrips = clubTrips.filter(t => parseInt(t.distance || "0") <= 200);
-  const visibleLocalTrips = showAllTrips ? localTrips : localTrips.slice(0, 6);
 
   return (
     <section className="py-24 md:py-32 bg-background">
