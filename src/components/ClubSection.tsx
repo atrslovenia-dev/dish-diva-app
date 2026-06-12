@@ -115,69 +115,6 @@ const ClubSection = () => {
           })}
         </div>
 
-        {/* Trips — International */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-16"
-        >
-          <div className="text-center mb-12">
-            <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-3">
-              Umetniška potovanja
-            </p>
-            <h3 className="font-heading text-3xl md:text-4xl font-light text-foreground">
-              Odkrivajte galerije <span className="italic font-medium">sveta</span>
-            </h3>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {internationalTrips.map((trip, i) => (
-              <TripCard key={trip.id} trip={trip} delay={i * 0.1} />
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Trips — Local (100 km) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-24"
-        >
-          <div className="text-center mb-12">
-            <p className="text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-3">
-              V bližini Ljubljane
-            </p>
-            <h3 className="font-heading text-3xl md:text-4xl font-light text-foreground">
-              Umetniški <span className="italic font-medium">aranžmaji</span> do 100 km
-            </h3>
-            <p className="text-muted-foreground text-sm mt-3 max-w-xl mx-auto">
-              Pol- ali celodnevni izleti z vodenim ogledom galerij, muzejev in skritih kulturnih biserov.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleLocalTrips.map((trip, i) => (
-              <TripCard key={trip.id} trip={trip} delay={i * 0.06} compact />
-            ))}
-          </div>
-
-          {localTrips.length > 6 && (
-            <div className="text-center mt-8">
-              <button
-                onClick={() => setShowAllTrips(!showAllTrips)}
-                className="text-primary text-sm uppercase tracking-[0.12em] font-medium flex items-center gap-1 mx-auto hover:gap-2 transition-all duration-300"
-              >
-                {showAllTrips ? "Prikaži manj" : `Prikaži vseh ${localTrips.length} aranžmajev`}
-                {showAllTrips ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-            </div>
-          )}
-        </motion.div>
-
         {/* Submenus — VR, Video, etc. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -336,46 +273,5 @@ const ClubSection = () => {
     </section>
   );
 };
-
-/* Reusable trip card */
-const TripCard = ({ trip, delay, compact }: { trip: typeof clubTrips[0]; delay: number; compact?: boolean }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay }}
-    className="group rounded-sm overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-lg"
-  >
-    <div className={`${compact ? "aspect-[2/1]" : "aspect-[3/2]"} overflow-hidden relative`}>
-      <img
-        src={trip.image}
-        alt={trip.destination}
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-      <div className="absolute bottom-4 left-4 right-4">
-        <p className="text-primary-foreground font-heading text-lg font-medium">{trip.destination}</p>
-        <p className="text-primary-foreground/80 text-xs">{trip.highlight}</p>
-      </div>
-    </div>
-    <div className="p-5 bg-card">
-      <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3 flex-wrap">
-        <span className="flex items-center gap-1"><Calendar size={12} /> {trip.date}</span>
-        <span className="flex items-center gap-1"><MapPin size={12} /> {trip.destination.split("—")[0].trim()}</span>
-        {trip.distance && (
-          <span className="flex items-center gap-1"><Navigation size={12} /> {trip.distance}</span>
-        )}
-        {trip.duration && (
-          <span className="flex items-center gap-1"><Clock size={12} /> {trip.duration}</span>
-        )}
-      </div>
-      <p className="text-sm text-foreground/80 font-light leading-relaxed">{trip.description}</p>
-      <button className="mt-4 text-primary text-xs uppercase tracking-[0.12em] font-medium flex items-center gap-1 hover:gap-2 transition-all duration-300">
-        Več informacij <ArrowRight size={13} />
-      </button>
-    </div>
-  </motion.div>
-);
 
 export default ClubSection;
