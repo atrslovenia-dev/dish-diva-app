@@ -557,14 +557,37 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   );
 }
 
-function CameraRig({ focusedId }: { focusedId: string | null }) {
+function CameraRig({
+  focusedId,
+  cinematic,
+  manual,
+}: {
+  focusedId: string | null;
+  cinematic: boolean;
+  manual: boolean;
+}) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
+  const tourStart = useRef<number>(performance.now());
 
-  // When a painting is focused, snap the orbit target to the spot 1.8m in
-  // front of the camera (where the painting parks). This lets the wheel
-  // dolly straight toward the artwork for detail inspection.
+  // Cinematic waypoints — a curated dolly across the room hitting each painting.
+  const waypoints = useMemo(() => {
+    const wp: { pos: THREE.Vector3; look: THREE.Vector3; hold: number }[] = [];
+    wp.push({ pos: new THREE.Vector3(0, 1.9, 3.6), look: new THREE.Vector3(0, 1.7, -4.85), hold: 4 });
+    artworks.forEach((a) => {
+      const [x, y, z] = a.position;
+      const dir = new THREE.Vector3(-x, 0, -z).normalize().multiplyScalar(1.8);
+      wp.push({
+        pos: new THREE.Vector3(x + dir.x, 1.65, z + dir.z),
+        look: new THREE.Vector3(x, y, z),
+        hold: 3.2,
+      });
+    });
+    wp.push({ pos: new THREE.Vector3(-2.8, 2.4, 2.8), look: new THREE.Vector3(0, 1.8, -2), hold: 4 });
+    return wp;
+  }, []);
+
   useEffect(() => {
     if (!controlsRef.current) return;
     if (focusedId) {
@@ -575,33 +598,64 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
         .add(dir.multiplyScalar(1.8));
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
-    } else {
+    } else if (!cinematic) {
       targetLookAt.current.set(0, 1.6, 0);
     }
-  }, [focusedId, camera]);
+  }, [focusedId, camera, cinematic]);
+
+  useEffect(() => {
+    if (cinematic) tourStart.current = performance.now();
+  }, [cinematic]);
+
+  const tmpPos = useMemo(() => new THREE.Vector3(), []);
+  const tmpLook = useMemo(() => new THREE.Vector3(), []);
+  const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
 
   useFrame(() => {
     if (!controlsRef.current) return;
-    controlsRef.current.autoRotate = !focusedId;
-    controlsRef.current.target.lerp(targetLookAt.current, 0.08);
+
+    if (cinematic && !focusedId && !manual) {
+      const totalHold = waypoints.reduce((s, w) => s + w.hold, 0);
+      const elapsed = ((performance.now() - tourStart.current) / 1000) % totalHold;
+      let acc = 0;
+      let i = 0;
+      for (; i < waypoints.length; i++) {
+        if (elapsed < acc + waypoints[i].hold) break;
+        acc += waypoints[i].hold;
+      }
+      const cur = waypoints[i];
+      const next = waypoints[(i + 1) % waypoints.length];
+      const localT = (elapsed - acc) / cur.hold;
+      const t = easeInOut(Math.min(1, localT));
+      tmpPos.copy(cur.pos).lerp(next.pos, t);
+      tmpLook.copy(cur.look).lerp(next.look, t);
+
+      camera.position.lerp(tmpPos, 0.06);
+      controlsRef.current.target.lerp(tmpLook, 0.06);
+      controlsRef.current.autoRotate = false;
+    } else {
+      controlsRef.current.autoRotate = !focusedId && !manual;
+      controlsRef.current.target.lerp(targetLookAt.current, 0.08);
+    }
     controlsRef.current.update();
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.6, 3.5);
+    camera.position.set(0, 1.9, 3.6);
   }, [camera]);
 
   return (
     <OrbitControls
       ref={controlsRef}
-      enableZoom={true}
+      enableZoom={manual || !!focusedId}
+      enableRotate={manual || !!focusedId}
       enablePan={false}
       minDistance={focusedId ? 0.35 : 1}
-      maxDistance={focusedId ? 2.2 : 4.5}
+      maxDistance={focusedId ? 2.2 : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
       target={[0, 1.6, 0]}
-      autoRotate
+      autoRotate={false}
       autoRotateSpeed={0.4}
       zoomSpeed={1.2}
     />
@@ -614,37 +668,74 @@ interface VRGalleryProps {
 
 const VRGallery = ({ className = "" }: VRGalleryProps) => {
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [cinematic, setCinematic] = useState(true);
+  const [manual, setManual] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
   const focusedArt = artworks.find((a) => a.id === focusedId);
 
+  // Pause rendering when canvas leaves viewport (big perf win)
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    io.observe(containerRef.current);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className={`relative w-full h-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full h-full ${className}`}>
       <Canvas
-        shadows
-        camera={{ position: [0, 1.6, 3.5], fov: 60 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.15 }}
+        dpr={[1, 1.5]}
+        frameloop={visible ? "always" : "demand"}
+        camera={{ position: [0, 1.9, 3.6], fov: 55 }}
+        gl={{
+          antialias: true,
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.15,
+        }}
       >
         <Suspense fallback={null}>
           <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
-          <CameraRig focusedId={focusedId} />
+          <CameraRig focusedId={focusedId} cinematic={cinematic} manual={manual} />
         </Suspense>
       </Canvas>
 
       {/* HUD */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
-        <div className="pointer-events-auto rounded-full bg-background/70 backdrop-blur-md border border-border px-4 py-2 text-xs text-foreground shadow-lg">
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-3">
+        <div className="pointer-events-auto rounded-full bg-background/75 backdrop-blur-md border border-border px-3 py-2 text-xs text-foreground shadow-lg flex items-center gap-2 max-w-full">
           {focusedArt ? (
-            <div className="flex items-center gap-3">
-              <span className="font-semibold">{focusedArt.title}</span>
-              <span className="opacity-60">— {focusedArt.artist}</span>
+            <>
+              <span className="font-semibold truncate">{focusedArt.title}</span>
+              <span className="opacity-60 truncate">— {focusedArt.artist}</span>
               <button
                 onClick={() => setFocusedId(null)}
-                className="ml-2 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs hover:opacity-90 transition"
+                className="ml-1 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs hover:opacity-90 transition shrink-0"
               >
                 Vrni v galerijo
               </button>
-            </div>
+            </>
           ) : (
-            <span className="opacity-80">Plečnikov atrij · Černigojev konstruktivizem · Kliknite sliko za bližnji ogled</span>
+            <>
+              <button
+                onClick={() => { setCinematic((v) => !v); setManual(false); }}
+                className={`rounded-full px-3 py-1 text-xs shrink-0 transition ${cinematic ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-foreground hover:bg-foreground/20"}`}
+              >
+                {cinematic ? "❚❚ Pavza" : "▶ Predvajaj"}
+              </button>
+              <button
+                onClick={() => { setManual((v) => !v); if (!manual) setCinematic(false); }}
+                className={`rounded-full px-3 py-1 text-xs shrink-0 transition ${manual ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-foreground hover:bg-foreground/20"}`}
+              >
+                {manual ? "Ročni ogled ✓" : "Ročni ogled"}
+              </button>
+              <span className="opacity-70 hidden sm:inline truncate">
+                {cinematic ? "Kinematografski sprehod skozi galerijo" : manual ? "Vrtite z miško · zoom s kolescem" : "Pavza"}
+              </span>
+            </>
           )}
         </div>
       </div>
