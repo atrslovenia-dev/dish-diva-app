@@ -151,13 +151,6 @@ export const clubBenefits: ClubBenefit[] = [
     ],
   },
   {
-    id: "4",
-    icon: "✈️",
-    title: "Umetniška potovanja",
-    description: "Organizirani obiski svetovno znanih galerij — Benetke, Pariz, Louvre in več.",
-    details: [],
-  },
-  {
     id: "5",
     icon: "🎟️",
     title: "Prednostni vstop",
