@@ -557,39 +557,12 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   );
 }
 
-function CameraRig({
-  focusedId,
-  cinematic,
-  manual,
-}: {
-  focusedId: string | null;
-  cinematic: boolean;
-  manual: boolean;
-}) {
+function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
-  const tourStart = useRef<number>(performance.now());
-
-  // Cinematic waypoints — a curated dolly across the room hitting each painting.
-  const waypoints = useMemo(() => {
-    const wp: { pos: THREE.Vector3; look: THREE.Vector3; hold: number }[] = [];
-    wp.push({ pos: new THREE.Vector3(0, 1.9, 3.6), look: new THREE.Vector3(0, 1.7, -4.85), hold: 4 });
-    artworks.forEach((a) => {
-      const [x, y, z] = a.position;
-      const dir = new THREE.Vector3(-x, 0, -z).normalize().multiplyScalar(1.8);
-      wp.push({
-        pos: new THREE.Vector3(x + dir.x, 1.65, z + dir.z),
-        look: new THREE.Vector3(x, y, z),
-        hold: 3.2,
-      });
-    });
-    wp.push({ pos: new THREE.Vector3(-2.8, 2.4, 2.8), look: new THREE.Vector3(0, 1.8, -2), hold: 4 });
-    return wp;
-  }, []);
 
   useEffect(() => {
-    if (!controlsRef.current) return;
     if (focusedId) {
       const dir = new THREE.Vector3();
       camera.getWorldDirection(dir);
@@ -598,45 +571,14 @@ function CameraRig({
         .add(dir.multiplyScalar(1.8));
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
-    } else if (!cinematic) {
+    } else {
       targetLookAt.current.set(0, 1.6, 0);
     }
-  }, [focusedId, camera, cinematic]);
-
-  useEffect(() => {
-    if (cinematic) tourStart.current = performance.now();
-  }, [cinematic]);
-
-  const tmpPos = useMemo(() => new THREE.Vector3(), []);
-  const tmpLook = useMemo(() => new THREE.Vector3(), []);
-  const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+  }, [focusedId, camera]);
 
   useFrame(() => {
     if (!controlsRef.current) return;
-
-    if (cinematic && !focusedId && !manual) {
-      const totalHold = waypoints.reduce((s, w) => s + w.hold, 0);
-      const elapsed = ((performance.now() - tourStart.current) / 1000) % totalHold;
-      let acc = 0;
-      let i = 0;
-      for (; i < waypoints.length; i++) {
-        if (elapsed < acc + waypoints[i].hold) break;
-        acc += waypoints[i].hold;
-      }
-      const cur = waypoints[i];
-      const next = waypoints[(i + 1) % waypoints.length];
-      const localT = (elapsed - acc) / cur.hold;
-      const t = easeInOut(Math.min(1, localT));
-      tmpPos.copy(cur.pos).lerp(next.pos, t);
-      tmpLook.copy(cur.look).lerp(next.look, t);
-
-      camera.position.lerp(tmpPos, 0.06);
-      controlsRef.current.target.lerp(tmpLook, 0.06);
-      controlsRef.current.autoRotate = false;
-    } else {
-      controlsRef.current.autoRotate = !focusedId && !manual;
-      controlsRef.current.target.lerp(targetLookAt.current, 0.08);
-    }
+    controlsRef.current.target.lerp(targetLookAt.current, 0.1);
     controlsRef.current.update();
   });
 
@@ -647,8 +589,8 @@ function CameraRig({
   return (
     <OrbitControls
       ref={controlsRef}
-      enableZoom={manual || !!focusedId}
-      enableRotate={manual || !!focusedId}
+      enableZoom
+      enableRotate
       enablePan={false}
       minDistance={focusedId ? 0.35 : 1}
       maxDistance={focusedId ? 2.2 : 6}
@@ -656,7 +598,6 @@ function CameraRig({
       maxPolarAngle={Math.PI * 0.62}
       target={[0, 1.6, 0]}
       autoRotate={false}
-      autoRotateSpeed={0.4}
       zoomSpeed={1.2}
     />
   );
