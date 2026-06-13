@@ -668,8 +668,8 @@ interface VRGalleryProps {
 
 const VRGallery = ({ className = "" }: VRGalleryProps) => {
   const [focusedId, setFocusedId] = useState<string | null>(null);
-  const [cinematic, setCinematic] = useState(true);
-  const [manual, setManual] = useState(false);
+  const [cinematic, setCinematic] = useState(false);
+  const [manual, setManual] = useState(true);
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const focusedArt = artworks.find((a) => a.id === focusedId);
