@@ -609,8 +609,6 @@ interface VRGalleryProps {
 
 const VRGallery = ({ className = "" }: VRGalleryProps) => {
   const [focusedId, setFocusedId] = useState<string | null>(null);
-  const [cinematic, setCinematic] = useState(false);
-  const [manual, setManual] = useState(true);
   const [visible, setVisible] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const focusedArt = artworks.find((a) => a.id === focusedId);
@@ -630,7 +628,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
     <div ref={containerRef} className={`relative w-full h-full ${className}`}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop={visible ? "always" : "demand"}
+        frameloop={visible ? "demand" : "demand"}
         camera={{ position: [0, 1.9, 3.6], fov: 55 }}
         gl={{
           antialias: true,
@@ -641,42 +639,28 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
       >
         <Suspense fallback={null}>
           <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
-          <CameraRig focusedId={focusedId} cinematic={cinematic} manual={manual} />
+          <CameraRig focusedId={focusedId} />
         </Suspense>
       </Canvas>
 
-      {/* HUD */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-3">
-        <div className="pointer-events-auto rounded-full bg-background/75 backdrop-blur-md border border-border px-3 py-2 text-xs text-foreground shadow-lg flex items-center gap-2 max-w-full">
+      {/* HUD — compact info bar, positioned to avoid overlapping content */}
+      <div className="pointer-events-none absolute left-3 right-3 bottom-3 flex justify-center">
+        <div className="pointer-events-auto rounded-full bg-background/85 backdrop-blur-md border border-border px-4 py-1.5 text-xs text-foreground shadow-md flex items-center gap-2 max-w-[95%]">
           {focusedArt ? (
             <>
               <span className="font-semibold truncate">{focusedArt.title}</span>
-              <span className="opacity-60 truncate">— {focusedArt.artist}</span>
+              <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
               <button
                 onClick={() => setFocusedId(null)}
-                className="ml-1 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs hover:opacity-90 transition shrink-0"
+                className="ml-1 rounded-full bg-primary text-primary-foreground px-3 py-0.5 text-[11px] hover:opacity-90 transition shrink-0"
               >
-                Vrni v galerijo
+                Nazaj
               </button>
             </>
           ) : (
-            <>
-              <button
-                onClick={() => { setCinematic((v) => !v); setManual(false); }}
-                className={`rounded-full px-3 py-1 text-xs shrink-0 transition ${cinematic ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-foreground hover:bg-foreground/20"}`}
-              >
-                {cinematic ? "❚❚ Pavza" : "▶ Predvajaj"}
-              </button>
-              <button
-                onClick={() => { setManual((v) => !v); if (!manual) setCinematic(false); }}
-                className={`rounded-full px-3 py-1 text-xs shrink-0 transition ${manual ? "bg-primary text-primary-foreground" : "bg-foreground/10 text-foreground hover:bg-foreground/20"}`}
-              >
-                {manual ? "Ročni ogled ✓" : "Ročni ogled"}
-              </button>
-              <span className="opacity-70 hidden sm:inline truncate">
-                {cinematic ? "Kinematografski sprehod skozi galerijo" : manual ? "Vrtite z miško · zoom s kolescem" : "Pavza"}
-              </span>
-            </>
+            <span className="opacity-75 truncate">
+              Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
+            </span>
           )}
         </div>
       </div>
