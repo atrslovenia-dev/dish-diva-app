@@ -628,7 +628,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
     <div ref={containerRef} className={`relative w-full h-full ${className}`}>
       <Canvas
         dpr={[1, 1.5]}
-        frameloop={visible ? "demand" : "demand"}
+        frameloop={visible ? "always" : "demand"}
         camera={{ position: [0, 1.9, 3.6], fov: 55 }}
         gl={{
           antialias: true,
