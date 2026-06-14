@@ -583,8 +583,11 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   const config = useGalleryConfig();
 
   useEffect(() => {
-    camera.fov = config.fov;
-    camera.updateProjectionMatrix();
+    const perspective = camera as THREE.PerspectiveCamera;
+    if (perspective.fov !== undefined) {
+      perspective.fov = config.fov;
+      perspective.updateProjectionMatrix();
+    }
   }, [camera, config.fov]);
 
   useEffect(() => {
@@ -618,16 +621,17 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       enableZoom
       enableRotate
       enablePan={false}
-      minDistance={focusedId ? 0.35 : 1}
-      maxDistance={focusedId ? 2.2 : 6}
+      minDistance={focusedId ? (config.mobile ? 1.4 : 1.0) : 1}
+      maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
       target={[0, 1.6, 0]}
       autoRotate={false}
-      zoomSpeed={1.2}
+      zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
   );
 }
+
 
 interface VRGalleryProps {
   className?: string;
