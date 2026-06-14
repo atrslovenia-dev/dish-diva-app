@@ -64,6 +64,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const texture = useLoader(THREE.TextureLoader, art.src);
   const [hovered, setHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
+  const config = useGalleryConfig();
 
   const basePos = useMemo(() => new THREE.Vector3(...art.position), [art.position]);
   const baseQuat = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...art.rotation)), [art.rotation]);
@@ -80,13 +81,13 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
       camera.getWorldDirection(tmpVec);
       const anchor = new THREE.Vector3()
         .copy(camera.position)
-        .add(tmpVec.multiplyScalar(3.2));
+        .add(tmpVec.multiplyScalar(config.focusDistance));
       anchor.y = camera.position.y;
       focusAnchor.current = anchor;
     } else {
       focusAnchor.current = null;
     }
-  }, [focused, camera, tmpVec]);
+  }, [focused, camera, tmpVec, config.focusDistance]);
 
   useFrame(() => {
     if (!groupRef.current) return;
@@ -94,7 +95,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.05 : 1;
+    const targetScale = focused ? config.focusScale : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
@@ -106,6 +107,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     }
     groupRef.current.quaternion.slerp(targetQuat, 0.12);
   });
+
 
   const frameW = art.scale[0] + 0.12;
   const frameH = art.scale[1] + 0.12;
