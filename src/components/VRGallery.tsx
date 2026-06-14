@@ -1,7 +1,26 @@
-import { Suspense, useRef, useState, useMemo, useEffect } from "react";
+import { Suspense, useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Sky } from "@react-three/drei";
 import * as THREE from "three";
+
+interface GalleryConfig {
+  focusDistance: number;
+  focusScale: number;
+  fov: number;
+  mobile: boolean;
+}
+
+const GalleryConfigContext = createContext<GalleryConfig>({
+  focusDistance: 4.2,
+  focusScale: 1.05,
+  fov: 55,
+  mobile: false,
+});
+
+function useGalleryConfig() {
+  return useContext(GalleryConfigContext);
+}
+
 
 import akr0086 from "@/assets/gallery/AKR_0086.jpg";
 import akr0137 from "@/assets/gallery/AKR_0137.jpg";
@@ -39,6 +58,7 @@ interface PaintingProps {
   anyFocused: boolean;
   onFocus: (id: string) => void;
 }
+
 
 function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const texture = useLoader(THREE.TextureLoader, art.src);
