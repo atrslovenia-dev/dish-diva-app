@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState, useMemo, useEffect } from "react";
+import { Suspense, useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Sky } from "@react-three/drei";
 import * as THREE from "three";
@@ -11,6 +11,25 @@ import akr0649 from "@/assets/gallery/AKR_0649.jpg";
 import akr0637 from "@/assets/gallery/AKR_0637.jpg";
 import akr0152 from "@/assets/gallery/AKR_0152.jpg";
 import akr0010 from "@/assets/gallery/AKR_0010.jpg";
+
+interface GalleryConfig {
+  focusDistance: number;
+  focusScale: number;
+  fov: number;
+  mobile: boolean;
+}
+
+const GalleryConfigContext = createContext<GalleryConfig>({
+  focusDistance: 4.2,
+  focusScale: 1.05,
+  fov: 55,
+  mobile: false,
+});
+
+function useGalleryConfig() {
+  return useContext(GalleryConfigContext);
+}
+
 
 interface ArtPiece {
   id: string;
@@ -40,10 +59,12 @@ interface PaintingProps {
   onFocus: (id: string) => void;
 }
 
+
 function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const texture = useLoader(THREE.TextureLoader, art.src);
   const [hovered, setHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
+  const config = useGalleryConfig();
 
   const basePos = useMemo(() => new THREE.Vector3(...art.position), [art.position]);
   const baseQuat = useMemo(() => new THREE.Quaternion().setFromEuler(new THREE.Euler(...art.rotation)), [art.rotation]);
@@ -60,13 +81,13 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
       camera.getWorldDirection(tmpVec);
       const anchor = new THREE.Vector3()
         .copy(camera.position)
-        .add(tmpVec.multiplyScalar(3.2));
+        .add(tmpVec.multiplyScalar(config.focusDistance));
       anchor.y = camera.position.y;
       focusAnchor.current = anchor;
     } else {
       focusAnchor.current = null;
     }
-  }, [focused, camera, tmpVec]);
+  }, [focused, camera, tmpVec, config.focusDistance]);
 
   useFrame(() => {
     if (!groupRef.current) return;
@@ -74,7 +95,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.05 : 1;
+    const targetScale = focused ? config.focusScale : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
@@ -86,6 +107,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     }
     groupRef.current.quaternion.slerp(targetQuat, 0.12);
   });
+
 
   const frameW = art.scale[0] + 0.12;
   const frameH = art.scale[1] + 0.12;
@@ -558,6 +580,15 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
+  const config = useGalleryConfig();
+
+  useEffect(() => {
+    const perspective = camera as THREE.PerspectiveCamera;
+    if (perspective.fov !== undefined) {
+      perspective.fov = config.fov;
+      perspective.updateProjectionMatrix();
+    }
+  }, [camera, config.fov]);
 
   useEffect(() => {
     if (focusedId) {
@@ -565,13 +596,13 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       camera.getWorldDirection(dir);
       const anchor = new THREE.Vector3()
         .copy(camera.position)
-        .add(dir.multiplyScalar(1.8));
+        .add(dir.multiplyScalar(config.focusDistance));
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
       targetLookAt.current.set(0, 1.6, 0);
     }
-  }, [focusedId, camera]);
+  }, [focusedId, camera, config.focusDistance]);
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -580,8 +611,9 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.9, 3.6);
-  }, [camera]);
+    camera.position.set(0, 1.9, config.mobile ? 4.2 : 3.6);
+  }, [camera, config.mobile]);
+
 
   return (
     <OrbitControls
@@ -589,16 +621,17 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       enableZoom
       enableRotate
       enablePan={false}
-      minDistance={focusedId ? 0.35 : 1}
-      maxDistance={focusedId ? 2.2 : 6}
+      minDistance={focusedId ? (config.mobile ? 1.4 : 1.0) : 1}
+      maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
       target={[0, 1.6, 0]}
       autoRotate={false}
-      zoomSpeed={1.2}
+      zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
   );
 }
+
 
 interface VRGalleryProps {
   className?: string;
@@ -607,8 +640,27 @@ interface VRGalleryProps {
 const VRGallery = ({ className = "" }: VRGalleryProps) => {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [visible, setVisible] = useState(true);
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const focusedArt = artworks.find((a) => a.id === focusedId);
+
+  const config = useMemo<GalleryConfig>(
+    () =>
+      mobile
+        ? { focusDistance: 3.2, focusScale: 0.85, fov: 65, mobile: true }
+        : { focusDistance: 4.2, focusScale: 1.05, fov: 55, mobile: false },
+    [mobile]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // Pause rendering when canvas leaves viewport (big perf win)
   useEffect(() => {
@@ -622,47 +674,50 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full ${className}`}>
-      <Canvas
-        dpr={[1, 1.5]}
-        frameloop={visible ? "always" : "demand"}
-        camera={{ position: [0, 1.9, 3.6], fov: 55 }}
-        gl={{
-          antialias: true,
-          powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.15,
-        }}
-      >
-        <Suspense fallback={null}>
-          <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
-          <CameraRig focusedId={focusedId} />
-        </Suspense>
-      </Canvas>
+    <GalleryConfigContext.Provider value={config}>
+      <div ref={containerRef} className={`relative w-full h-full ${className}`}>
+        <Canvas
+          dpr={[1, 1.5]}
+          frameloop={visible ? "always" : "demand"}
+          camera={{ position: [0, 1.9, config.mobile ? 4.2 : 3.6], fov: config.fov }}
+          gl={{
+            antialias: true,
+            powerPreference: "high-performance",
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.15,
+          }}
+        >
+          <Suspense fallback={null}>
+            <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
+            <CameraRig focusedId={focusedId} />
+          </Suspense>
+        </Canvas>
 
-      {/* HUD — compact info bar, positioned to avoid overlapping content */}
-      <div className="pointer-events-none absolute left-3 right-3 bottom-3 flex justify-center">
-        <div className="pointer-events-auto rounded-full bg-background/85 backdrop-blur-md border border-border px-4 py-1.5 text-xs text-foreground shadow-md flex items-center gap-2 max-w-[95%]">
-          {focusedArt ? (
-            <>
-              <span className="font-semibold truncate">{focusedArt.title}</span>
-              <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
-              <button
-                onClick={() => setFocusedId(null)}
-                className="ml-1 rounded-full bg-primary text-primary-foreground px-3 py-0.5 text-[11px] hover:opacity-90 transition shrink-0"
-              >
-                Nazaj
-              </button>
-            </>
-          ) : (
-            <span className="opacity-75 truncate">
-              Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
-            </span>
-          )}
+        {/* HUD — accessible info bar, sized per device so it never overlaps or gets too small */}
+        <div className="pointer-events-none absolute left-4 right-4 bottom-4 sm:bottom-3 flex justify-center z-10">
+          <div className="pointer-events-auto rounded-full bg-background/90 backdrop-blur-md border border-border px-4 py-2 sm:px-4 sm:py-1.5 text-sm sm:text-xs text-foreground shadow-md flex items-center gap-3 max-w-[95%]">
+            {focusedArt ? (
+              <>
+                <span className="font-semibold truncate">{focusedArt.title}</span>
+                <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
+                <button
+                  onClick={() => setFocusedId(null)}
+                  className="ml-1 rounded-full bg-primary text-primary-foreground px-4 py-1 sm:px-3 sm:py-0.5 text-sm sm:text-[11px] hover:opacity-90 transition shrink-0 min-h-[32px] sm:min-h-0"
+                >
+                  Nazaj
+                </button>
+              </>
+            ) : (
+              <span className="opacity-75 truncate">
+                Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </GalleryConfigContext.Provider>
   );
 };
+
 
 export default VRGallery;
