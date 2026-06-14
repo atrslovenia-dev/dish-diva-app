@@ -640,8 +640,27 @@ interface VRGalleryProps {
 const VRGallery = ({ className = "" }: VRGalleryProps) => {
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [visible, setVisible] = useState(true);
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 768px)").matches : false
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const focusedArt = artworks.find((a) => a.id === focusedId);
+
+  const config = useMemo<GalleryConfig>(
+    () =>
+      mobile
+        ? { focusDistance: 3.2, focusScale: 0.85, fov: 65, mobile: true }
+        : { focusDistance: 4.2, focusScale: 1.05, fov: 55, mobile: false },
+    [mobile]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const onChange = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // Pause rendering when canvas leaves viewport (big perf win)
   useEffect(() => {
@@ -655,47 +674,50 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
   }, []);
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full ${className}`}>
-      <Canvas
-        dpr={[1, 1.5]}
-        frameloop={visible ? "always" : "demand"}
-        camera={{ position: [0, 1.9, 3.6], fov: 55 }}
-        gl={{
-          antialias: true,
-          powerPreference: "high-performance",
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.15,
-        }}
-      >
-        <Suspense fallback={null}>
-          <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
-          <CameraRig focusedId={focusedId} />
-        </Suspense>
-      </Canvas>
+    <GalleryConfigContext.Provider value={config}>
+      <div ref={containerRef} className={`relative w-full h-full ${className}`}>
+        <Canvas
+          dpr={[1, 1.5]}
+          frameloop={visible ? "always" : "demand"}
+          camera={{ position: [0, 1.9, config.mobile ? 4.2 : 3.6], fov: config.fov }}
+          gl={{
+            antialias: true,
+            powerPreference: "high-performance",
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.15,
+          }}
+        >
+          <Suspense fallback={null}>
+            <GalleryRoom focusedId={focusedId} setFocusedId={setFocusedId} />
+            <CameraRig focusedId={focusedId} />
+          </Suspense>
+        </Canvas>
 
-      {/* HUD — compact info bar, positioned to avoid overlapping content */}
-      <div className="pointer-events-none absolute left-3 right-3 bottom-3 flex justify-center">
-        <div className="pointer-events-auto rounded-full bg-background/85 backdrop-blur-md border border-border px-4 py-1.5 text-xs text-foreground shadow-md flex items-center gap-2 max-w-[95%]">
-          {focusedArt ? (
-            <>
-              <span className="font-semibold truncate">{focusedArt.title}</span>
-              <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
-              <button
-                onClick={() => setFocusedId(null)}
-                className="ml-1 rounded-full bg-primary text-primary-foreground px-3 py-0.5 text-[11px] hover:opacity-90 transition shrink-0"
-              >
-                Nazaj
-              </button>
-            </>
-          ) : (
-            <span className="opacity-75 truncate">
-              Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
-            </span>
-          )}
+        {/* HUD — accessible info bar, sized per device so it never overlaps or gets too small */}
+        <div className="pointer-events-none absolute left-4 right-4 bottom-4 sm:bottom-3 flex justify-center z-10">
+          <div className="pointer-events-auto rounded-full bg-background/90 backdrop-blur-md border border-border px-4 py-2 sm:px-4 sm:py-1.5 text-sm sm:text-xs text-foreground shadow-md flex items-center gap-3 max-w-[95%]">
+            {focusedArt ? (
+              <>
+                <span className="font-semibold truncate">{focusedArt.title}</span>
+                <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
+                <button
+                  onClick={() => setFocusedId(null)}
+                  className="ml-1 rounded-full bg-primary text-primary-foreground px-4 py-1 sm:px-3 sm:py-0.5 text-sm sm:text-[11px] hover:opacity-90 transition shrink-0 min-h-[32px] sm:min-h-0"
+                >
+                  Nazaj
+                </button>
+              </>
+            ) : (
+              <span className="opacity-75 truncate">
+                Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </GalleryConfigContext.Provider>
   );
 };
+
 
 export default VRGallery;
