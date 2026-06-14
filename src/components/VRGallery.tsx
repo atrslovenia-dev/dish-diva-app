@@ -60,7 +60,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
       camera.getWorldDirection(tmpVec);
       const anchor = new THREE.Vector3()
         .copy(camera.position)
-        .add(tmpVec.multiplyScalar(1.8));
+        .add(tmpVec.multiplyScalar(3.2));
       anchor.y = camera.position.y;
       focusAnchor.current = anchor;
     } else {
@@ -74,7 +74,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
     groupRef.current.position.lerp(target, 0.1);
 
-    const targetScale = focused ? 1.4 : 1;
+    const targetScale = focused ? 1.05 : 1;
     const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
     groupRef.current.scale.setScalar(s);
 
@@ -117,9 +117,6 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
           toneMapped={false}
           transparent
           opacity={dimmed ? 0.25 : 1}
-          emissive={focused ? new THREE.Color("#ffffff") : new THREE.Color("#000000")}
-          emissiveMap={focused ? texture : null}
-          emissiveIntensity={focused ? 0.6 : 0}
         />
       </mesh>
       {focused && (

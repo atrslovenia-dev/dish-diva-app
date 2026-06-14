@@ -1,29 +1,9 @@
-import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
-import videoAsset from "@/assets/about-demo.mp4.asset.json";
+import { galleryImages } from "@/data/gallery";
+
+const slides = galleryImages.slice(0, 8);
 
 const AboutSection = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
   return (
     <section className="py-24 md:py-32 bg-background">
       <div className="container max-w-4xl">
@@ -49,67 +29,61 @@ const AboutSection = () => {
           </p>
         </motion.div>
 
-        {/* Video */}
+        {/* Animated gallery presentation */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative rounded-sm overflow-hidden group"
+          className="relative rounded-sm overflow-hidden bg-foreground/5"
         >
-          <div className="aspect-video bg-foreground/5">
-            <video
-              ref={videoRef}
-              src={videoAsset.url}
-              className="w-full h-full object-cover"
-              loop
-              muted
-              playsInline
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
-          </div>
-
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent pointer-events-none" />
-
-          {/* Play button — center */}
-          {!isPlaying && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              onClick={togglePlay}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="w-20 h-20 rounded-full bg-primary/90 flex items-center justify-center hover:bg-primary transition-colors shadow-lg">
-                <Play size={32} className="text-primary-foreground ml-1" />
-              </div>
-            </motion.button>
-          )}
-
-          {/* Controls — bottom */}
-          <div className={`absolute bottom-4 left-4 right-4 flex items-center justify-between transition-opacity duration-300 ${isPlaying ? "opacity-100" : "opacity-0"} group-hover:opacity-100`}>
-            <button
-              onClick={togglePlay}
-              className="w-10 h-10 rounded-full bg-foreground/30 backdrop-blur-sm flex items-center justify-center text-primary-foreground hover:bg-foreground/50 transition-colors"
-            >
-              {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-            </button>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={toggleMute}
-                className="w-10 h-10 rounded-full bg-foreground/30 backdrop-blur-sm flex items-center justify-center text-primary-foreground hover:bg-foreground/50 transition-colors"
+          <div className="relative aspect-video overflow-hidden">
+            {slides.map((img, i) => (
+              <motion.div
+                key={img.src}
+                className="absolute inset-0"
+                initial={{ opacity: 0, scale: 1.08 }}
+                animate={{
+                  opacity: [0, 1, 1, 0],
+                  scale: [1.08, 1, 1.04, 1.06],
+                }}
+                transition={{
+                  duration: slides.length * 4,
+                  times: [
+                    (i / slides.length) - 0.02,
+                    i / slides.length + 0.02,
+                    (i + 1) / slides.length - 0.04,
+                    (i + 1) / slides.length,
+                  ].map((t) => Math.max(0, Math.min(1, t))),
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0,
+                }}
               >
-                {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-              </button>
-            </div>
-          </div>
+                <img
+                  src={img.src}
+                  alt={img.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 text-primary-foreground">
+                  <p className="text-[11px] uppercase tracking-[0.25em] opacity-80 mb-1">
+                    {img.artist}
+                  </p>
+                  <h3 className="font-heading text-2xl md:text-3xl font-light italic">
+                    {img.title}
+                  </h3>
+                </div>
+              </motion.div>
+            ))}
 
-          {/* Caption */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
-            <p className={`text-primary-foreground/80 text-xs uppercase tracking-[0.15em] font-medium transition-opacity duration-300 ${isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"}`}>
-              Atelje Lučka & Avgust — Predstavitveni video
-            </p>
+            {/* Top caption */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none z-10">
+              <p className="text-primary-foreground/90 text-[11px] uppercase tracking-[0.25em] font-medium drop-shadow">
+                Atelje Lučka &amp; Avgust — Predstavitev galerije
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>
