@@ -3,6 +3,15 @@ import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Sky } from "@react-three/drei";
 import * as THREE from "three";
 
+import akr0086 from "@/assets/gallery/AKR_0086.jpg";
+import akr0137 from "@/assets/gallery/AKR_0137.jpg";
+import akr0645 from "@/assets/gallery/AKR_0645.jpg";
+import akr0613 from "@/assets/gallery/AKR_0613.jpg";
+import akr0649 from "@/assets/gallery/AKR_0649.jpg";
+import akr0637 from "@/assets/gallery/AKR_0637.jpg";
+import akr0152 from "@/assets/gallery/AKR_0152.jpg";
+import akr0010 from "@/assets/gallery/AKR_0010.jpg";
+
 interface GalleryConfig {
   focusDistance: number;
   focusScale: number;
@@ -21,15 +30,6 @@ function useGalleryConfig() {
   return useContext(GalleryConfigContext);
 }
 
-
-import akr0086 from "@/assets/gallery/AKR_0086.jpg";
-import akr0137 from "@/assets/gallery/AKR_0137.jpg";
-import akr0645 from "@/assets/gallery/AKR_0645.jpg";
-import akr0613 from "@/assets/gallery/AKR_0613.jpg";
-import akr0649 from "@/assets/gallery/AKR_0649.jpg";
-import akr0637 from "@/assets/gallery/AKR_0637.jpg";
-import akr0152 from "@/assets/gallery/AKR_0152.jpg";
-import akr0010 from "@/assets/gallery/AKR_0010.jpg";
 
 interface ArtPiece {
   id: string;
