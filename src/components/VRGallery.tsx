@@ -580,6 +580,12 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
+  const config = useGalleryConfig();
+
+  useEffect(() => {
+    camera.fov = config.fov;
+    camera.updateProjectionMatrix();
+  }, [camera, config.fov]);
 
   useEffect(() => {
     if (focusedId) {
@@ -587,13 +593,13 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       camera.getWorldDirection(dir);
       const anchor = new THREE.Vector3()
         .copy(camera.position)
-        .add(dir.multiplyScalar(1.8));
+        .add(dir.multiplyScalar(config.focusDistance));
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
       targetLookAt.current.set(0, 1.6, 0);
     }
-  }, [focusedId, camera]);
+  }, [focusedId, camera, config.focusDistance]);
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -602,8 +608,9 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.9, 3.6);
-  }, [camera]);
+    camera.position.set(0, 1.9, config.mobile ? 4.2 : 3.6);
+  }, [camera, config.mobile]);
+
 
   return (
     <OrbitControls
