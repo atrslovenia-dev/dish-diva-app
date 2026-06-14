@@ -117,9 +117,6 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
           toneMapped={false}
           transparent
           opacity={dimmed ? 0.25 : 1}
-          emissive={focused ? new THREE.Color("#ffffff") : new THREE.Color("#000000")}
-          emissiveMap={focused ? texture : null}
-          emissiveIntensity={focused ? 0.6 : 0}
         />
       </mesh>
       {focused && (
