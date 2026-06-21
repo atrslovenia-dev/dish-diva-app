@@ -14,16 +14,260 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      artists: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      item_media: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          file_name: string | null
+          height: number | null
+          id: string
+          is_primary: boolean
+          item_id: string
+          kind: Database["public"]["Enums"]["media_kind"]
+          mime_type: string | null
+          position: number
+          size_bytes: number | null
+          storage_path: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_name?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          item_id: string
+          kind?: Database["public"]["Enums"]["media_kind"]
+          mime_type?: string | null
+          position?: number
+          size_bytes?: number | null
+          storage_path: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          file_name?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          item_id?: string
+          kind?: Database["public"]["Enums"]["media_kind"]
+          mime_type?: string | null
+          position?: number
+          size_bytes?: number | null
+          storage_path?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_media_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items: {
+        Row: {
+          artist_id: string | null
+          attributes: Json
+          category: Database["public"]["Enums"]["item_category"]
+          created_at: string
+          created_by: string | null
+          currency: string
+          depth_cm: number | null
+          description: string | null
+          edition_number: number | null
+          edition_size: number | null
+          height_cm: number | null
+          id: string
+          inventory_count: number
+          is_unique: boolean
+          materials: string | null
+          notes: string | null
+          price: number | null
+          published: boolean
+          short_description: string | null
+          sku: string | null
+          slug: string | null
+          status: Database["public"]["Enums"]["item_status"]
+          subcategory: string | null
+          tags: string[]
+          technique: string | null
+          title: string
+          updated_at: string
+          weight_g: number | null
+          width_cm: number | null
+          year: number | null
+        }
+        Insert: {
+          artist_id?: string | null
+          attributes?: Json
+          category: Database["public"]["Enums"]["item_category"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          depth_cm?: number | null
+          description?: string | null
+          edition_number?: number | null
+          edition_size?: number | null
+          height_cm?: number | null
+          id?: string
+          inventory_count?: number
+          is_unique?: boolean
+          materials?: string | null
+          notes?: string | null
+          price?: number | null
+          published?: boolean
+          short_description?: string | null
+          sku?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          subcategory?: string | null
+          tags?: string[]
+          technique?: string | null
+          title: string
+          updated_at?: string
+          weight_g?: number | null
+          width_cm?: number | null
+          year?: number | null
+        }
+        Update: {
+          artist_id?: string | null
+          attributes?: Json
+          category?: Database["public"]["Enums"]["item_category"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          depth_cm?: number | null
+          description?: string | null
+          edition_number?: number | null
+          edition_size?: number | null
+          height_cm?: number | null
+          id?: string
+          inventory_count?: number
+          is_unique?: boolean
+          materials?: string | null
+          notes?: string | null
+          price?: number | null
+          published?: boolean
+          short_description?: string | null
+          sku?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          subcategory?: string | null
+          tags?: string[]
+          technique?: string | null
+          title?: string
+          updated_at?: string
+          weight_g?: number | null
+          width_cm?: number | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
+      item_category:
+        | "painting"
+        | "work_on_paper"
+        | "graphic"
+        | "illustration"
+        | "art_print"
+        | "sculpture"
+        | "ceramic_utility"
+        | "stone_product"
+        | "wine"
+        | "juice"
+        | "praline"
+        | "magnet"
+        | "card"
+        | "notebook"
+        | "other_gift"
+      item_status: "draft" | "available" | "reserved" | "sold" | "archived"
+      media_kind:
+        | "image"
+        | "video"
+        | "audio"
+        | "document"
+        | "model_3d"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +394,27 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+      item_category: [
+        "painting",
+        "work_on_paper",
+        "graphic",
+        "illustration",
+        "art_print",
+        "sculpture",
+        "ceramic_utility",
+        "stone_product",
+        "wine",
+        "juice",
+        "praline",
+        "magnet",
+        "card",
+        "notebook",
+        "other_gift",
+      ],
+      item_status: ["draft", "available", "reserved", "sold", "archived"],
+      media_kind: ["image", "video", "audio", "document", "model_3d", "other"],
+    },
   },
 } as const
