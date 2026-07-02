@@ -49,6 +49,13 @@ const newItem = {
   published: false,
   tags: [] as string[],
   notes: "",
+  is_auction: false,
+  auction_starting_price: "" as string | "",
+  auction_current_bid: "" as string | "",
+  auction_final_price: "" as string | "",
+  auction_start_at: "" as string | "",
+  auction_end_at: "" as string | "",
+  show_in_vr: false,
 };
 
 const guessKind = (mime: string): Media["kind"] => {
@@ -102,6 +109,13 @@ const CrmItemEdit = () => {
           materials: data.materials ?? "",
           notes: data.notes ?? "",
           tags: data.tags ?? [],
+          is_auction: (data as any).is_auction ?? false,
+          auction_starting_price: (data as any).auction_starting_price?.toString() ?? "",
+          auction_current_bid: (data as any).auction_current_bid?.toString() ?? "",
+          auction_final_price: (data as any).auction_final_price?.toString() ?? "",
+          auction_start_at: (data as any).auction_start_at ? new Date((data as any).auction_start_at).toISOString().slice(0, 16) : "",
+          auction_end_at: (data as any).auction_end_at ? new Date((data as any).auction_end_at).toISOString().slice(0, 16) : "",
+          show_in_vr: (data as any).show_in_vr ?? false,
         });
       });
       loadMedia();
@@ -146,6 +160,13 @@ const CrmItemEdit = () => {
       published: form.published,
       tags: form.tags,
       notes: form.notes.trim() || null,
+      is_auction: form.is_auction,
+      auction_starting_price: numOrNull(form.auction_starting_price),
+      auction_current_bid: numOrNull(form.auction_current_bid),
+      auction_final_price: numOrNull(form.auction_final_price),
+      auction_start_at: form.auction_start_at ? new Date(form.auction_start_at).toISOString() : null,
+      auction_end_at: form.auction_end_at ? new Date(form.auction_end_at).toISOString() : null,
+      show_in_vr: form.show_in_vr,
     };
   };
 
@@ -328,6 +349,44 @@ const CrmItemEdit = () => {
 
         <div className="space-y-2"><Label>Interne opombe</Label><Textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} /></div>
       </Card>
+
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-medium">Dražba</h2>
+            <p className="text-sm text-muted-foreground">Označi, če je artikel del dražbe, in vnesi cene ter časovni okvir.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={form.is_auction} onCheckedChange={(v) => set("is_auction", v)} />
+            <Label>Na dražbi</Label>
+          </div>
+        </div>
+        {form.is_auction && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Izklicna cena</Label><Input type="number" step="0.01" value={form.auction_starting_price} onChange={(e) => set("auction_starting_price", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Trenutna ponudba</Label><Input type="number" step="0.01" value={form.auction_current_bid} onChange={(e) => set("auction_current_bid", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Končna cena (po zaključku)</Label><Input type="number" step="0.01" value={form.auction_final_price} onChange={(e) => set("auction_final_price", e.target.value)} /></div>
+            <div /> 
+            <div className="space-y-2"><Label>Začetek dražbe</Label><Input type="datetime-local" value={form.auction_start_at} onChange={(e) => set("auction_start_at", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Konec dražbe</Label><Input type="datetime-local" value={form.auction_end_at} onChange={(e) => set("auction_end_at", e.target.value)} /></div>
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-6 space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-medium">Virtualna galerija 360°</h2>
+            <p className="text-sm text-muted-foreground">Objavi to delo v interaktivni 3D galeriji na spletni strani.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={form.show_in_vr} onCheckedChange={(v) => set("show_in_vr", v)} />
+            <Label>Prikaži v VR</Label>
+          </div>
+        </div>
+      </Card>
+
+
 
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
