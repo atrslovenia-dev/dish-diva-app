@@ -353,6 +353,44 @@ const CrmItemEdit = () => {
       <Card className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
+            <h2 className="font-medium">Dražba</h2>
+            <p className="text-sm text-muted-foreground">Označi, če je artikel del dražbe, in vnesi cene ter časovni okvir.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={form.is_auction} onCheckedChange={(v) => set("is_auction", v)} />
+            <Label>Na dražbi</Label>
+          </div>
+        </div>
+        {form.is_auction && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Izklicna cena</Label><Input type="number" step="0.01" value={form.auction_starting_price} onChange={(e) => set("auction_starting_price", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Trenutna ponudba</Label><Input type="number" step="0.01" value={form.auction_current_bid} onChange={(e) => set("auction_current_bid", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Končna cena (po zaključku)</Label><Input type="number" step="0.01" value={form.auction_final_price} onChange={(e) => set("auction_final_price", e.target.value)} /></div>
+            <div /> 
+            <div className="space-y-2"><Label>Začetek dražbe</Label><Input type="datetime-local" value={form.auction_start_at} onChange={(e) => set("auction_start_at", e.target.value)} /></div>
+            <div className="space-y-2"><Label>Konec dražbe</Label><Input type="datetime-local" value={form.auction_end_at} onChange={(e) => set("auction_end_at", e.target.value)} /></div>
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-6 space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-medium">Virtualna galerija 360°</h2>
+            <p className="text-sm text-muted-foreground">Objavi to delo v interaktivni 3D galeriji na spletni strani.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={form.show_in_vr} onCheckedChange={(v) => set("show_in_vr", v)} />
+            <Label>Prikaži v VR</Label>
+          </div>
+        </div>
+      </Card>
+
+
+
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
             <h2 className="font-medium">Mediji</h2>
             <p className="text-sm text-muted-foreground">Slike, videoposnetki, 3D modeli, PDF dokumenti — vse oblike datotek.</p>
           </div>
