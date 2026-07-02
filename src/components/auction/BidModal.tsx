@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, ChevronRight, Shield, Lock } from "lucide-react";
+import { X, CreditCard, ChevronRight, Shield, AlertTriangle } from "lucide-react";
 import type { AuctionItem } from "@/data/auctions";
 import { useCountdown } from "@/hooks/useCountdown";
 import { Slider } from "@/components/ui/slider";
@@ -20,10 +20,6 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
   const maxBid = item.estimateHigh * 2;
   const [bidAmount, setBidAmount] = useState(item.currentBid + 50);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [cardName, setCardName] = useState("");
   const [processing, setProcessing] = useState(false);
 
   const countdown = useCountdown(item.endDate);
@@ -32,10 +28,6 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
     setStep("bid");
     setBidAmount(item.currentBid + 50);
     setPaymentMethod(null);
-    setCardNumber("");
-    setCardExpiry("");
-    setCardCvc("");
-    setCardName("");
     setProcessing(false);
     onClose();
   };
@@ -45,7 +37,7 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
   };
 
   const handlePaymentConfirm = () => {
-    if (paymentMethod === "card" && (!cardNumber || !cardExpiry || !cardCvc || !cardName)) return;
+    if (!paymentMethod) return;
     setStep("confirm");
   };
 
@@ -54,18 +46,9 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
     setTimeout(() => {
       setProcessing(false);
       setStep("success");
-    }, 2000);
+    }, 1200);
   };
 
-  const formatCardNumber = (v: string) => {
-    const digits = v.replace(/\D/g, "").slice(0, 16);
-    return digits.replace(/(.{4})/g, "$1 ").trim();
-  };
-  const formatExpiry = (v: string) => {
-    const digits = v.replace(/\D/g, "").slice(0, 4);
-    if (digits.length > 2) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-    return digits;
-  };
 
   // Slider position as percentage for visual
   const sliderPercent = useMemo(() => {
@@ -103,6 +86,14 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
               <h3 className="font-heading text-xl text-background font-medium italic">{item.title}</h3>
             </div>
           </div>
+
+          {/* Demo disclaimer */}
+          <div className="mx-5 mt-4 flex items-start gap-2 bg-accent/15 border border-accent/40 rounded-sm px-3 py-2 text-[11px] text-foreground/80 leading-snug">
+            <AlertTriangle size={14} className="text-accent shrink-0 mt-0.5" />
+            <span><strong className="text-foreground">Predstavitveno okolje.</strong> Dražba je simulirana — ne zbiramo plačilnih podatkov in ne zaračunamo ničesar.</span>
+          </div>
+
+
 
           {/* Steps */}
           {step !== "success" && (
@@ -244,27 +235,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                 </div>
 
                 <AnimatePresence>
-                  {paymentMethod === "card" && (
+                  {paymentMethod && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="space-y-2.5 pt-1">
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Ime na kartici</label>
-                          <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="Janez Novak" className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Številka kartice</label>
-                          <input type="text" value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="4242 4242 4242 4242" maxLength={19} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Veljavnost</label>
-                            <input type="text" value={cardExpiry} onChange={(e) => setCardExpiry(formatExpiry(e.target.value))} placeholder="MM/LL" maxLength={5} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">CVC</label>
-                            <input type="text" value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                          </div>
-                        </div>
+                      <div className="bg-accent/10 border border-accent/30 rounded-sm p-3 text-[11px] text-foreground/80 leading-relaxed">
+                        <p className="font-semibold text-foreground mb-1 uppercase tracking-wider text-[10px]">Demonstracijski način</p>
+                        <p>
+                          To je predstavitvena različica dražbe. <strong>Podatki o plačilnih karticah se ne zbirajo in nobeno plačilo se ne izvede.</strong> Po potrditvi bo prikazan zgolj simuliran zaslon oddane ponudbe.
+                        </p>
                       </div>
                     </motion.div>
                   )}
@@ -274,15 +251,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                   <button onClick={() => setStep("bid")} className="flex-1 py-3 border border-border text-xs uppercase tracking-[0.12em] font-medium text-muted-foreground hover:text-foreground transition-all rounded-sm">Nazaj</button>
                   <button
                     onClick={handlePaymentConfirm}
-                    disabled={!paymentMethod || (paymentMethod === "card" && (!cardNumber || !cardExpiry || !cardCvc || !cardName))}
+                    disabled={!paymentMethod}
                     className="flex-[2] py-3 bg-primary text-primary-foreground text-xs uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Potrdi plačilo <ChevronRight size={14} />
+                    Nadaljuj (demo) <ChevronRight size={14} />
                   </button>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
-                  <Lock size={11} /> <span>Varno šifrirano plačilo · SSL 256-bit</span>
-                </div>
+
               </div>
             )}
 
@@ -349,13 +324,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                   <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20,6 9,17 4,12" /></svg>
                 </motion.div>
                 <div>
-                  <h3 className="font-heading text-2xl font-medium text-foreground mb-1">Ponudba oddana!</h3>
-                  <p className="text-sm text-muted-foreground">Vaša ponudba <span className="font-semibold text-primary">€{bidAmount.toLocaleString()}</span> za "{item.title}" je bila uspešno oddana.</p>
+                  <h3 className="font-heading text-2xl font-medium text-foreground mb-1">Demo ponudba zabeležena</h3>
+                  <p className="text-sm text-muted-foreground">Simulirana ponudba <span className="font-semibold text-primary">€{bidAmount.toLocaleString()}</span> za "{item.title}". Nobeno plačilo ni bilo izvedeno.</p>
                 </div>
-                <div className="bg-secondary/50 rounded-sm p-3 text-[11px] text-muted-foreground space-y-0.5 max-w-xs mx-auto">
-                  <p>Ref.: <span className="font-mono text-foreground">DRZ-2025-{item.lotNumber}-{Math.floor(Math.random() * 9000 + 1000)}</span></p>
-                  <p>Potrditev poslana na e-pošto</p>
+                <div className="bg-accent/10 border border-accent/30 rounded-sm p-3 text-[11px] text-foreground/70 leading-relaxed max-w-xs mx-auto">
+                  Za oddajo prave ponudbe nas kontaktirajte prek uradnih kanalov galerije.
                 </div>
+
                 <button onClick={handleClose} className="px-8 py-3 bg-primary text-primary-foreground text-xs uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm">Zapri</button>
               </div>
             )}
