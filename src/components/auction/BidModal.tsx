@@ -227,27 +227,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                 </div>
 
                 <AnimatePresence>
-                  {paymentMethod === "card" && (
+                  {paymentMethod && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                      <div className="space-y-2.5 pt-1">
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Ime na kartici</label>
-                          <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="Janez Novak" className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Številka kartice</label>
-                          <input type="text" value={cardNumber} onChange={(e) => setCardNumber(formatCardNumber(e.target.value))} placeholder="4242 4242 4242 4242" maxLength={19} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Veljavnost</label>
-                            <input type="text" value={cardExpiry} onChange={(e) => setCardExpiry(formatExpiry(e.target.value))} placeholder="MM/LL" maxLength={5} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">CVC</label>
-                            <input type="text" value={cardCvc} onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="123" maxLength={4} className="w-full px-3 py-2.5 border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all rounded-sm font-mono" />
-                          </div>
-                        </div>
+                      <div className="bg-accent/10 border border-accent/30 rounded-sm p-3 text-[11px] text-foreground/80 leading-relaxed">
+                        <p className="font-semibold text-foreground mb-1 uppercase tracking-wider text-[10px]">Demonstracijski način</p>
+                        <p>
+                          To je predstavitvena različica dražbe. <strong>Podatki o plačilnih karticah se ne zbirajo in nobeno plačilo se ne izvede.</strong> Po potrditvi bo prikazan zgolj simuliran zaslon oddane ponudbe.
+                        </p>
                       </div>
                     </motion.div>
                   )}
@@ -257,15 +243,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                   <button onClick={() => setStep("bid")} className="flex-1 py-3 border border-border text-xs uppercase tracking-[0.12em] font-medium text-muted-foreground hover:text-foreground transition-all rounded-sm">Nazaj</button>
                   <button
                     onClick={handlePaymentConfirm}
-                    disabled={!paymentMethod || (paymentMethod === "card" && (!cardNumber || !cardExpiry || !cardCvc || !cardName))}
+                    disabled={!paymentMethod}
                     className="flex-[2] py-3 bg-primary text-primary-foreground text-xs uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Potrdi plačilo <ChevronRight size={14} />
+                    Nadaljuj (demo) <ChevronRight size={14} />
                   </button>
                 </div>
-                <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground">
-                  <Lock size={11} /> <span>Varno šifrirano plačilo · SSL 256-bit</span>
-                </div>
+
               </div>
             )}
 
