@@ -109,6 +109,13 @@ const CrmItemEdit = () => {
           materials: data.materials ?? "",
           notes: data.notes ?? "",
           tags: data.tags ?? [],
+          is_auction: (data as any).is_auction ?? false,
+          auction_starting_price: (data as any).auction_starting_price?.toString() ?? "",
+          auction_current_bid: (data as any).auction_current_bid?.toString() ?? "",
+          auction_final_price: (data as any).auction_final_price?.toString() ?? "",
+          auction_start_at: (data as any).auction_start_at ? new Date((data as any).auction_start_at).toISOString().slice(0, 16) : "",
+          auction_end_at: (data as any).auction_end_at ? new Date((data as any).auction_end_at).toISOString().slice(0, 16) : "",
+          show_in_vr: (data as any).show_in_vr ?? false,
         });
       });
       loadMedia();
