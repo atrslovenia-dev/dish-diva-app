@@ -20,10 +20,6 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
   const maxBid = item.estimateHigh * 2;
   const [bidAmount, setBidAmount] = useState(item.currentBid + 50);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-  const [cardName, setCardName] = useState("");
   const [processing, setProcessing] = useState(false);
 
   const countdown = useCountdown(item.endDate);
@@ -32,10 +28,6 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
     setStep("bid");
     setBidAmount(item.currentBid + 50);
     setPaymentMethod(null);
-    setCardNumber("");
-    setCardExpiry("");
-    setCardCvc("");
-    setCardName("");
     setProcessing(false);
     onClose();
   };
@@ -45,7 +37,7 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
   };
 
   const handlePaymentConfirm = () => {
-    if (paymentMethod === "card" && (!cardNumber || !cardExpiry || !cardCvc || !cardName)) return;
+    if (!paymentMethod) return;
     setStep("confirm");
   };
 
@@ -54,18 +46,9 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
     setTimeout(() => {
       setProcessing(false);
       setStep("success");
-    }, 2000);
+    }, 1200);
   };
 
-  const formatCardNumber = (v: string) => {
-    const digits = v.replace(/\D/g, "").slice(0, 16);
-    return digits.replace(/(.{4})/g, "$1 ").trim();
-  };
-  const formatExpiry = (v: string) => {
-    const digits = v.replace(/\D/g, "").slice(0, 4);
-    if (digits.length > 2) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-    return digits;
-  };
 
   // Slider position as percentage for visual
   const sliderPercent = useMemo(() => {
