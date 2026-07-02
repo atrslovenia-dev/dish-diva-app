@@ -104,6 +104,11 @@ export type Database = {
         Row: {
           artist_id: string | null
           attributes: Json
+          auction_current_bid: number | null
+          auction_end_at: string | null
+          auction_final_price: number | null
+          auction_start_at: string | null
+          auction_starting_price: number | null
           category: Database["public"]["Enums"]["item_category"]
           created_at: string
           created_by: string | null
@@ -115,12 +120,14 @@ export type Database = {
           height_cm: number | null
           id: string
           inventory_count: number
+          is_auction: boolean
           is_unique: boolean
           materials: string | null
           notes: string | null
           price: number | null
           published: boolean
           short_description: string | null
+          show_in_vr: boolean
           sku: string | null
           slug: string | null
           status: Database["public"]["Enums"]["item_status"]
@@ -136,6 +143,11 @@ export type Database = {
         Insert: {
           artist_id?: string | null
           attributes?: Json
+          auction_current_bid?: number | null
+          auction_end_at?: string | null
+          auction_final_price?: number | null
+          auction_start_at?: string | null
+          auction_starting_price?: number | null
           category: Database["public"]["Enums"]["item_category"]
           created_at?: string
           created_by?: string | null
@@ -147,12 +159,14 @@ export type Database = {
           height_cm?: number | null
           id?: string
           inventory_count?: number
+          is_auction?: boolean
           is_unique?: boolean
           materials?: string | null
           notes?: string | null
           price?: number | null
           published?: boolean
           short_description?: string | null
+          show_in_vr?: boolean
           sku?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["item_status"]
@@ -168,6 +182,11 @@ export type Database = {
         Update: {
           artist_id?: string | null
           attributes?: Json
+          auction_current_bid?: number | null
+          auction_end_at?: string | null
+          auction_final_price?: number | null
+          auction_start_at?: string | null
+          auction_starting_price?: number | null
           category?: Database["public"]["Enums"]["item_category"]
           created_at?: string
           created_by?: string | null
@@ -179,12 +198,14 @@ export type Database = {
           height_cm?: number | null
           id?: string
           inventory_count?: number
+          is_auction?: boolean
           is_unique?: boolean
           materials?: string | null
           notes?: string | null
           price?: number | null
           published?: boolean
           short_description?: string | null
+          show_in_vr?: boolean
           sku?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["item_status"]
