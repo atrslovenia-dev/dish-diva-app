@@ -316,13 +316,13 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
                   <svg className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20,6 9,17 4,12" /></svg>
                 </motion.div>
                 <div>
-                  <h3 className="font-heading text-2xl font-medium text-foreground mb-1">Ponudba oddana!</h3>
-                  <p className="text-sm text-muted-foreground">Vaša ponudba <span className="font-semibold text-primary">€{bidAmount.toLocaleString()}</span> za "{item.title}" je bila uspešno oddana.</p>
+                  <h3 className="font-heading text-2xl font-medium text-foreground mb-1">Demo ponudba zabeležena</h3>
+                  <p className="text-sm text-muted-foreground">Simulirana ponudba <span className="font-semibold text-primary">€{bidAmount.toLocaleString()}</span> za "{item.title}". Nobeno plačilo ni bilo izvedeno.</p>
                 </div>
-                <div className="bg-secondary/50 rounded-sm p-3 text-[11px] text-muted-foreground space-y-0.5 max-w-xs mx-auto">
-                  <p>Ref.: <span className="font-mono text-foreground">DRZ-2025-{item.lotNumber}-{Math.floor(Math.random() * 9000 + 1000)}</span></p>
-                  <p>Potrditev poslana na e-pošto</p>
+                <div className="bg-accent/10 border border-accent/30 rounded-sm p-3 text-[11px] text-foreground/70 leading-relaxed max-w-xs mx-auto">
+                  Za oddajo prave ponudbe nas kontaktirajte prek uradnih kanalov galerije.
                 </div>
+
                 <button onClick={handleClose} className="px-8 py-3 bg-primary text-primary-foreground text-xs uppercase tracking-[0.12em] font-medium hover:opacity-90 transition-opacity rounded-sm">Zapri</button>
               </div>
             )}
