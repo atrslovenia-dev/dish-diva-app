@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, ChevronRight, Shield, Lock } from "lucide-react";
+import { X, CreditCard, ChevronRight, Shield, AlertTriangle } from "lucide-react";
 import type { AuctionItem } from "@/data/auctions";
 import { useCountdown } from "@/hooks/useCountdown";
 import { Slider } from "@/components/ui/slider";
