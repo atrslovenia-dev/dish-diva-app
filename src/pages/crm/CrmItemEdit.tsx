@@ -49,6 +49,13 @@ const newItem = {
   published: false,
   tags: [] as string[],
   notes: "",
+  is_auction: false,
+  auction_starting_price: "" as string | "",
+  auction_current_bid: "" as string | "",
+  auction_final_price: "" as string | "",
+  auction_start_at: "" as string | "",
+  auction_end_at: "" as string | "",
+  show_in_vr: false,
 };
 
 const guessKind = (mime: string): Media["kind"] => {
