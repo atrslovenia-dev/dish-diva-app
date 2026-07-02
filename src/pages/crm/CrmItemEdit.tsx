@@ -160,6 +160,13 @@ const CrmItemEdit = () => {
       published: form.published,
       tags: form.tags,
       notes: form.notes.trim() || null,
+      is_auction: form.is_auction,
+      auction_starting_price: numOrNull(form.auction_starting_price),
+      auction_current_bid: numOrNull(form.auction_current_bid),
+      auction_final_price: numOrNull(form.auction_final_price),
+      auction_start_at: form.auction_start_at ? new Date(form.auction_start_at).toISOString() : null,
+      auction_end_at: form.auction_end_at ? new Date(form.auction_end_at).toISOString() : null,
+      show_in_vr: form.show_in_vr,
     };
   };
 
