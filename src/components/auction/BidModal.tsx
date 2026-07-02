@@ -87,6 +87,15 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
             </div>
           </div>
 
+          {/* Demo disclaimer */}
+          <div className="mx-5 mt-4 flex items-start gap-2 bg-accent/15 border border-accent/40 rounded-sm px-3 py-2 text-[11px] text-foreground/80 leading-snug">
+            <AlertTriangle size={14} className="text-accent shrink-0 mt-0.5" />
+            <span><strong className="text-foreground">Predstavitveno okolje.</strong> Dražba je simulirana — ne zbiramo plačilnih podatkov in ne zaračunamo ničesar.</span>
+          </div>
+
+            </div>
+          </div>
+
           {/* Steps */}
           {step !== "success" && (
             <div className="px-5 pt-4">
