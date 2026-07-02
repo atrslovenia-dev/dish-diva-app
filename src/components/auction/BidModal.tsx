@@ -93,8 +93,7 @@ const BidModal = ({ item, isOpen, onClose }: Props) => {
             <span><strong className="text-foreground">Predstavitveno okolje.</strong> Dražba je simulirana — ne zbiramo plačilnih podatkov in ne zaračunamo ničesar.</span>
           </div>
 
-            </div>
-          </div>
+
 
           {/* Steps */}
           {step !== "success" && (
