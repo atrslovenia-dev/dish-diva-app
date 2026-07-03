@@ -26,7 +26,11 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
+
+const BUCKET = "event-images";
+const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 10; // 10 years
+
 
 type EventRow = {
   id: string;
@@ -72,6 +76,40 @@ const CrmEvents = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Napačna datoteka", description: "Naložite sliko.", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Prevelika datoteka", description: "Največ 5 MB.", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+    if (upErr) {
+      setUploading(false);
+      toast({ title: "Napaka pri nalaganju", description: upErr.message, variant: "destructive" });
+      return;
+    }
+    const { data, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL);
+    setUploading(false);
+    if (signErr || !data) {
+      toast({ title: "Napaka", description: signErr?.message ?? "Ni URL", variant: "destructive" });
+      return;
+    }
+    setForm((f) => ({ ...f, image_url: data.signedUrl }));
+    toast({ title: "Slika naložena" });
+  };
+
 
   const load = async () => {
     setLoading(true);
@@ -258,10 +296,46 @@ const CrmEvents = () => {
                 <Input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} maxLength={5} />
               </div>
             </div>
-            <div>
-              <Label>URL slike</Label>
-              <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://…" />
+            <div className="space-y-2">
+              <Label>Slika dogodka</Label>
+              {form.image_url ? (
+                <div className="relative inline-block">
+                  <img
+                    src={form.image_url}
+                    alt="Predogled"
+                    className="max-h-48 rounded-md border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-7 w-7 rounded-full"
+                    onClick={() => setForm({ ...form, image_url: "" })}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-border rounded-md p-6 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {uploading ? "Nalaganje…" : "Klikni za nalaganje slike (max 5 MB)"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadImage(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              )}
             </div>
+
             <div>
               <Label>Povezava do zemljevida</Label>
               <Input value={form.map_url} onChange={(e) => setForm({ ...form, map_url: e.target.value })} placeholder="https://maps.google.com/…" />
