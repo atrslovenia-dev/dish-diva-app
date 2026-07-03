@@ -296,10 +296,46 @@ const CrmEvents = () => {
                 <Input value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} maxLength={5} />
               </div>
             </div>
-            <div>
-              <Label>URL slike</Label>
-              <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="https://…" />
+            <div className="space-y-2">
+              <Label>Slika dogodka</Label>
+              {form.image_url ? (
+                <div className="relative inline-block">
+                  <img
+                    src={form.image_url}
+                    alt="Predogled"
+                    className="max-h-48 rounded-md border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute -top-2 -right-2 h-7 w-7 rounded-full"
+                    onClick={() => setForm({ ...form, image_url: "" })}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-2 border-2 border-dashed border-border rounded-md p-6 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {uploading ? "Nalaganje…" : "Klikni za nalaganje slike (max 5 MB)"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadImage(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              )}
             </div>
+
             <div>
               <Label>Povezava do zemljevida</Label>
               <Input value={form.map_url} onChange={(e) => setForm({ ...form, map_url: e.target.value })} placeholder="https://maps.google.com/…" />
