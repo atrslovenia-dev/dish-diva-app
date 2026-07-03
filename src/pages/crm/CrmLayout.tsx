@@ -1,7 +1,7 @@
 import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Package, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Users, Calendar, LogOut } from "lucide-react";
 
 const CrmLayout = () => {
   const { user, loading, isStaff, signOut } = useAuth();
