@@ -13,6 +13,7 @@ const CrmLayout = () => {
   const nav = [
     { to: "/crm", end: true, icon: LayoutDashboard, label: "Pregled" },
     { to: "/crm/items", icon: Package, label: "Artikli" },
+    { to: "/crm/events", icon: Calendar, label: "Dogodki" },
     { to: "/crm/artists", icon: Users, label: "Avtorji" },
   ];
 
