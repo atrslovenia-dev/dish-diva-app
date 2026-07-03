@@ -21,6 +21,8 @@ import CrmDashboard from "./pages/crm/CrmDashboard";
 import CrmItems from "./pages/crm/CrmItems";
 import CrmItemEdit from "./pages/crm/CrmItemEdit";
 import CrmArtists from "./pages/crm/CrmArtists";
+import CrmEvents from "./pages/crm/CrmEvents";
+
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => (
               <Route path="items" element={<CrmItems />} />
               <Route path="items/:id" element={<CrmItemEdit />} />
               <Route path="artists" element={<CrmArtists />} />
+              <Route path="events" element={<CrmEvents />} />
+
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
