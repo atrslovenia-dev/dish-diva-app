@@ -41,6 +41,60 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          leader: string | null
+          location: string | null
+          map_url: string | null
+          price: number | null
+          published: boolean
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          leader?: string | null
+          location?: string | null
+          map_url?: string | null
+          price?: number | null
+          published?: boolean
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          leader?: string | null
+          location?: string | null
+          map_url?: string | null
+          price?: number | null
+          published?: boolean
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       item_media: {
         Row: {
           alt_text: string | null
