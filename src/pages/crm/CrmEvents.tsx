@@ -26,7 +26,11 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
+
+const BUCKET = "event-images";
+const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 10; // 10 years
+
 
 type EventRow = {
   id: string;
