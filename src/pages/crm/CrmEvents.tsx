@@ -69,12 +69,21 @@ const toLocalInput = (iso?: string | null) => {
   return local.toISOString().slice(0, 16);
 };
 
+const resolveImageUrl = async (value: string | null | undefined): Promise<string> => {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(value, SIGNED_URL_TTL);
+  if (error || !data) return "";
+  return data.signedUrl;
+};
+
 const CrmEvents = () => {
   const [rows, setRows] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [imagePreview, setImagePreview] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -88,7 +97,7 @@ const CrmEvents = () => {
       return;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop() || "jpg";
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
       cacheControl: "3600",
@@ -100,13 +109,14 @@ const CrmEvents = () => {
       toast({ title: "Napaka pri nalaganju", description: upErr.message, variant: "destructive" });
       return;
     }
-    const { data, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL);
+    const signed = await resolveImageUrl(path);
     setUploading(false);
-    if (signErr || !data) {
-      toast({ title: "Napaka", description: signErr?.message ?? "Ni URL", variant: "destructive" });
+    if (!signed) {
+      toast({ title: "Napaka", description: "Ni bilo mogoče pridobiti URL-ja slike.", variant: "destructive" });
       return;
     }
-    setForm((f) => ({ ...f, image_url: data.signedUrl }));
+    setForm((f) => ({ ...f, image_url: path }));
+    setImagePreview(signed);
     toast({ title: "Slika naložena" });
   };
 
@@ -129,10 +139,11 @@ const CrmEvents = () => {
   const openNew = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setImagePreview("");
     setOpen(true);
   };
 
-  const openEdit = (r: EventRow) => {
+  const openEdit = async (r: EventRow) => {
     setEditingId(r.id);
     setForm({
       title: r.title,
@@ -147,6 +158,7 @@ const CrmEvents = () => {
       map_url: r.map_url ?? "",
       published: r.published,
     });
+    setImagePreview(await resolveImageUrl(r.image_url));
     setOpen(true);
   };
 
@@ -301,7 +313,7 @@ const CrmEvents = () => {
               {form.image_url ? (
                 <div className="relative inline-block">
                   <img
-                    src={form.image_url}
+                    src={imagePreview || form.image_url}
                     alt="Predogled"
                     className="max-h-48 rounded-md border object-cover"
                   />
@@ -310,7 +322,10 @@ const CrmEvents = () => {
                     size="icon"
                     variant="destructive"
                     className="absolute -top-2 -right-2 h-7 w-7 rounded-full"
-                    onClick={() => setForm({ ...form, image_url: "" })}
+                    onClick={() => {
+                      setForm({ ...form, image_url: "" });
+                      setImagePreview("");
+                    }}
                   >
                     <X className="w-4 h-4" />
                   </Button>
