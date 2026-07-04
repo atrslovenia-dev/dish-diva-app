@@ -313,7 +313,7 @@ const CrmEvents = () => {
               {form.image_url ? (
                 <div className="relative inline-block">
                   <img
-                    src={form.image_url}
+                    src={imagePreview || form.image_url}
                     alt="Predogled"
                     className="max-h-48 rounded-md border object-cover"
                   />
@@ -322,7 +322,10 @@ const CrmEvents = () => {
                     size="icon"
                     variant="destructive"
                     className="absolute -top-2 -right-2 h-7 w-7 rounded-full"
-                    onClick={() => setForm({ ...form, image_url: "" })}
+                    onClick={() => {
+                      setForm({ ...form, image_url: "" });
+                      setImagePreview("");
+                    }}
                   >
                     <X className="w-4 h-4" />
                   </Button>
