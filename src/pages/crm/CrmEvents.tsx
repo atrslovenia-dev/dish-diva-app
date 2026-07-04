@@ -69,12 +69,21 @@ const toLocalInput = (iso?: string | null) => {
   return local.toISOString().slice(0, 16);
 };
 
+const resolveImageUrl = async (value: string | null | undefined): Promise<string> => {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(value, SIGNED_URL_TTL);
+  if (error || !data) return "";
+  return data.signedUrl;
+};
+
 const CrmEvents = () => {
   const [rows, setRows] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [imagePreview, setImagePreview] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
