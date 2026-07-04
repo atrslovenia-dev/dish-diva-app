@@ -97,7 +97,7 @@ const CrmEvents = () => {
       return;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop() || "jpg";
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
       cacheControl: "3600",
@@ -109,13 +109,14 @@ const CrmEvents = () => {
       toast({ title: "Napaka pri nalaganju", description: upErr.message, variant: "destructive" });
       return;
     }
-    const { data, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL);
+    const signed = await resolveImageUrl(path);
     setUploading(false);
-    if (signErr || !data) {
-      toast({ title: "Napaka", description: signErr?.message ?? "Ni URL", variant: "destructive" });
+    if (!signed) {
+      toast({ title: "Napaka", description: "Ni bilo mogoče pridobiti URL-ja slike.", variant: "destructive" });
       return;
     }
-    setForm((f) => ({ ...f, image_url: data.signedUrl }));
+    setForm((f) => ({ ...f, image_url: path }));
+    setImagePreview(signed);
     toast({ title: "Slika naložena" });
   };
 
