@@ -139,10 +139,11 @@ const CrmEvents = () => {
   const openNew = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setImagePreview("");
     setOpen(true);
   };
 
-  const openEdit = (r: EventRow) => {
+  const openEdit = async (r: EventRow) => {
     setEditingId(r.id);
     setForm({
       title: r.title,
@@ -157,6 +158,7 @@ const CrmEvents = () => {
       map_url: r.map_url ?? "",
       published: r.published,
     });
+    setImagePreview(await resolveImageUrl(r.image_url));
     setOpen(true);
   };
 
