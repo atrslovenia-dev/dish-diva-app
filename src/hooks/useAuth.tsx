@@ -19,25 +19,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isStaff, setIsStaff] = useState(false);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    let mounted = true;
+
+    const loadRole = async (currentUser: User | null) => {
+      if (!currentUser) {
+        if (mounted) setIsStaff(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", currentUser.id)
+        .in("role", ["admin", "editor"]);
+
+      if (mounted) setIsStaff(!error && !!data?.length);
+    };
+
+    const applySession = async (s: Session | null) => {
+      if (!mounted) return;
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) {
-        // Defer role check
-        setTimeout(async () => {
-          const { data } = await supabase.from("user_roles").select("role").eq("user_id", s.user.id);
-          setIsStaff(!!data && data.length > 0);
-        }, 0);
-      } else {
-        setIsStaff(false);
-      }
+      await loadRole(s?.user ?? null);
+      if (mounted) setLoading(false);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setLoading(true);
+      setTimeout(() => {
+        void applySession(s);
+      }, 0);
     });
+
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
+      void applySession(data.session);
     });
-    return () => sub.subscription.unsubscribe();
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
