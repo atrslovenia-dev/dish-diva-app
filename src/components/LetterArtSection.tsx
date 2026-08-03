@@ -38,6 +38,31 @@ const LetterArtSection = () => {
           </p>
         </motion.div>
 
+        {/* Video */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="max-w-3xl mx-auto mb-14"
+        >
+          <div className="relative rounded-sm overflow-hidden shadow-lg ring-1 ring-primary/15 bg-foreground/5">
+            <div className="relative aspect-video">
+              <iframe
+                src="https://video.cloudcomputing.si/embed/9528712ebeb19b50cd5afe1cb9d65876"
+                title="Umetnost v pismu 2026 — predstavitveni video"
+                className="absolute inset-0 w-full h-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground mt-4">
+            Poglejte, kako izgleda pošiljka, ki jo vsak mesec prejmete v nabiralnik
+          </p>
+        </motion.div>
+
         {/* Illustration */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -52,6 +77,7 @@ const LetterArtSection = () => {
             className="w-full max-w-xs md:max-w-sm h-auto mix-blend-multiply"
           />
         </motion.div>
+
 
 
         {/* Intro */}
