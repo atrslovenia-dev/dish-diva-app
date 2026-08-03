@@ -16,34 +16,29 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
         >
-          <h1 className="font-heading text-6xl sm:text-8xl lg:text-9xl font-light text-primary-foreground tracking-tight leading-[0.9]">
-            <span className="block italic font-light">Moja</span>
-            <span className="block font-bold">UMETNOST</span>
+          <h1
+            className="text-primary-foreground tracking-tight leading-[1.1]"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            <span className="block italic font-light text-2xl sm:text-3xl lg:text-4xl">
+              Vabljeni v
+            </span>
+            <span className="block italic font-bold text-4xl sm:text-6xl lg:text-7xl">
+              skrbno izbran svet
+            </span>
+            <span className="block italic font-normal text-2xl sm:text-4xl lg:text-5xl">
+              sodobne slovenske umetnosti,
+            </span>
+            <span className="block italic font-medium text-2xl sm:text-4xl lg:text-5xl">
+              oblikovanja in avtorskih izdelkov.
+            </span>
           </h1>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "6rem" }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="h-[1px] bg-primary-foreground/50 mx-auto my-6"
-          />
-          <h2 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-light text-primary-foreground/90 tracking-wide">
-            je moj <span className="italic font-medium">kapital</span>
-          </h2>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.2 }}
-          className="font-heading italic text-primary-foreground/60 text-lg mt-8 tracking-wide"
-        >
-          — Avgust Černigoj
-        </motion.p>
 
         <motion.a
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.5 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           href="/gallery"
           className="inline-block mt-12 px-10 py-4 border border-primary-foreground/30 text-primary-foreground font-body text-sm uppercase tracking-[0.2em] hover:bg-primary-foreground/10 transition-all duration-300 rounded-sm"
         >
