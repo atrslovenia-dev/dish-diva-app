@@ -45,14 +45,14 @@ const LetterArtSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="max-w-3xl mx-auto mb-14"
+          className="max-w-sm mx-auto mb-14"
         >
           <div className="relative rounded-sm overflow-hidden shadow-lg ring-1 ring-primary/15 bg-foreground/5">
-            <div className="relative aspect-video">
+            <div className="relative aspect-[608/1080]">
               <HlsPlayer
                 src="https://video.cloudcomputing.si/hls/9528712ebeb19b50cd5afe1cb9d65876/master.m3u8"
                 title="Umetnost v pismu 2026 — predstavitveni video"
-                className="absolute inset-0 w-full h-full object-cover bg-foreground/10"
+                className="absolute inset-0 w-full h-full object-contain bg-foreground/10"
               />
             </div>
           </div>
