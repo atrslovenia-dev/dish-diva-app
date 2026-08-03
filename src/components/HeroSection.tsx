@@ -15,21 +15,28 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
+          className="flex flex-col items-center"
         >
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: "3rem" }}
+            transition={{ duration: 1, delay: 0.6 }}
+            className="h-px bg-primary-foreground/40 mb-8"
+          />
           <h1
-            className="text-primary-foreground tracking-tight leading-[1.1]"
+            className="text-primary-foreground leading-[1.3] max-w-3xl mx-auto"
             style={{ fontFamily: "Georgia, serif" }}
           >
-            <span className="block italic font-light text-2xl sm:text-3xl lg:text-4xl">
+            <span className="block italic font-light text-xl sm:text-2xl lg:text-3xl">
               Vabljeni v
             </span>
-            <span className="block italic font-bold text-4xl sm:text-6xl lg:text-7xl">
+            <span className="block italic font-semibold text-4xl sm:text-5xl lg:text-6xl">
               skrbno izbran svet
             </span>
-            <span className="block italic font-normal text-2xl sm:text-4xl lg:text-5xl">
+            <span className="block italic font-light text-xl sm:text-2xl lg:text-3xl">
               sodobne slovenske umetnosti,
             </span>
-            <span className="block italic font-medium text-2xl sm:text-4xl lg:text-5xl">
+            <span className="block italic font-light text-xl sm:text-2xl lg:text-3xl">
               oblikovanja in avtorskih izdelkov.
             </span>
           </h1>
