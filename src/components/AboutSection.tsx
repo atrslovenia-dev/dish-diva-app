@@ -5,7 +5,7 @@ import HlsPlayer from "@/components/HlsPlayer";
 import { galleryImages } from "@/data/gallery";
 
 const slides = galleryImages.slice(0, 8);
-const VIDEO_SRC = "https://video.cloudcomputing.si/hls/9528712ebeb19b50cd5afe1cb9d65876/master.m3u8";
+const VIDEO_SRC = "https://video.cloudcomputing.si/hls/a49ee48e7e2268ccc53683e1fa72a7e8/master.m3u8";
 
 
 const AboutSection = () => {
