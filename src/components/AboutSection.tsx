@@ -93,7 +93,61 @@ const AboutSection = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Predstavitveni video */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.15 }}
+          className="mt-20"
+        >
+          <p className="text-center text-[13px] uppercase tracking-[0.2em] text-primary font-medium mb-4">
+            Video
+          </p>
+          <h3 className="font-heading text-3xl md:text-4xl font-light text-foreground text-center mb-8">
+            Zgodba <span className="italic font-medium">ateljeja</span>
+          </h3>
+
+          <div className="relative rounded-sm overflow-hidden shadow-lg ring-1 ring-primary/15 bg-foreground/5">
+            <div className="relative aspect-video">
+              {playing ? (
+                <HlsPlayer
+                  src={VIDEO_SRC}
+                  autoPlay
+                  title="Predstavitveni video ateljeja Lučka & Avgust"
+                  className="absolute inset-0 w-full h-full object-contain bg-foreground/10"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setPlaying(true)}
+                  aria-label="Predvajaj predstavitveni video"
+                  className="group absolute inset-0 w-full h-full"
+                >
+                  <img
+                    src={slides[0]?.src}
+                    alt="Predstavitveni video ateljeja Lučka & Avgust"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-foreground/40 transition-colors group-hover:bg-foreground/30" />
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex items-center gap-3 px-7 py-3.5 rounded-full border border-primary-foreground/40 bg-foreground/50 backdrop-blur-sm text-primary-foreground text-sm uppercase tracking-[0.2em] transition-all group-hover:bg-primary group-hover:border-primary">
+                      <Play className="w-4 h-4" strokeWidth={1.5} />
+                      Predvajaj
+                    </span>
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground mt-4">
+            Kratek vpogled v naš svet umetnosti, oblikovanja in avtorskih izdelkov
+          </p>
+        </motion.div>
       </div>
+
     </section>
   );
 };
