@@ -9,6 +9,8 @@ const VIDEO_SRC = "https://video.cloudcomputing.si/hls/9528712ebeb19b50cd5afe1cb
 
 
 const AboutSection = () => {
+  const [playing, setPlaying] = useState(false);
+
   return (
     <section className="py-24 md:py-32 bg-background">
       <div className="container max-w-4xl">
