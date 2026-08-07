@@ -14,6 +14,7 @@ import AuctionsPage from "./pages/AuctionsPage";
 import GiftsPage from "./pages/GiftsPage";
 import ClubPage from "./pages/ClubPage";
 import ContactPage from "./pages/ContactPage";
+import VRPage from "./pages/VRPage";
 import NotFound from "./pages/NotFound";
 import CrmLogin from "./pages/crm/CrmLogin";
 import CrmLayout from "./pages/crm/CrmLayout";
