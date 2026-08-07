@@ -45,7 +45,9 @@ const App = () => (
             <Route path="/gifts" element={<GiftsPage />} />
             <Route path="/club" element={<ClubPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/vr" element={<VRPage />} />
             <Route path="/crm/login" element={<CrmLogin />} />
+
             <Route path="/crm" element={<CrmLayout />}>
               <Route index element={<CrmDashboard />} />
               <Route path="items" element={<CrmItems />} />
