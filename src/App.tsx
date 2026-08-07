@@ -14,6 +14,7 @@ import AuctionsPage from "./pages/AuctionsPage";
 import GiftsPage from "./pages/GiftsPage";
 import ClubPage from "./pages/ClubPage";
 import ContactPage from "./pages/ContactPage";
+import VRPage from "./pages/VRPage";
 import NotFound from "./pages/NotFound";
 import CrmLogin from "./pages/crm/CrmLogin";
 import CrmLayout from "./pages/crm/CrmLayout";
@@ -44,7 +45,9 @@ const App = () => (
             <Route path="/gifts" element={<GiftsPage />} />
             <Route path="/club" element={<ClubPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/vr" element={<VRPage />} />
             <Route path="/crm/login" element={<CrmLogin />} />
+
             <Route path="/crm" element={<CrmLayout />}>
               <Route index element={<CrmDashboard />} />
               <Route path="items" element={<CrmItems />} />
