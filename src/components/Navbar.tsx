@@ -62,7 +62,7 @@ const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden bg-background/95 backdrop-blur-lg border-b border-border"
+            className="lg:hidden overflow-hidden bg-background/95 backdrop-blur-lg border-b border-border"
           >
             <ul className="container py-6 space-y-1">
               {navigationItems.map((item, i) => (
