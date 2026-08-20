@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { X } from "lucide-react";
+
 
 const VRGallery = lazy(() => import("@/components/VRGallery"));
 
@@ -30,10 +31,11 @@ const VRPage = () => {
       </Suspense>
       <Link
         to="/"
-        className="absolute top-4 left-4 z-50 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/70 px-4 py-2 text-sm text-foreground backdrop-blur-md transition-colors hover:bg-background"
+        className="group absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-background/70 text-foreground backdrop-blur-md transition-all duration-300 hover:bg-primary hover:border-primary hover:text-primary-foreground hover:rotate-90"
+        aria-label="Zapri galerijo"
+        title="Zapri galerijo"
       >
-        <ArrowLeft className="h-4 w-4" />
-        Nazaj
+        <X className="h-5 w-5 transition-transform duration-300" />
       </Link>
     </main>
   );
