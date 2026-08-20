@@ -20,12 +20,12 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center flex-nowrap gap-0.5">
+        <ul className="hidden lg:flex items-center flex-nowrap gap-1">
           {navigationItems.map((item) => (
             <li key={item.id} className="whitespace-nowrap">
               <Link
                 to={item.href}
-                className={`relative px-2.5 py-2 text-[11px] font-medium uppercase tracking-[0.1em] transition-all duration-300 rounded-sm ${
+                className={`relative px-3 py-2 text-[13px] font-medium uppercase tracking-[0.12em] transition-all duration-300 rounded-sm ${
                   location.pathname === item.href
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
@@ -35,7 +35,7 @@ const Navbar = () => {
                 {location.pathname === item.href && (
                   <motion.div
                     layoutId="nav-underline"
-                    className="absolute bottom-0 left-2.5 right-2.5 h-[2px] bg-primary rounded-full"
+                    className="absolute bottom-0 left-3 right-3 h-[2px] bg-primary rounded-full"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                   />
                 )}
@@ -47,7 +47,7 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-foreground"
+          className="lg:hidden p-2 text-foreground"
           aria-label="Odpri meni"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -62,7 +62,7 @@ const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
-            className="md:hidden overflow-hidden bg-background/95 backdrop-blur-lg border-b border-border"
+            className="lg:hidden overflow-hidden bg-background/95 backdrop-blur-lg border-b border-border"
           >
             <ul className="container py-6 space-y-1">
               {navigationItems.map((item, i) => (
