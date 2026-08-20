@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { X } from "lucide-react";
 
 const VRGallery = lazy(() => import("@/components/VRGallery"));
 
