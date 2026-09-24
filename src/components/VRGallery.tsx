@@ -1,6 +1,6 @@
 import { Suspense, useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { OrbitControls, Text, Sky } from "@react-three/drei";
+import { OrbitControls, Text } from "@react-three/drei";
 import * as THREE from "three";
 
 import akr0086 from "@/assets/gallery/AKR_0086.jpg";
@@ -170,396 +170,219 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   );
 }
 
-// Modern Černigoj-style pillar — square cream shaft with bold black + red banding,
-// square capital that sits flush under the perimeter architrave so it visibly carries it.
-function PlecnikColumn({ position, height = 5.15 }: { position: [number, number, number]; height?: number }) {
-  const shaftH = height - 0.55;
-  const shaftCenterY = 0.25 + shaftH / 2;
+// Real Lučka & Avgust gallery: white walls, white groin (cross) vaults,
+// herringbone oak parquet, black track lights, blue sofa + yellow armchair,
+// semicircular arched niche between rooms.
+
+function Sofa({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
+  const blue = "#2f4f86";
   return (
-    <group position={position}>
-      {/* Two-step base */}
-      <mesh position={[0, 0.06, 0]}>
-        <boxGeometry args={[0.62, 0.12, 0.62]} />
-        <meshStandardMaterial color="#0a0a0a" roughness={0.6} />
-      </mesh>
-      <mesh position={[0, 0.19, 0]}>
-        <boxGeometry args={[0.5, 0.14, 0.5]} />
-        <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
-      </mesh>
-
-      {/* Square cream shaft */}
-      <mesh position={[0, shaftCenterY, 0]}>
-        <boxGeometry args={[0.36, shaftH, 0.36]} />
-        <meshStandardMaterial color="#f0e8d6" roughness={0.7} />
-      </mesh>
-
-      {/* Černigoj vertical accent stripes — black + red running full height of shaft */}
-      <mesh position={[0, shaftCenterY, 0.181]}>
-        <planeGeometry args={[0.06, shaftH * 0.95]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      <mesh position={[0.06, shaftCenterY, 0.181]}>
-        <planeGeometry args={[0.025, shaftH * 0.95]} />
-        <meshBasicMaterial color="#a01818" />
-      </mesh>
-      <mesh position={[0, shaftCenterY, -0.181]} rotation={[0, Math.PI, 0]}>
-        <planeGeometry args={[0.06, shaftH * 0.95]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      <mesh position={[0.181, shaftCenterY, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[0.06, shaftH * 0.95]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      <mesh position={[-0.181, shaftCenterY, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[0.06, shaftH * 0.95]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-
-      {/* Red banded mid-cincture (Černigoj horizontal accent) */}
-      <mesh position={[0, shaftCenterY, 0]}>
-        <boxGeometry args={[0.385, 0.08, 0.385]} />
-        <meshStandardMaterial color="#a01818" roughness={0.5} />
-      </mesh>
-
-      {/* Capital — black abacus block flush under the architrave */}
-      <mesh position={[0, height - 0.22, 0]}>
-        <boxGeometry args={[0.5, 0.14, 0.5]} />
-        <meshStandardMaterial color="#e8dfcc" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, height - 0.07, 0]}>
-        <boxGeometry args={[0.62, 0.16, 0.62]} />
-        <meshStandardMaterial color="#0a0a0a" roughness={0.55} />
-      </mesh>
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.22, 0]} castShadow><boxGeometry args={[1.9, 0.26, 0.85]} /><meshStandardMaterial color={blue} roughness={0.95} /></mesh>
+      <mesh position={[0, 0.55, -0.34]} castShadow><boxGeometry args={[1.9, 0.5, 0.18]} /><meshStandardMaterial color={blue} roughness={0.95} /></mesh>
+      {[-0.88, 0.88].map((x) => (
+        <mesh key={x} position={[x, 0.4, 0]} castShadow><boxGeometry args={[0.16, 0.36, 0.85]} /><meshStandardMaterial color={blue} roughness={0.95} /></mesh>
+      ))}
+      {[-0.45, 0.45].map((x) => (
+        <mesh key={`c${x}`} position={[x, 0.38, 0.03]}><boxGeometry args={[0.84, 0.08, 0.72]} /><meshStandardMaterial color="#39598f" roughness={1} /></mesh>
+      ))}
+      {[[-0.85, 0.35], [0.85, 0.35], [-0.85, -0.35], [0.85, -0.35]].map(([x, z], i) => (
+        <mesh key={`l${i}`} position={[x, 0.045, z]}><cylinderGeometry args={[0.025, 0.025, 0.09, 8]} /><meshStandardMaterial color="#2a1c10" /></mesh>
+      ))}
     </group>
   );
 }
 
-// Černigoj-style constructivist geometric mural panel
-function ConstructivistPanel({ position, rotation, width = 2.2, height = 2.6 }: { position: [number, number, number]; rotation: [number, number, number]; width?: number; height?: number }) {
+function Armchair({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
+  const y = "#e3b52c";
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.3, 0]} castShadow><boxGeometry args={[0.8, 0.22, 0.75]} /><meshStandardMaterial color={y} roughness={0.9} /></mesh>
+      <mesh position={[0, 0.68, -0.3]} rotation={[-0.15, 0, 0]} castShadow><boxGeometry args={[0.8, 0.6, 0.14]} /><meshStandardMaterial color={y} roughness={0.9} /></mesh>
+      {[-0.36, 0.36].map((x) => (
+        <mesh key={x} position={[x, 0.5, 0]}><boxGeometry args={[0.08, 0.2, 0.7]} /><meshStandardMaterial color={y} roughness={0.9} /></mesh>
+      ))}
+      {[[-0.34, 0.3], [0.34, 0.3], [-0.34, -0.3], [0.34, -0.3]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.1, z]}><cylinderGeometry args={[0.02, 0.015, 0.2, 8]} /><meshStandardMaterial color="#6b4a2a" /></mesh>
+      ))}
+    </group>
+  );
+}
+
+function TrackLight({ z }: { z: number }) {
+  const heads = [-3.6, -1.8, 0, 1.8, 3.6];
+  return (
+    <group position={[0, 3.55, z]}>
+      <mesh><boxGeometry args={[9, 0.04, 0.05]} /><meshStandardMaterial color="#141414" roughness={0.4} metalness={0.6} /></mesh>
+      {heads.map((x, i) => (
+        <group key={i} position={[x, -0.1, 0]} rotation={[z < 0 ? -0.6 : 0.6, 0, 0]}>
+          <mesh><cylinderGeometry args={[0.05, 0.065, 0.18, 12]} /><meshStandardMaterial color="#141414" metalness={0.6} roughness={0.35} /></mesh>
+          <mesh position={[0, -0.091, 0]} rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[0.05, 12]} /><meshBasicMaterial color="#fff3d6" /></mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+function ArchNiche({ position, rotation = [0, 0, 0] as [number, number, number] }: { position: [number, number, number]; rotation?: [number, number, number] }) {
+  const w = 1.5, h = 2.3, r = w / 2;
+  const shape = useMemo(() => {
+    const s = new THREE.Shape();
+    s.moveTo(-r, 0); s.lineTo(-r, h); s.absarc(0, h, r, Math.PI, 0, true); s.lineTo(r, 0); s.lineTo(-r, 0);
+    return s;
+  }, []);
   return (
     <group position={position} rotation={rotation}>
-      {/* Background ivory */}
-      <mesh>
-        <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color="#f4ede0" roughness={0.95} />
+      <mesh position={[0, 0, 0.004]}>
+        <shapeGeometry args={[shape, 32]} />
+        <meshStandardMaterial color="#cfc8bb" roughness={1} />
       </mesh>
-      {/* Bold black diagonal */}
-      <mesh position={[0, 0, 0.002]} rotation={[0, 0, Math.PI / 6]}>
-        <planeGeometry args={[width * 1.4, 0.16]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      {/* Red rectangle */}
-      <mesh position={[-width * 0.25, height * 0.22, 0.003]}>
-        <planeGeometry args={[width * 0.32, height * 0.18]} />
-        <meshBasicMaterial color="#a01818" />
-      </mesh>
-      {/* Black square */}
-      <mesh position={[width * 0.28, -height * 0.18, 0.003]}>
-        <planeGeometry args={[width * 0.22, width * 0.22]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      {/* Thin black vertical line */}
-      <mesh position={[width * 0.05, 0, 0.004]}>
-        <planeGeometry args={[0.025, height * 0.85]} />
-        <meshBasicMaterial color="#0a0a0a" />
-      </mesh>
-      {/* Small ochre circle */}
-      <mesh position={[-width * 0.32, -height * 0.28, 0.003]}>
-        <circleGeometry args={[0.14, 32]} />
-        <meshBasicMaterial color="#c9962b" />
+      {/* soft depth shade at top of the arch */}
+      <mesh position={[0, h, 0.006]}>
+        <ringGeometry args={[r - 0.08, r, 32, 1, 0, Math.PI]} />
+        <meshStandardMaterial color="#b9b2a5" roughness={1} />
       </mesh>
     </group>
-  );
-}
-
-// Pergola beam across the open ceiling - daylight passes between
-function PergolaBeam({ position, rotation = [0, 0, 0] as [number, number, number], length = 11 }: { position: [number, number, number]; rotation?: [number, number, number]; length?: number }) {
-  return (
-    <mesh position={position} rotation={rotation}>
-      <boxGeometry args={[length, 0.18, 0.22]} />
-      <meshStandardMaterial color="#e0d6c2" roughness={0.85} />
-    </mesh>
   );
 }
 
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
-  // Floor: light modern wood planks (pale oak / ash)
+  // Herringbone oak parquet
   const floorTexture = useMemo(() => {
-    const W = 512, H = 512;
+    const S = 1024;
     const canvas = document.createElement("canvas");
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = S; canvas.height = S;
     const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#e8d6b6";
-    ctx.fillRect(0, 0, W, H);
-    const plankH = 64;
-    const tones = ["#ecdcbe", "#e3cfac", "#efe1c4", "#dec5a0", "#e8d4b0"];
-    for (let y = 0; y < H; y += plankH) {
-      const base = tones[(y / plankH) % tones.length];
-      ctx.fillStyle = base;
-      ctx.fillRect(0, y, W, plankH);
-      // grain streaks
-      for (let i = 0; i < 28; i++) {
-        const x = Math.random() * W;
-        const alpha = 0.04 + Math.random() * 0.07;
-        ctx.strokeStyle = `rgba(120,85,45,${alpha})`;
-        ctx.lineWidth = 0.6 + Math.random() * 0.8;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.bezierCurveTo(
-          x + (Math.random() - 0.5) * 6, y + plankH * 0.3,
-          x + (Math.random() - 0.5) * 6, y + plankH * 0.7,
-          x + (Math.random() - 0.5) * 4, y + plankH
-        );
-        ctx.stroke();
+    ctx.fillStyle = "#b98a57"; ctx.fillRect(0, 0, S, S);
+    const L = 128, Wd = 32;
+    const tones = ["#c49563", "#b8864f", "#cc9f6c", "#ad7c48", "#c08e5a", "#d1a674"];
+    ctx.save(); ctx.translate(S / 2, S / 2); ctx.rotate(Math.PI / 4); ctx.translate(-S, -S);
+    for (let row = -2; row < (S * 2) / Wd + 2; row++) {
+      for (let col = -2; col < (S * 2) / L + 4; col++) {
+        const x = col * L + (row % 2) * 0 , y = row * Wd;
+        const drawPlank = (px: number, py: number, pw: number, ph: number) => {
+          ctx.fillStyle = tones[Math.floor(Math.random() * tones.length)];
+          ctx.fillRect(px, py, pw, ph);
+          ctx.strokeStyle = "rgba(60,35,15,0.45)"; ctx.lineWidth = 1.2; ctx.strokeRect(px, py, pw, ph);
+          for (let g = 0; g < 4; g++) {
+            ctx.strokeStyle = `rgba(90,55,25,${0.06 + Math.random() * 0.08})`; ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            if (pw > ph) { const gy = py + Math.random() * ph; ctx.moveTo(px, gy); ctx.lineTo(px + pw, gy + (Math.random() - 0.5) * 3); }
+            else { const gx = px + Math.random() * pw; ctx.moveTo(gx, py); ctx.lineTo(gx + (Math.random() - 0.5) * 3, py + ph); }
+            ctx.stroke();
+          }
+        };
+        // herringbone: alternating horizontal/vertical planks offset per step
+        const ox = x + row * Wd, oy = y - col * 0;
+        if ((row + col) % 2 === 0) drawPlank(ox, oy, L, Wd); else drawPlank(ox, oy - L + Wd, Wd, L);
       }
-      // occasional knot
-      if (Math.random() < 0.3) {
-        const kx = Math.random() * W;
-        const kr = 2 + Math.random() * 3;
-        const kg = ctx.createRadialGradient(kx, y + plankH / 2, 0.5, kx, y + plankH / 2, kr);
-        kg.addColorStop(0, "rgba(90,60,30,0.55)");
-        kg.addColorStop(1, "rgba(90,60,30,0)");
-        ctx.fillStyle = kg;
-        ctx.beginPath();
-        ctx.arc(kx, y + plankH / 2, kr, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // plank seam
-      ctx.strokeStyle = "rgba(110,80,45,0.35)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, y + plankH);
-      ctx.lineTo(W, y + plankH);
-      ctx.stroke();
     }
+    ctx.restore();
     const tex = new THREE.CanvasTexture(canvas);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3, 3);
+    tex.repeat.set(2.5, 2.5);
     tex.anisotropy = 8;
+    tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }, []);
 
-  // Walls: modern painted finish — soft cream base with sparse contemporary
-  // color blocks (terracotta, ochre, deep teal, burgundy) — Černigoj-inspired
-  // but quiet, like a modern gallery accent wall.
-  const wallTexture = useMemo(() => {
-    const W = 1024, H = 512;
-    const canvas = document.createElement("canvas");
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext("2d")!;
-
-    // Warm cream base with subtle paint roller texture
-    ctx.fillStyle = "#f1e7d2";
-    ctx.fillRect(0, 0, W, H);
-    for (let i = 0; i < 1800; i++) {
-      ctx.fillStyle = `rgba(${200 + Math.random() * 30},${185 + Math.random() * 25},${155 + Math.random() * 25},${0.05 + Math.random() * 0.07})`;
-      ctx.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
-    }
-
-    // Very subtle ton-sur-ton color fields — barely visible, never compete with art.
-    // Low alpha so they read as a quiet painted accent, not decoration.
-    const blocks: Array<{ x: number; y: number; w: number; h: number; c: string }> = [
-      { x: 60,  y: 70,  w: 220, h: 320, c: "rgba(184,92,58,0.10)" },   // terracotta wash
-      { x: 360, y: 200, w: 180, h: 180, c: "rgba(31,74,74,0.07)" },    // teal wash
-      { x: 600, y: 90,  w: 260, h: 90,  c: "rgba(216,161,74,0.09)" },  // ochre wash
-      { x: 720, y: 260, w: 150, h: 200, c: "rgba(107,31,42,0.08)" },   // burgundy wash
-    ];
-    blocks.forEach(b => {
-      ctx.fillStyle = b.c;
-      ctx.fillRect(b.x, b.y, b.w, b.h);
-    });
-
-    // Single hairline gold accent — quiet horizon line
-    ctx.strokeStyle = "rgba(180,140,70,0.18)";
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, 430); ctx.lineTo(W, 430); ctx.stroke();
-
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(1, 1);
-    tex.anisotropy = 8;
-    return tex;
-  }, []);
-
-  // Solid walls
-  const wallH = 5.2;
-
-
-  // Plečnik column positions: only at the 4 corners + 1 midpoint per wall
-  // (paintings sit at x=±2.5 on the front/back walls and z=±2 on side walls,
-  // so columns must hug the walls and avoid those zones)
-  const columns: [number, number, number][] = [
-    [-4.7, 0, -4.7], [4.7, 0, -4.7], [-4.7, 0, 4.7], [4.7, 0, 4.7], // corners
-    [0, 0, -4.7], [0, 0, 4.7], // midpoint of front/back walls (between paintings)
-    [-4.7, 0, 0], [4.7, 0, 0], // midpoint of side walls (between paintings)
-  ];
-
-  // Modern Černigoj-style constructivist roof: bold geometric beams with skylight strips
-  // Roof sits at colTopY (5.15) with a gentle one-way pitch up to 6.0 in the centre
-  const roofY = 5.2;
+  const wallColor = "#f6f3ec";
+  const springY = 3.4; // vault spring line
+  const rise = 1.9;    // vault rise
 
   return (
     <group>
-      {/* Sky dome (visible above pergola) */}
-      <Sky distance={450000} sunPosition={[5, 8, 3]} inclination={0.49} azimuth={0.25} turbidity={4} rayleigh={1.5} />
+      <color attach="background" args={["#efe9dd"]} />
+      <hemisphereLight args={["#fffaf0", "#b98a57", 0.75]} />
+      <ambientLight intensity={0.35} color="#fff2dc" />
+      <directionalLight position={[3, 8, 4]} intensity={0.5} color="#fff4de" />
 
-      {/* Sunlight from above — directional + warm */}
-      <directionalLight position={[6, 12, 4]} intensity={1.6} color="#fff4d6" castShadow />
-      <directionalLight position={[-4, 10, -2]} intensity={0.4} color="#cfe0ff" />
-      <ambientLight intensity={0.55} color="#fff2dc" />
-
-      {/* Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} onClick={() => setFocusedId(null)} receiveShadow>
+      {/* Herringbone parquet */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} onClick={() => setFocusedId(null)} receiveShadow>
         <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial map={floorTexture} roughness={0.7} />
+        <meshStandardMaterial map={floorTexture} roughness={0.55} />
       </mesh>
 
-      {/* Solid stone walls (no ceiling — courtyard) */}
-      <mesh position={[0, wallH / 2, -5]} receiveShadow>
-        <planeGeometry args={[10, wallH]} />
-        <meshStandardMaterial map={wallTexture} roughness={0.92} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[0, wallH / 2, 5]} rotation={[0, Math.PI, 0]} receiveShadow>
-        <planeGeometry args={[10, wallH]} />
-        <meshStandardMaterial map={wallTexture} roughness={0.92} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[-5, wallH / 2, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[10, wallH]} />
-        <meshStandardMaterial map={wallTexture} roughness={0.92} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[5, wallH / 2, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
-        <planeGeometry args={[10, wallH]} />
-        <meshStandardMaterial map={wallTexture} roughness={0.92} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* Plečnik cornice/frieze atop walls — black band with terracotta detail */}
+      {/* White plastered walls */}
       {[
-        { p: [0, wallH - 0.1, -4.97] as [number, number, number], r: [0, 0, 0] as [number, number, number] },
-        { p: [0, wallH - 0.1, 4.97] as [number, number, number], r: [0, Math.PI, 0] as [number, number, number] },
-        { p: [-4.97, wallH - 0.1, 0] as [number, number, number], r: [0, Math.PI / 2, 0] as [number, number, number] },
-        { p: [4.97, wallH - 0.1, 0] as [number, number, number], r: [0, -Math.PI / 2, 0] as [number, number, number] },
+        { p: [0, springY / 2, -5], r: 0 },
+        { p: [0, springY / 2, 5], r: Math.PI },
+        { p: [-5, springY / 2, 0], r: Math.PI / 2 },
+        { p: [5, springY / 2, 0], r: -Math.PI / 2 },
+      ].map((w, i) => (
+        <mesh key={`w${i}`} position={w.p as [number, number, number]} rotation={[0, w.r, 0]} receiveShadow>
+          <planeGeometry args={[10, springY]} />
+          <meshStandardMaterial color={wallColor} roughness={0.95} />
+        </mesh>
+      ))}
+
+      {/* Lunettes: wall fill under each vault arch */}
+      {[
+        { p: [0, springY, -4.99], r: 0 },
+        { p: [0, springY, 4.99], r: Math.PI },
+        { p: [-4.99, springY, 0], r: Math.PI / 2 },
+        { p: [4.99, springY, 0], r: -Math.PI / 2 },
+      ].map((w, i) => (
+        <mesh key={`lu${i}`} position={w.p as [number, number, number]} rotation={[0, w.r, 0]} scale={[1, rise / 5, 1]}>
+          <circleGeometry args={[5, 48, 0, Math.PI]} />
+          <meshStandardMaterial color="#f3efe6" roughness={1} />
+        </mesh>
+      ))}
+
+      {/* Groin vault = two intersecting flattened barrel vaults */}
+      <mesh position={[0, springY, 0]} rotation={[0, 0, Math.PI / 2]} scale={[rise / 5, 1, 1]}>
+        <cylinderGeometry args={[5, 5, 10, 48, 1, true, 0, Math.PI]} />
+        <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, springY, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]}>
+        <group />
+      </mesh>
+      <group position={[0, springY, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh rotation={[0, 0, Math.PI / 2]} scale={[rise / 5, 1, 1]}>
+          <cylinderGeometry args={[5, 5, 10, 48, 1, true, 0, Math.PI]} />
+          <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+
+      {/* Skirting board */}
+      {[
+        { p: [0, 0.05, -4.98], r: 0 }, { p: [0, 0.05, 4.98], r: Math.PI },
+        { p: [-4.98, 0.05, 0], r: Math.PI / 2 }, { p: [4.98, 0.05, 0], r: -Math.PI / 2 },
       ].map((b, i) => (
-        <group key={`cornice-${i}`} position={b.p} rotation={b.r}>
-          <mesh>
-            <planeGeometry args={[10, 0.2]} />
-            <meshStandardMaterial color="#0a0a0a" roughness={0.7} />
-          </mesh>
-          <mesh position={[0, -0.16, 0.001]}>
-            <planeGeometry args={[10, 0.06]} />
-            <meshStandardMaterial color="#a01818" roughness={0.6} />
-          </mesh>
-        </group>
-      ))}
-
-
-      {/* Pillars lining the perimeter */}
-      {columns.map((p, i) => (
-        <PlecnikColumn key={`col-${i}`} position={p} />
-      ))}
-
-      {/* PERIMETER ARCHITRAVE — continuous cream + black band sitting on column capitals,
-          visibly carrying the roof beams above (so columns don't appear to support nothing). */}
-      {[
-        { p: [0, 5.0, -4.7] as [number, number, number], r: [0, 0, 0] as [number, number, number], len: 9.4 },
-        { p: [0, 5.0, 4.7] as [number, number, number], r: [0, 0, 0] as [number, number, number], len: 9.4 },
-        { p: [-4.7, 5.0, 0] as [number, number, number], r: [0, Math.PI / 2, 0] as [number, number, number], len: 9.4 },
-        { p: [4.7, 5.0, 0] as [number, number, number], r: [0, Math.PI / 2, 0] as [number, number, number], len: 9.4 },
-      ].map((a, i) => (
-        <group key={`arch-${i}`} position={a.p} rotation={a.r}>
-          {/* Cream beam */}
-          <mesh>
-            <boxGeometry args={[a.len, 0.22, 0.28]} />
-            <meshStandardMaterial color="#efe6d2" roughness={0.8} />
-          </mesh>
-          {/* Black bottom trim */}
-          <mesh position={[0, -0.13, 0]}>
-            <boxGeometry args={[a.len, 0.05, 0.3]} />
-            <meshStandardMaterial color="#0a0a0a" roughness={0.55} />
-          </mesh>
-          {/* Red top trim */}
-          <mesh position={[0, 0.135, 0]}>
-            <boxGeometry args={[a.len, 0.04, 0.3]} />
-            <meshStandardMaterial color="#a01818" roughness={0.5} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* MODERN ČERNIGOJ-STYLE ROOF — bold geometric beams + skylight strips
-          Slight one-way pitch, daylight rakes through the gaps onto the artwork. */}
-      {/* Five black structural beams running E-W (between paintings on N/S walls) */}
-      {[-4.0, -2.0, 0, 2.0, 4.0].map((z, i) => {
-        const isAccent = i === 2;
-        return (
-          <mesh key={`beam-x-${i}`} position={[0, roofY + (isAccent ? 0.35 : 0), z]}>
-            <boxGeometry args={[10, isAccent ? 0.45 : 0.28, 0.32]} />
-            <meshStandardMaterial color={isAccent ? "#a01818" : "#0a0a0a"} roughness={0.55} />
-          </mesh>
-        );
-      })}
-
-      {/* Three black perpendicular cross-beams (constructivist grid) */}
-      {[-3.5, 0, 3.5].map((x, i) => (
-        <mesh key={`beam-z-${i}`} position={[x, roofY + 0.45, 0]}>
-          <boxGeometry args={[0.22, 0.22, 10]} />
-          <meshStandardMaterial color="#0a0a0a" roughness={0.55} />
+        <mesh key={`sk${i}`} position={b.p as [number, number, number]} rotation={[0, b.r, 0]}>
+          <planeGeometry args={[10, 0.1]} />
+          <meshStandardMaterial color="#e9e3d6" roughness={0.8} />
         </mesh>
       ))}
 
-      {/* Translucent skylight strips between the main beams — daylight passes through */}
-      {[-3.0, -1.0, 1.0, 3.0].map((z, i) => (
-        <mesh key={`sky-${i}`} position={[0, roofY + 0.05, z]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[9.4, 1.6]} />
-          <meshStandardMaterial
-            color="#fff6dc"
-            transparent
-            opacity={0.55}
-            emissive="#fff2c8"
-            emissiveIntensity={0.6}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      ))}
+      {/* Arched niche / passage between paintings */}
+      <ArchNiche position={[0, 0, 4.98]} rotation={[0, Math.PI, 0]} />
+      <ArchNiche position={[0, 0, -4.98]} />
 
-      {/* Černigoj geometric accents on the roof — red square + ochre circle + black bar */}
-      <mesh position={[-3.2, roofY + 0.5, -3.0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[1.1, 1.1]} />
-        <meshBasicMaterial color="#a01818" side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[3.0, roofY + 0.5, 3.2]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.55, 32]} />
-        <meshBasicMaterial color="#c9962b" side={THREE.DoubleSide} />
-      </mesh>
-      <mesh position={[2.8, roofY + 0.5, -2.6]} rotation={[-Math.PI / 2, 0, Math.PI / 6]}>
-        <planeGeometry args={[2.4, 0.12]} />
-        <meshBasicMaterial color="#0a0a0a" side={THREE.DoubleSide} />
-      </mesh>
+      {/* Black track lights */}
+      <TrackLight z={-2.6} />
+      <TrackLight z={2.6} />
 
-      {/* Daylight raking through skylight strips — angled spotlights aimed at walls */}
-      {[-3.0, -1.0, 1.0, 3.0].map((z, i) => (
-        <spotLight
-          key={`sun-${i}`}
-          position={[0, roofY + 4, z]}
-          target-position={[0, 1.7, z * 1.5]}
-          angle={0.55}
-          penumbra={0.7}
-          intensity={1.8}
-          distance={14}
-          color="#fff2cc"
-          castShadow
-        />
-      ))}
+      {/* Furniture as in the real gallery */}
+      <Sofa position={[-3.2, 0, 0]} rotation={Math.PI / 2} />
+      <Armchair position={[3.3, 0, -0.2]} rotation={-Math.PI / 2 - 0.3} />
+      {/* small ceramic plinth */}
+      <group position={[3.4, 0, 1.1]}>
+        <mesh position={[0, 0.35, 0]}><boxGeometry args={[0.45, 0.7, 0.45]} /><meshStandardMaterial color="#a5764a" roughness={0.7} /></mesh>
+        <mesh position={[0, 0.85, 0]}><sphereGeometry args={[0.14, 20, 16]} /><meshStandardMaterial color="#2f5d6e" roughness={0.3} /></mesh>
+      </group>
 
-      {/* Soft spotlights to lift artwork legibility */}
+      {/* Gallery spots on artworks */}
       {artworks.map((art) => (
-        <pointLight
+        <spotLight
           key={`l-${art.id}`}
-          position={[art.position[0] * 0.85, 4.6, art.position[2] * 0.85]}
-          intensity={0.6}
-          distance={5}
-          color="#fff5e6"
+          position={[art.position[0] * 0.5, 3.45, art.position[2] * 0.5]}
+          target-position={art.position}
+          angle={0.45}
+          penumbra={0.8}
+          intensity={2.2}
+          distance={9}
+          color="#fff1d8"
         />
       ))}
 
