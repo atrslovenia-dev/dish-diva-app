@@ -1,0 +1,2 @@
+- [ ] Popravi in preveri vidnost obokov v virtualni galeriji.
+- [ ] Oceni, kako natančno je mogoče rekonstruirati obliko prostora iz razpoložljivih sličic, in odgovori uporabniku.
