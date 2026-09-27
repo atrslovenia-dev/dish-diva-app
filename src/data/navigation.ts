@@ -2,11 +2,12 @@ export interface NavItem {
   id: string;
   label: string;
   href: string;
+  badge?: string;
 }
 
 export const navigationItems: NavItem[] = [
   { id: "about", label: "Zakaj umetnost?", href: "/about" },
-  { id: "letter-art", label: "V pismu", href: "/letter-art" },
+  { id: "letter-art", label: "V pismu", href: "/letter-art", badge: "Naročnina 2026" },
   { id: "gallery", label: "Galerija", href: "/gallery" },
   { id: "vr", label: "Galerija 360°", href: "/vr" },
   { id: "exhibitions", label: "Razstave", href: "/exhibitions" },

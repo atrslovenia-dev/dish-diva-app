@@ -32,6 +32,12 @@ const Navbar = () => {
                 }`}
               >
                 {item.label}
+                {item.badge && (
+                  <span className="absolute -top-0.5 -right-1 flex h-1.5 w-1.5" aria-label={item.badge}>
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-70 animate-ping" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent" />
+                  </span>
+                )}
                 {location.pathname === item.href && (
                   <motion.div
                     layoutId="nav-underline"
@@ -75,13 +81,18 @@ const Navbar = () => {
                   <Link
                     to={item.href}
                     onClick={() => setIsOpen(false)}
-                    className={`block py-3 px-5 rounded-lg transition-all duration-200 text-[13px] uppercase tracking-[0.15em] font-medium ${
+                    className={`flex items-center justify-between py-3 px-5 rounded-lg transition-all duration-200 text-[13px] uppercase tracking-[0.15em] font-medium ${
                       location.pathname === item.href
                         ? "bg-primary/10 text-primary border-l-2 border-primary"
                         : "text-foreground hover:bg-secondary hover:pl-7"
                     }`}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-3 inline-flex items-center rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[9px] font-medium tracking-[0.15em] text-accent-foreground normal-case">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 </motion.li>
               ))}
