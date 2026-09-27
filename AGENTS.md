@@ -1,0 +1,1 @@
+Render the virtual gallery's cross vault as a continuous intersecting-barrel ceiling mesh with visible groin ribs and wall lunettes, because separate rotated cylinders hid the ceiling and did not form a readable vault.
