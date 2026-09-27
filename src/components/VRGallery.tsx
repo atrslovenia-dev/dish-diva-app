@@ -274,6 +274,23 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     geometry.computeVertexNormals();
     return geometry;
   }, []);
+  const vaultRibs = useMemo(() => [1, -1].map((direction) => {
+    const points = Array.from({ length: 49 }, (_, i) => {
+      const t = -5 + (10 * i) / 48;
+      return new THREE.Vector3(t, 3.4 + 1.9 * Math.sqrt(Math.max(0, 1 - (t / 5) ** 2)) - 0.025, t * direction);
+    });
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 96, 0.025, 6, false);
+  }), []);
+  const lunetteGeometry = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-5, 0);
+    for (let i = 0; i <= 64; i++) {
+      const x = -5 + (10 * i) / 64;
+      shape.lineTo(x, 1.9 * Math.sqrt(Math.max(0, 1 - (x / 5) ** 2)));
+    }
+    shape.lineTo(-5, 0);
+    return new THREE.ShapeGeometry(shape);
+  }, []);
 
   // Herringbone oak parquet
   const floorTexture = useMemo(() => {
@@ -343,10 +360,27 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </mesh>
       ))}
 
+      {/* Curved wall faces beneath the four intersecting vaults */}
+      {[
+        { p: [0, springY, -4.99], r: 0 },
+        { p: [0, springY, 4.99], r: Math.PI },
+        { p: [-4.99, springY, 0], r: Math.PI / 2 },
+        { p: [4.99, springY, 0], r: -Math.PI / 2 },
+      ].map((wall, i) => (
+        <mesh key={`lunette-${i}`} geometry={lunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
+          <meshStandardMaterial color={wallColor} roughness={0.95} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+
       {/* Plastered cross vault, with the four groins running into the room's corners */}
       <mesh geometry={vaultGeometry}>
         <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
       </mesh>
+      {vaultRibs.map((geometry, i) => (
+        <mesh key={`vault-rib-${i}`} geometry={geometry}>
+          <meshStandardMaterial color="#e4ded2" roughness={1} />
+        </mesh>
+      ))}
 
       {/* Skirting board */}
       {[
