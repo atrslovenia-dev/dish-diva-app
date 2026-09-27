@@ -368,17 +368,17 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         { p: [4.99, springY, 0], r: -Math.PI / 2 },
       ].map((wall, i) => (
         <mesh key={`lunette-${i}`} geometry={lunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
-          <meshStandardMaterial color={wallColor} roughness={0.95} side={THREE.DoubleSide} />
+          <meshBasicMaterial color={wallColor} side={THREE.DoubleSide} />
         </mesh>
       ))}
 
       {/* Plastered cross vault, with the four groins running into the room's corners */}
       <mesh geometry={vaultGeometry}>
-        <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
+        <meshBasicMaterial color="#f8f5ef" side={THREE.DoubleSide} />
       </mesh>
       {vaultRibs.map((geometry, i) => (
         <mesh key={`vault-rib-${i}`} geometry={geometry}>
-          <meshStandardMaterial color="#e4ded2" roughness={1} />
+          <meshBasicMaterial color="#dfd9cf" />
         </mesh>
       ))}
 
@@ -440,7 +440,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 2.3, 0));
+  const targetLookAt = useRef(new THREE.Vector3(0, 2.7, 0));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -461,7 +461,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 2.3, 0);
+      targetLookAt.current.set(0, 2.7, 0);
     }
   }, [focusedId, camera, config.focusDistance]);
 
@@ -486,7 +486,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 2.3, 0]}
+      target={[0, 2.7, 0]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
