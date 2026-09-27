@@ -247,6 +247,51 @@ function ArchNiche({ position, rotation = [0, 0, 0] as [number, number, number] 
 }
 
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
+  // A groin vault is the lower envelope of two perpendicular barrel vaults.
+  // The previous rotated cylinders did not form a visible interior ceiling.
+  const vaultGeometry = useMemo(() => {
+    const segments = 64;
+    const positions: number[] = [];
+    const indices: number[] = [];
+    for (let row = 0; row <= segments; row++) {
+      const z = -5 + (10 * row) / segments;
+      for (let col = 0; col <= segments; col++) {
+        const x = -5 + (10 * col) / segments;
+        const edge = Math.max(Math.abs(x), Math.abs(z)) / 5;
+        const y = 3.4 + 1.9 * Math.sqrt(Math.max(0, 1 - edge * edge));
+        positions.push(x, y, z);
+      }
+    }
+    for (let row = 0; row < segments; row++) {
+      for (let col = 0; col < segments; col++) {
+        const a = row * (segments + 1) + col;
+        indices.push(a, a + segments + 1, a + 1, a + 1, a + segments + 1, a + segments + 2);
+      }
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return geometry;
+  }, []);
+  const vaultRibs = useMemo(() => [1, -1].map((direction) => {
+    const points = Array.from({ length: 49 }, (_, i) => {
+      const t = -5 + (10 * i) / 48;
+      return new THREE.Vector3(t, 3.4 + 1.9 * Math.sqrt(Math.max(0, 1 - (t / 5) ** 2)) - 0.025, t * direction);
+    });
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 96, 0.025, 6, false);
+  }), []);
+  const lunetteGeometry = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-5, 0);
+    for (let i = 0; i <= 64; i++) {
+      const x = -5 + (10 * i) / 64;
+      shape.lineTo(x, 1.9 * Math.sqrt(Math.max(0, 1 - (x / 5) ** 2)));
+    }
+    shape.lineTo(-5, 0);
+    return new THREE.ShapeGeometry(shape);
+  }, []);
+
   // Herringbone oak parquet
   const floorTexture = useMemo(() => {
     const S = 1024;
@@ -288,7 +333,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 
   const wallColor = "#f6f3ec";
   const springY = 3.4; // vault spring line
-  const rise = 1.9;    // vault rise
 
   return (
     <group>
@@ -316,33 +360,27 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </mesh>
       ))}
 
-      {/* Lunettes: wall fill under each vault arch */}
+      {/* Curved wall faces beneath the four intersecting vaults */}
       {[
         { p: [0, springY, -4.99], r: 0 },
         { p: [0, springY, 4.99], r: Math.PI },
         { p: [-4.99, springY, 0], r: Math.PI / 2 },
         { p: [4.99, springY, 0], r: -Math.PI / 2 },
-      ].map((w, i) => (
-        <mesh key={`lu${i}`} position={w.p as [number, number, number]} rotation={[0, w.r, 0]} scale={[1, rise / 5, 1]}>
-          <circleGeometry args={[5, 48, 0, Math.PI]} />
-          <meshStandardMaterial color="#f3efe6" roughness={1} />
+      ].map((wall, i) => (
+        <mesh key={`lunette-${i}`} geometry={lunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
+          <meshBasicMaterial color={wallColor} side={THREE.DoubleSide} />
         </mesh>
       ))}
 
-      {/* Groin vault = two intersecting flattened barrel vaults */}
-      <mesh position={[0, springY, 0]} rotation={[0, 0, Math.PI / 2]} scale={[rise / 5, 1, 1]}>
-        <cylinderGeometry args={[5, 5, 10, 48, 1, true, 0, Math.PI]} />
-        <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
+      {/* Plastered cross vault, with the four groins running into the room's corners */}
+      <mesh geometry={vaultGeometry}>
+        <meshBasicMaterial color="#f8f5ef" side={THREE.DoubleSide} />
       </mesh>
-      <mesh position={[0, springY, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]}>
-        <group />
-      </mesh>
-      <group position={[0, springY, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <mesh rotation={[0, 0, Math.PI / 2]} scale={[rise / 5, 1, 1]}>
-          <cylinderGeometry args={[5, 5, 10, 48, 1, true, 0, Math.PI]} />
-          <meshStandardMaterial color="#f8f5ef" roughness={1} side={THREE.DoubleSide} />
+      {vaultRibs.map((geometry, i) => (
+        <mesh key={`vault-rib-${i}`} geometry={geometry}>
+          <meshBasicMaterial color="#dfd9cf" />
         </mesh>
-      </group>
+      ))}
 
       {/* Skirting board */}
       {[
@@ -402,7 +440,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 1.6, 0));
+  const targetLookAt = useRef(new THREE.Vector3(0, 2.7, 0));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -423,7 +461,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 1.6, 0);
+      targetLookAt.current.set(0, 2.7, 0);
     }
   }, [focusedId, camera, config.focusDistance]);
 
@@ -448,7 +486,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 1.6, 0]}
+      target={[0, 2.7, 0]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
