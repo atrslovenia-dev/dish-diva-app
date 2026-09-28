@@ -42,14 +42,14 @@ interface ArtPiece {
 }
 
 const artworks: ArtPiece[] = [
-  { id: "a1", src: akr0086, title: "Krožni svet", artist: "Klavdij Tutta", position: [-2.5, 1.7, -4.85], rotation: [0, 0, 0], scale: [1.6, 1.6] },
-  { id: "a2", src: akr0137, title: "Solarni krog", artist: "Klavdij Tutta", position: [2.5, 1.7, -4.85], rotation: [0, 0, 0], scale: [1.6, 1.6] },
-  { id: "a3", src: akr0645, title: "Abstraktna modrina", artist: "Galerijska zbirka", position: [-4.85, 1.7, -2], rotation: [0, Math.PI / 2, 0], scale: [1.5, 1.1] },
-  { id: "a4", src: akr0613, title: "Sinica", artist: "K. K. Lina", position: [-4.85, 1.7, 2], rotation: [0, Math.PI / 2, 0], scale: [1.3, 1.3] },
-  { id: "a5", src: akr0649, title: "Keramična ploskev", artist: "Galerijska zbirka", position: [4.85, 1.7, -2], rotation: [0, -Math.PI / 2, 0], scale: [1.3, 1.3] },
-  { id: "a6", src: akr0637, title: "Morski spomin", artist: "Galerijska zbirka", position: [4.85, 1.7, 2], rotation: [0, -Math.PI / 2, 0], scale: [1.5, 1.1] },
-  { id: "a7", src: akr0152, title: "Mestni utrip", artist: "Galerijska zbirka", position: [-2.5, 1.7, 4.85], rotation: [0, Math.PI, 0], scale: [1.5, 1.1] },
-  { id: "a8", src: akr0010, title: "Modri horizont", artist: "Galerijska zbirka", position: [2.5, 1.7, 4.85], rotation: [0, Math.PI, 0], scale: [1.5, 1.1] },
+  { id: "a1", src: akr0086, title: "Krožni svet", artist: "Klavdij Tutta", position: [-3.34, 1.65, -4.25], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.45] },
+  { id: "a2", src: akr0137, title: "Solarni krog", artist: "Klavdij Tutta", position: [-3.34, 1.65, -1.8], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.45] },
+  { id: "a3", src: akr0645, title: "Abstraktna modrina", artist: "Galerijska zbirka", position: [-3.34, 1.65, 1.15], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.08] },
+  { id: "a4", src: akr0613, title: "Sinica", artist: "K. K. Lina", position: [-3.34, 1.65, 4.15], rotation: [0, Math.PI / 2, 0], scale: [1.25, 1.25] },
+  { id: "a5", src: akr0649, title: "Keramična ploskev", artist: "Galerijska zbirka", position: [3.34, 1.65, -4.15], rotation: [0, -Math.PI / 2, 0], scale: [1.25, 1.25] },
+  { id: "a6", src: akr0637, title: "Morski spomin", artist: "Galerijska zbirka", position: [3.34, 1.65, -1.25], rotation: [0, -Math.PI / 2, 0], scale: [1.45, 1.08] },
+  { id: "a7", src: akr0152, title: "Mestni utrip", artist: "Galerijska zbirka", position: [3.34, 1.65, 1.8], rotation: [0, -Math.PI / 2, 0], scale: [1.45, 1.08] },
+  { id: "a8", src: akr0010, title: "Modri horizont", artist: "Galerijska zbirka", position: [3.34, 1.65, 4.25], rotation: [0, -Math.PI / 2, 0], scale: [1.45, 1.08] },
 ];
 
 interface PaintingProps {
@@ -209,14 +209,14 @@ function Armchair({ position, rotation = 0 }: { position: [number, number, numbe
   );
 }
 
-function TrackLight({ z }: { z: number }) {
-  const heads = [-3.6, -1.8, 0, 1.8, 3.6];
+function TrackLight({ x }: { x: number }) {
+  const heads = [-4.6, -2.3, 0, 2.3, 4.6];
   return (
-    <group position={[0, 3.55, z]}>
-      <mesh><boxGeometry args={[9, 0.04, 0.05]} /><meshStandardMaterial color="#141414" roughness={0.4} metalness={0.6} /></mesh>
-      {heads.map((x, i) => (
-        <group key={i} position={[x, -0.1, 0]} rotation={[z < 0 ? -0.6 : 0.6, 0, 0]}>
-          <mesh><cylinderGeometry args={[0.05, 0.065, 0.18, 12]} /><meshStandardMaterial color="#141414" metalness={0.6} roughness={0.35} /></mesh>
+    <group position={[x, 3.02, 0]}>
+      <mesh><boxGeometry args={[0.04, 0.035, 10.8]} /><meshStandardMaterial color="#e7e2d8" roughness={0.55} metalness={0.2} /></mesh>
+      {heads.map((z, i) => (
+        <group key={i} position={[0, -0.1, z]} rotation={[z < 0 ? -0.45 : 0.45, 0, 0]}>
+          <mesh><cylinderGeometry args={[0.05, 0.065, 0.18, 12]} /><meshStandardMaterial color="#eee9df" metalness={0.25} roughness={0.5} /></mesh>
           <mesh position={[0, -0.091, 0]} rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[0.05, 12]} /><meshBasicMaterial color="#fff3d6" /></mesh>
         </group>
       ))}
@@ -247,48 +247,64 @@ function ArchNiche({ position, rotation = [0, 0, 0] as [number, number, number] 
 }
 
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
-  // A groin vault is the lower envelope of two perpendicular barrel vaults.
-  // The previous rotated cylinders did not form a visible interior ceiling.
-  const vaultGeometry = useMemo(() => {
-    const segments = 64;
+  const roomWidth = 6.8;
+  const roomLength = 12;
+  const springY = 3.15;
+  const bayDepth = 4;
+  const vaultRise = 1.18;
+  const bayCenters = [-4, 0, 4];
+
+  // The film shows a long sequence of shallow cross-vaulted bays, not one
+  // square canopy. Each bay is the inner envelope of perpendicular barrels.
+  const vaultBays = useMemo(() => bayCenters.map((centerZ) => {
+    const segmentsX = 44;
+    const segmentsZ = 32;
+    const halfW = roomWidth / 2;
+    const halfD = bayDepth / 2;
     const positions: number[] = [];
     const indices: number[] = [];
-    for (let row = 0; row <= segments; row++) {
-      const z = -5 + (10 * row) / segments;
-      for (let col = 0; col <= segments; col++) {
-        const x = -5 + (10 * col) / segments;
-        const edge = Math.max(Math.abs(x), Math.abs(z)) / 5;
-        const y = 3.4 + 1.9 * Math.sqrt(Math.max(0, 1 - edge * edge));
-        positions.push(x, y, z);
+    for (let row = 0; row <= segmentsZ; row++) {
+      const localZ = -halfD + (bayDepth * row) / segmentsZ;
+      for (let col = 0; col <= segmentsX; col++) {
+        const x = -halfW + (roomWidth * col) / segmentsX;
+        const barrelAcrossRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2));
+        const barrelAlongRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (localZ / halfD) ** 2));
+        const y = Math.max(barrelAcrossRoom, barrelAlongRoom);
+        positions.push(x, y, localZ + centerZ);
       }
     }
-    for (let row = 0; row < segments; row++) {
-      for (let col = 0; col < segments; col++) {
-        const a = row * (segments + 1) + col;
-        indices.push(a, a + segments + 1, a + 1, a + 1, a + segments + 1, a + segments + 2);
+    for (let row = 0; row < segmentsZ; row++) {
+      for (let col = 0; col < segmentsX; col++) {
+        const a = row * (segmentsX + 1) + col;
+        indices.push(a, a + segmentsX + 1, a + 1, a + 1, a + segmentsX + 1, a + segmentsX + 2);
       }
     }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-    return geometry;
-  }, []);
-  const vaultRibs = useMemo(() => [1, -1].map((direction) => {
-    const points = Array.from({ length: 49 }, (_, i) => {
-      const t = -5 + (10 * i) / 48;
-      return new THREE.Vector3(t, 3.4 + 1.9 * Math.sqrt(Math.max(0, 1 - (t / 5) ** 2)) - 0.025, t * direction);
+    const surface = new THREE.BufferGeometry();
+    surface.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    surface.setIndex(indices);
+    surface.computeVertexNormals();
+
+    const ribs = [1, -1].map((direction) => {
+      const points = Array.from({ length: 41 }, (_, i) => {
+        const x = -halfW + (roomWidth * i) / 40;
+        const localZ = direction * (x / halfW) * halfD;
+        const y = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2)) - 0.018;
+        return new THREE.Vector3(x, y, localZ + centerZ);
+      });
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 72, 0.018, 6, false);
     });
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 96, 0.025, 6, false);
+    return { surface, ribs };
   }), []);
-  const lunetteGeometry = useMemo(() => {
+
+  const endLunetteGeometry = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(-5, 0);
-    for (let i = 0; i <= 64; i++) {
-      const x = -5 + (10 * i) / 64;
-      shape.lineTo(x, 1.9 * Math.sqrt(Math.max(0, 1 - (x / 5) ** 2)));
+    const halfW = roomWidth / 2;
+    shape.moveTo(-halfW, 0);
+    for (let i = 0; i <= 48; i++) {
+      const x = -halfW + (roomWidth * i) / 48;
+      shape.lineTo(x, vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2)));
     }
-    shape.lineTo(-5, 0);
+    shape.lineTo(-halfW, 0);
     return new THREE.ShapeGeometry(shape);
   }, []);
 
@@ -332,7 +348,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   }, []);
 
   const wallColor = "#f6f3ec";
-  const springY = 3.4; // vault spring line
 
   return (
     <group>
@@ -343,69 +358,85 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 
       {/* Herringbone parquet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} onClick={() => setFocusedId(null)} receiveShadow>
-        <planeGeometry args={[10, 10]} />
+        <planeGeometry args={[roomWidth, roomLength]} />
         <meshStandardMaterial map={floorTexture} roughness={0.55} />
       </mesh>
 
       {/* White plastered walls */}
       {[
-        { p: [0, springY / 2, -5], r: 0 },
-        { p: [0, springY / 2, 5], r: Math.PI },
-        { p: [-5, springY / 2, 0], r: Math.PI / 2 },
-        { p: [5, springY / 2, 0], r: -Math.PI / 2 },
+        { p: [0, springY / 2, -6], r: 0, width: roomWidth },
+        { p: [0, springY / 2, 6], r: Math.PI, width: roomWidth },
+        { p: [-3.4, springY / 2, 0], r: Math.PI / 2, width: roomLength },
+        { p: [3.4, springY / 2, 0], r: -Math.PI / 2, width: roomLength },
       ].map((w, i) => (
         <mesh key={`w${i}`} position={w.p as [number, number, number]} rotation={[0, w.r, 0]} receiveShadow>
-          <planeGeometry args={[10, springY]} />
+          <planeGeometry args={[w.width, springY]} />
           <meshStandardMaterial color={wallColor} roughness={0.95} />
         </mesh>
       ))}
 
-      {/* Curved wall faces beneath the four intersecting vaults */}
+      {/* Semicircular end faces visible above the window and passage */}
       {[
-        { p: [0, springY, -4.99], r: 0 },
-        { p: [0, springY, 4.99], r: Math.PI },
-        { p: [-4.99, springY, 0], r: Math.PI / 2 },
-        { p: [4.99, springY, 0], r: -Math.PI / 2 },
+        { p: [0, springY, -5.99], r: 0 },
+        { p: [0, springY, 5.99], r: Math.PI },
       ].map((wall, i) => (
-        <mesh key={`lunette-${i}`} geometry={lunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
-          <meshBasicMaterial color={wallColor} side={THREE.DoubleSide} />
+        <mesh key={`lunette-${i}`} geometry={endLunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
+          <meshStandardMaterial color={wallColor} roughness={0.95} side={THREE.DoubleSide} />
         </mesh>
       ))}
 
-      {/* Plastered cross vault, with the four groins running into the room's corners */}
-      <mesh geometry={vaultGeometry}>
-        <meshBasicMaterial color="#f8f5ef" side={THREE.DoubleSide} />
-      </mesh>
-      {vaultRibs.map((geometry, i) => (
-        <mesh key={`vault-rib-${i}`} geometry={geometry}>
-          <meshBasicMaterial color="#dfd9cf" />
-        </mesh>
+      {/* Three shallow plaster bays reproduce the rhythm visible in the film. */}
+      {vaultBays.map((bay, bayIndex) => (
+        <group key={`vault-bay-${bayIndex}`}>
+          <mesh geometry={bay.surface} receiveShadow>
+            <meshStandardMaterial color="#f8f5ef" roughness={0.98} side={THREE.DoubleSide} />
+          </mesh>
+          {bay.ribs.map((geometry, ribIndex) => (
+            <mesh key={`vault-rib-${bayIndex}-${ribIndex}`} geometry={geometry}>
+              <meshStandardMaterial color="#ddd7cd" roughness={1} />
+            </mesh>
+          ))}
+        </group>
       ))}
+
+      {/* Wide recessed shop window at one end, as seen in the film. */}
+      <group position={[0, 0, -5.96]}>
+        <mesh position={[0, 1.35, 0.012]}>
+          <planeGeometry args={[2.45, 2.35]} />
+          <meshStandardMaterial color="#788f91" roughness={0.3} metalness={0.05} />
+        </mesh>
+        <mesh position={[0, 2.47, 0.026]}>
+          <ringGeometry args={[1.1, 1.22, 48, 1, 0, Math.PI]} />
+          <meshStandardMaterial color="#ece7dd" roughness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.18, 0.03]}><boxGeometry args={[2.62, 0.16, 0.1]} /><meshStandardMaterial color="#d8d0c2" /></mesh>
+        <mesh position={[-1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
+        <mesh position={[1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
+      </group>
 
       {/* Skirting board */}
       {[
-        { p: [0, 0.05, -4.98], r: 0 }, { p: [0, 0.05, 4.98], r: Math.PI },
-        { p: [-4.98, 0.05, 0], r: Math.PI / 2 }, { p: [4.98, 0.05, 0], r: -Math.PI / 2 },
+        { p: [0, 0.05, -5.98], r: 0, width: roomWidth }, { p: [0, 0.05, 5.98], r: Math.PI, width: roomWidth },
+        { p: [-3.38, 0.05, 0], r: Math.PI / 2, width: roomLength }, { p: [3.38, 0.05, 0], r: -Math.PI / 2, width: roomLength },
       ].map((b, i) => (
         <mesh key={`sk${i}`} position={b.p as [number, number, number]} rotation={[0, b.r, 0]}>
-          <planeGeometry args={[10, 0.1]} />
+          <planeGeometry args={[b.width, 0.1]} />
           <meshStandardMaterial color="#e9e3d6" roughness={0.8} />
         </mesh>
       ))}
 
       {/* Arched niche / passage between paintings */}
-      <ArchNiche position={[0, 0, 4.98]} rotation={[0, Math.PI, 0]} />
-      <ArchNiche position={[0, 0, -4.98]} />
+      <ArchNiche position={[0, 0, 5.98]} rotation={[0, Math.PI, 0]} />
 
       {/* Black track lights */}
-      <TrackLight z={-2.6} />
-      <TrackLight z={2.6} />
+      <TrackLight x={-1.45} />
+      <TrackLight x={1.45} />
 
       {/* Furniture as in the real gallery */}
-      <Sofa position={[-3.2, 0, 0]} rotation={Math.PI / 2} />
-      <Armchair position={[3.3, 0, -0.2]} rotation={-Math.PI / 2 - 0.3} />
+      <Sofa position={[-1.35, 0, 0.45]} rotation={Math.PI} />
+      <Armchair position={[2.55, 0, -3.9]} rotation={-Math.PI / 2 - 0.25} />
       {/* small ceramic plinth */}
-      <group position={[3.4, 0, 1.1]}>
+      <group position={[2.55, 0, 3.65]}>
         <mesh position={[0, 0.35, 0]}><boxGeometry args={[0.45, 0.7, 0.45]} /><meshStandardMaterial color="#a5764a" roughness={0.7} /></mesh>
         <mesh position={[0, 0.85, 0]}><sphereGeometry args={[0.14, 20, 16]} /><meshStandardMaterial color="#2f5d6e" roughness={0.3} /></mesh>
       </group>
@@ -440,7 +471,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 2.7, 0));
+  const targetLookAt = useRef(new THREE.Vector3(0, 1.55, -1.4));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -461,7 +492,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 2.7, 0);
+      targetLookAt.current.set(0, 1.55, -1.4);
     }
   }, [focusedId, camera, config.focusDistance]);
 
@@ -472,7 +503,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.9, config.mobile ? 4.2 : 3.6);
+    camera.position.set(config.mobile ? 1.35 : 1.8, 1.55, config.mobile ? 4.8 : 4.7);
   }, [camera, config.mobile]);
 
 
@@ -486,7 +517,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 2.7, 0]}
+      target={[0, 1.55, -1.4]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
@@ -540,7 +571,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
         <Canvas
           dpr={[1, 1.5]}
           frameloop={visible ? "always" : "demand"}
-          camera={{ position: [0, 1.9, config.mobile ? 4.2 : 3.6], fov: config.fov }}
+          camera={{ position: [config.mobile ? 1.35 : 1.8, 1.55, config.mobile ? 4.8 : 4.7], fov: config.fov }}
           gl={{
             antialias: true,
             powerPreference: "high-performance",
