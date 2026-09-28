@@ -1,1 +1,1 @@
-Render the virtual gallery's cross vault as a continuous intersecting-barrel ceiling mesh with visible groin ribs and wall lunettes, because separate rotated cylinders hid the ceiling and did not form a readable vault.
+Render the virtual gallery as a long sequence of shallow cross-vaulted bays with visible diagonal groins and end lunettes, matching the film's architecture instead of using one square canopy.

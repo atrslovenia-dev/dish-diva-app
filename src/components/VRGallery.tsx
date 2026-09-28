@@ -269,7 +269,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         const x = -halfW + (roomWidth * col) / segmentsX;
         const barrelAcrossRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2));
         const barrelAlongRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (localZ / halfD) ** 2));
-        const y = Math.max(barrelAcrossRoom, barrelAlongRoom);
+        const y = Math.min(barrelAcrossRoom, barrelAlongRoom);
         positions.push(x, y, localZ + centerZ);
       }
     }
