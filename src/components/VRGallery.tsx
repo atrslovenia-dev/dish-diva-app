@@ -212,7 +212,7 @@ function Armchair({ position, rotation = 0 }: { position: [number, number, numbe
 function TrackLight({ z }: { z: number }) {
   const heads = [-2.7, -1.35, 0, 1.35, 2.7];
   return (
-    <group position={[0, 3.55, z]}>
+    <group position={[0, 3.02, z]}>
       <mesh><boxGeometry args={[6.1, 0.04, 0.05]} /><meshStandardMaterial color="#141414" roughness={0.4} metalness={0.6} /></mesh>
       {heads.map((x, i) => (
         <group key={i} position={[x, -0.1, 0]} rotation={[z < 0 ? -0.6 : 0.6, 0, 0]}>
@@ -402,14 +402,16 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       {/* Wide recessed shop window at one end, as seen in the film. */}
       <group position={[0, 0, -5.96]}>
         <mesh position={[0, 1.35, 0.012]}>
-          <planeGeometry args={[2.5, 2.5]} />
-          <meshStandardMaterial color="#d8ddd9" roughness={0.25} metalness={0.08} />
+          <planeGeometry args={[2.45, 2.35]} />
+          <meshStandardMaterial color="#788f91" roughness={0.3} metalness={0.05} />
         </mesh>
-        <mesh position={[0, 1.35, 0.025]}>
-          <ringGeometry args={[1.14, 1.25, 48, 1, 0, Math.PI]} />
+        <mesh position={[0, 2.47, 0.026]}>
+          <ringGeometry args={[1.1, 1.22, 48, 1, 0, Math.PI]} />
           <meshStandardMaterial color="#ece7dd" roughness={0.9} />
         </mesh>
         <mesh position={[0, 0.18, 0.03]}><boxGeometry args={[2.62, 0.16, 0.1]} /><meshStandardMaterial color="#d8d0c2" /></mesh>
+        <mesh position={[-1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
+        <mesh position={[1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
       </group>
 
       {/* Skirting board */}
@@ -470,7 +472,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 2.7, 0));
+  const targetLookAt = useRef(new THREE.Vector3(0, 1.65, -1.2));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -491,7 +493,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 2.7, 0);
+      targetLookAt.current.set(0, 1.65, -1.2);
     }
   }, [focusedId, camera, config.focusDistance]);
 
@@ -502,7 +504,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.9, config.mobile ? 4.2 : 3.6);
+    camera.position.set(0, 1.65, config.mobile ? 4.7 : 4.4);
   }, [camera, config.mobile]);
 
 
@@ -516,7 +518,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 2.7, 0]}
+      target={[0, 1.65, -1.2]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
@@ -570,7 +572,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
         <Canvas
           dpr={[1, 1.5]}
           frameloop={visible ? "always" : "demand"}
-          camera={{ position: [0, 1.9, config.mobile ? 4.2 : 3.6], fov: config.fov }}
+          camera={{ position: [0, 1.65, config.mobile ? 4.7 : 4.4], fov: config.fov }}
           gl={{
             antialias: true,
             powerPreference: "high-performance",
