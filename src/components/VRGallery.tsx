@@ -209,14 +209,14 @@ function Armchair({ position, rotation = 0 }: { position: [number, number, numbe
   );
 }
 
-function TrackLight({ z }: { z: number }) {
-  const heads = [-2.7, -1.35, 0, 1.35, 2.7];
+function TrackLight({ x }: { x: number }) {
+  const heads = [-4.6, -2.3, 0, 2.3, 4.6];
   return (
-    <group position={[0, 3.02, z]}>
-      <mesh><boxGeometry args={[6.1, 0.04, 0.05]} /><meshStandardMaterial color="#141414" roughness={0.4} metalness={0.6} /></mesh>
-      {heads.map((x, i) => (
-        <group key={i} position={[x, -0.1, 0]} rotation={[z < 0 ? -0.6 : 0.6, 0, 0]}>
-          <mesh><cylinderGeometry args={[0.05, 0.065, 0.18, 12]} /><meshStandardMaterial color="#141414" metalness={0.6} roughness={0.35} /></mesh>
+    <group position={[x, 3.02, 0]}>
+      <mesh><boxGeometry args={[0.04, 0.035, 10.8]} /><meshStandardMaterial color="#e7e2d8" roughness={0.55} metalness={0.2} /></mesh>
+      {heads.map((z, i) => (
+        <group key={i} position={[0, -0.1, z]} rotation={[z < 0 ? -0.45 : 0.45, 0, 0]}>
+          <mesh><cylinderGeometry args={[0.05, 0.065, 0.18, 12]} /><meshStandardMaterial color="#eee9df" metalness={0.25} roughness={0.5} /></mesh>
           <mesh position={[0, -0.091, 0]} rotation={[Math.PI / 2, 0, 0]}><circleGeometry args={[0.05, 12]} /><meshBasicMaterial color="#fff3d6" /></mesh>
         </group>
       ))}
@@ -269,7 +269,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         const x = -halfW + (roomWidth * col) / segmentsX;
         const barrelAcrossRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2));
         const barrelAlongRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (localZ / halfD) ** 2));
-        const y = Math.min(barrelAcrossRoom, barrelAlongRoom);
+        const y = Math.max(barrelAcrossRoom, barrelAlongRoom);
         positions.push(x, y, localZ + centerZ);
       }
     }
@@ -429,9 +429,8 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       <ArchNiche position={[0, 0, 5.98]} rotation={[0, Math.PI, 0]} />
 
       {/* Black track lights */}
-      <TrackLight z={-3.8} />
-      <TrackLight z={0} />
-      <TrackLight z={3.8} />
+      <TrackLight x={-1.45} />
+      <TrackLight x={1.45} />
 
       {/* Furniture as in the real gallery */}
       <Sofa position={[-1.35, 0, 0.45]} rotation={Math.PI} />
@@ -472,7 +471,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 1.65, -1.2));
+  const targetLookAt = useRef(new THREE.Vector3(0, 1.55, -1.4));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -493,7 +492,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 1.65, -1.2);
+      targetLookAt.current.set(0, 1.55, -1.4);
     }
   }, [focusedId, camera, config.focusDistance]);
 
@@ -504,7 +503,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
   });
 
   useEffect(() => {
-    camera.position.set(0, 1.65, config.mobile ? 4.7 : 4.4);
+    camera.position.set(config.mobile ? 1.35 : 1.8, 1.55, config.mobile ? 4.8 : 4.7);
   }, [camera, config.mobile]);
 
 
@@ -518,7 +517,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 1.65, -1.2]}
+      target={[0, 1.55, -1.4]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
@@ -572,7 +571,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
         <Canvas
           dpr={[1, 1.5]}
           frameloop={visible ? "always" : "demand"}
-          camera={{ position: [0, 1.65, config.mobile ? 4.7 : 4.4], fov: config.fov }}
+          camera={{ position: [config.mobile ? 1.35 : 1.8, 1.55, config.mobile ? 4.8 : 4.7], fov: config.fov }}
           gl={{
             antialias: true,
             powerPreference: "high-performance",
