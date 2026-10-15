@@ -1,1 +1,2 @@
 Render the virtual gallery as a long sequence of shallow cross-vaulted bays with visible diagonal groins and end lunettes, matching the film's architecture instead of using one square canopy.
+Close both side and end lunettes against the vaulted surface and construct arched openings with wall cutouts and deep reveals; this prevents floating canopies and flat painted-door substitutes.

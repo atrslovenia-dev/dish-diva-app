@@ -62,9 +62,8 @@ const salonArtworks: ArtPiece[] = galleryImages.filter((image) =>
   const local = index % 7;
   return {
     id: `salon-${index}`, src: image.src, title: image.title, artist: image.artist,
-    position: [left ? -1.88 : 1.88, 1.05 + Math.floor(local / 3) * 0.64, -5.93],
+    position: [(left ? -2.95 : 1.62) + (local % 3) * 0.52, 1.05 + Math.floor(local / 3) * 0.64, -5.93] as [number, number, number],
     rotation: [0, 0, 0], scale: [0.42, 0.48],
-    ...{ position: [(left ? -2.35 : 1.65) + (local % 3) * 0.52, 1.05 + Math.floor(local / 3) * 0.64, -5.93] as [number, number, number] },
   };
 });
 const artworks: ArtPiece[] = [...featuredArtworks, ...salonArtworks];
@@ -237,24 +236,50 @@ function TrackLight({ x }: { x: number }) {
   );
 }
 
-function ArchNiche({ position, rotation = [0, 0, 0] as [number, number, number] }: { position: [number, number, number]; rotation?: [number, number, number] }) {
-  const w = 1.5, h = 2.3, r = w / 2;
-  const shape = useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(-r, 0); s.lineTo(-r, h); s.absarc(0, h, r, Math.PI, 0, true); s.lineTo(r, 0); s.lineTo(-r, 0);
-    return s;
-  }, []);
+function EndWall({ entrance }: { entrance: boolean }) {
+  const halfOpening = entrance ? 1.18 : 1.05;
+  const archSpring = 2.15;
+  const { wall, reveal } = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
+    shape.lineTo(3.4, 3.15); shape.lineTo(-3.4, 3.15); shape.closePath();
+    const hole = new THREE.Path();
+    hole.moveTo(-halfOpening, -0.01); hole.lineTo(-halfOpening, archSpring);
+    hole.absarc(0, archSpring, halfOpening, Math.PI, 0, true);
+    hole.lineTo(halfOpening, -0.01); hole.closePath();
+    shape.holes.push(hole);
+    const arch = new THREE.Shape();
+    arch.moveTo(-halfOpening - 0.12, 0); arch.lineTo(-halfOpening - 0.12, archSpring);
+    arch.absarc(0, archSpring, halfOpening + 0.12, Math.PI, 0, true);
+    arch.lineTo(halfOpening + 0.12, 0); arch.lineTo(halfOpening, 0);
+    arch.lineTo(halfOpening, archSpring);
+    arch.absarc(0, archSpring, halfOpening, 0, Math.PI, false);
+    arch.lineTo(-halfOpening, 0); arch.closePath();
+    return { wall: new THREE.ShapeGeometry(shape, 64), reveal: new THREE.ExtrudeGeometry(arch, { depth: 0.48, bevelEnabled: false, curveSegments: 48 }) };
+  }, [halfOpening]);
   return (
-    <group position={position} rotation={rotation}>
-      <mesh position={[0, 0, 0.004]}>
-        <shapeGeometry args={[shape, 32]} />
-        <meshStandardMaterial color="#cfc8bb" roughness={1} />
+    <group position={[0, 0, entrance ? -6 : 6]} rotation={[0, entrance ? 0 : Math.PI, 0]}>
+      <mesh geometry={wall}>
+        <meshStandardMaterial color="#f6f3ec" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
-      {/* soft depth shade at top of the arch */}
-      <mesh position={[0, h, 0.006]}>
-        <ringGeometry args={[r - 0.08, r, 32, 1, 0, Math.PI]} />
-        <meshStandardMaterial color="#b9b2a5" roughness={1} />
+      <mesh geometry={reveal} position={[0, 0, -0.48]}>
+        <meshStandardMaterial color="#e5e2da" roughness={0.9} />
       </mesh>
+      {entrance ? <group position={[0, 0, -0.42]}>
+        <mesh position={[0, 1.48, -0.01]}>
+          <planeGeometry args={[2.34, 2.95]} />
+          <meshStandardMaterial color="#b5d3d4" emissive="#d1e6df" emissiveIntensity={0.3} roughness={0.35} />
+        </mesh>
+        {[-1.14, 0, 1.14].map((x) => <mesh key={x} position={[x, 1.4, 0.02]}>
+          <boxGeometry args={[0.05, 2.8, 0.08]} /><meshStandardMaterial color="#3a4849" roughness={0.55} />
+        </mesh>)}
+        <mesh position={[0, 0.055, 0.12]}><boxGeometry args={[2.3, 0.11, 0.65]} /><meshStandardMaterial color="#9c7372" /></mesh>
+        <mesh position={[0, 2.8, 0.02]}><boxGeometry args={[2.3, 0.05, 0.08]} /><meshStandardMaterial color="#3a4849" /></mesh>
+      </group> : <group position={[0, 0, -2]}>
+        <mesh position={[0, 1.65, -1.5]}><planeGeometry args={[3.2, 3.3]} /><meshStandardMaterial color="#e9e5dd" /></mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.2, 3]} /><meshStandardMaterial color="#b99165" roughness={0.65} /></mesh>
+        <pointLight position={[0, 2.7, -0.5]} intensity={4} distance={5} />
+      </group>}
     </group>
   );
 }
@@ -373,13 +398,13 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     <group>
       <color attach="background" args={["#efe9dd"]} />
       <Environment resolution={64}>
-        <Lightformer intensity={1.5} position={[0, 2, -5.8]} scale={[3, 3, 1]} />
-        <Lightformer intensity={0.75} position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} scale={[7, 12, 1]} color="#f0e6d6" />
+        <Lightformer intensity={0.7} position={[0, 2, -5.8]} scale={[3, 3, 1]} />
+        <Lightformer intensity={0.35} position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} scale={[7, 12, 1]} color="#f0e6d6" />
       </Environment>
-      <hemisphereLight args={["#ffffff", "#e7dfd3", 1.5]} />
-      <ambientLight intensity={0.8} color="#ffffff" />
-      <directionalLight position={[0, 2.5, -5]} intensity={1.8} color="#ffffff" />
-      {bayCenters.map((z) => <pointLight key={`bounce-${z}`} position={[0, 2.5, z]} intensity={5} distance={7} decay={2} color="#fffaf4" />)}
+      <hemisphereLight args={["#ffffff", "#e7dfd3", 0.9]} />
+      <ambientLight intensity={0.45} color="#ffffff" />
+      <directionalLight position={[0, 2.5, -5]} intensity={0.9} color="#ffffff" />
+      {bayCenters.map((z) => <pointLight key={`bounce-${z}`} position={[0, 2.5, z]} intensity={3} distance={7} decay={2} color="#fffaf4" />)}
 
       {/* Herringbone parquet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} onClick={() => setFocusedId(null)} receiveShadow>
@@ -389,8 +414,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 
       {/* White plastered walls */}
       {[
-        { p: [0, springY / 2, -6], r: 0, width: roomWidth },
-        { p: [0, springY / 2, 6], r: Math.PI, width: roomWidth },
         { p: [-3.4, springY / 2, 0], r: Math.PI / 2, width: roomLength },
         { p: [3.4, springY / 2, 0], r: -Math.PI / 2, width: roomLength },
       ].map((w, i) => (
@@ -399,6 +422,8 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
           <meshStandardMaterial color={wallColor} roughness={0.95} />
         </mesh>
       ))}
+      <EndWall entrance />
+      <EndWall entrance={false} />
 
       {/* Semicircular end faces visible above the window and passage */}
       {[
@@ -432,21 +457,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </group>
       ))}
 
-      {/* Wide recessed shop window at one end, as seen in the film. */}
-      <group position={[0, 0, -5.96]}>
-        <mesh position={[0, 1.35, 0.012]}>
-          <planeGeometry args={[2.45, 2.35]} />
-          <meshStandardMaterial color="#788f91" roughness={0.3} metalness={0.05} />
-        </mesh>
-        <mesh position={[0, 2.47, 0.026]}>
-          <ringGeometry args={[1.1, 1.22, 48, 1, 0, Math.PI]} />
-          <meshStandardMaterial color="#ece7dd" roughness={0.9} />
-        </mesh>
-        <mesh position={[0, 0.18, 0.03]}><boxGeometry args={[2.62, 0.16, 0.1]} /><meshStandardMaterial color="#d8d0c2" /></mesh>
-        <mesh position={[-1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
-        <mesh position={[1.25, 1.4, 0.035]}><boxGeometry args={[0.12, 2.55, 0.1]} /><meshStandardMaterial color="#e8e2d7" /></mesh>
-      </group>
-
       {/* Skirting board */}
       {[
         { p: [0, 0.05, -5.98], r: 0, width: roomWidth }, { p: [0, 0.05, 5.98], r: Math.PI, width: roomWidth },
@@ -457,9 +467,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
           <meshStandardMaterial color="#e9e3d6" roughness={0.8} />
         </mesh>
       ))}
-
-      {/* Arched niche / passage between paintings */}
-      <ArchNiche position={[0, 0, 5.98]} rotation={[0, Math.PI, 0]} />
 
       {/* Black track lights */}
       <TrackLight x={-1.45} />
@@ -614,7 +621,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
             antialias: true,
             powerPreference: "high-performance",
             toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.15,
+            toneMappingExposure: 1.05,
           }}
         >
           <Suspense fallback={null}>
