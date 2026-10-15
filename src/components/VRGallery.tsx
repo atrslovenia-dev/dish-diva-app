@@ -1,7 +1,9 @@
 import { Suspense, useRef, useState, useMemo, useEffect, createContext, useContext } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { OrbitControls, Text } from "@react-three/drei";
+import { OrbitControls, Text, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
+import { Button } from "@/components/ui/button";
+import { galleryImages } from "@/data/gallery";
 
 import akr0086 from "@/assets/gallery/AKR_0086.jpg";
 import akr0137 from "@/assets/gallery/AKR_0137.jpg";
@@ -41,7 +43,7 @@ interface ArtPiece {
   scale: [number, number];
 }
 
-const artworks: ArtPiece[] = [
+const featuredArtworks: ArtPiece[] = [
   { id: "a1", src: akr0086, title: "Krožni svet", artist: "Klavdij Tutta", position: [-3.34, 1.65, -4.25], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.45] },
   { id: "a2", src: akr0137, title: "Solarni krog", artist: "Klavdij Tutta", position: [-3.34, 1.65, -1.8], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.45] },
   { id: "a3", src: akr0645, title: "Abstraktna modrina", artist: "Galerijska zbirka", position: [-3.34, 1.65, 1.15], rotation: [0, Math.PI / 2, 0], scale: [1.45, 1.08] },
@@ -51,6 +53,21 @@ const artworks: ArtPiece[] = [
   { id: "a7", src: akr0152, title: "Mestni utrip", artist: "Galerijska zbirka", position: [3.34, 1.65, 1.8], rotation: [0, -Math.PI / 2, 0], scale: [1.45, 1.08] },
   { id: "a8", src: akr0010, title: "Modri horizont", artist: "Galerijska zbirka", position: [3.34, 1.65, 4.25], rotation: [0, -Math.PI / 2, 0], scale: [1.45, 1.08] },
 ];
+
+// Smaller salon-style groups seen around the entrance in the reference film.
+const salonArtworks: ArtPiece[] = galleryImages.filter((image) =>
+  !featuredArtworks.some((art) => art.src === image.src)
+).slice(4, 18).map((image, index) => {
+  const left = index < 7;
+  const local = index % 7;
+  return {
+    id: `salon-${index}`, src: image.src, title: image.title, artist: image.artist,
+    position: [left ? -1.88 : 1.88, 1.05 + Math.floor(local / 3) * 0.64, -5.93],
+    rotation: [0, 0, 0], scale: [0.42, 0.48],
+    ...{ position: [(left ? -2.35 : 1.65) + (local % 3) * 0.52, 1.05 + Math.floor(local / 3) * 0.64, -5.93] as [number, number, number] },
+  };
+});
+const artworks: ArtPiece[] = [...featuredArtworks, ...salonArtworks];
 
 interface PaintingProps {
   art: ArtPiece;
@@ -71,7 +88,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
   const { camera } = useThree();
   const tmpObj = useMemo(() => new THREE.Object3D(), []);
   const tmpVec = useMemo(() => new THREE.Vector3(), []);
-  const focusTarget = useMemo(() => new THREE.Vector3(), []);
+
   const focusAnchor = useRef<THREE.Vector3 | null>(null);
 
   // When focus changes, snapshot a stable world-space anchor in front of the
@@ -89,14 +106,15 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
     }
   }, [focused, camera, tmpVec, config.focusDistance]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!groupRef.current) return;
+    const ease = 1 - Math.exp(-7 * Math.min(delta, 0.05));
 
     const target = focused && focusAnchor.current ? focusAnchor.current : basePos;
-    groupRef.current.position.lerp(target, 0.1);
+    groupRef.current.position.lerp(target, ease);
 
     const targetScale = focused ? config.focusScale : 1;
-    const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * 0.1;
+    const s = groupRef.current.scale.x + (targetScale - groupRef.current.scale.x) * ease;
     groupRef.current.scale.setScalar(s);
 
     let targetQuat = baseQuat;
@@ -105,12 +123,12 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
       tmpObj.lookAt(camera.position);
       targetQuat = tmpObj.quaternion;
     }
-    groupRef.current.quaternion.slerp(targetQuat, 0.12);
+    groupRef.current.quaternion.slerp(targetQuat, ease);
   });
 
 
-  const frameW = art.scale[0] + 0.12;
-  const frameH = art.scale[1] + 0.12;
+  const frameW = art.scale[0] + 0.065;
+  const frameH = art.scale[1] + 0.065;
   const dimmed = anyFocused && !focused;
 
   return (
@@ -125,12 +143,7 @@ function Painting({ art, focused, anyFocused, onFocus }: PaintingProps) {
       {/* Černigoj-style black geometric frame */}
       <mesh position={[0, 0, -0.02]}>
         <boxGeometry args={[frameW, frameH, 0.04]} />
-        <meshStandardMaterial color={hovered || focused ? "#8b1a1a" : "#0a0a0a"} roughness={0.5} metalness={0.2} transparent opacity={dimmed ? 0.25 : 1} />
-      </mesh>
-      {/* Red accent strip (constructivist) */}
-      <mesh position={[frameW / 2 - 0.04, 0, -0.015]}>
-        <boxGeometry args={[0.04, frameH, 0.045]} />
-        <meshStandardMaterial color="#a01818" roughness={0.4} transparent opacity={dimmed ? 0.25 : 1} />
+        <meshStandardMaterial color={hovered || focused ? "#a79066" : art.id.startsWith("salon") ? "#cfbd9c" : "#d6c8ad"} roughness={0.5} metalness={0.2} transparent opacity={dimmed ? 0.25 : 1} />
       </mesh>
       <mesh position={[0, 0, 0.005]}>
         <planeGeometry args={art.scale} />
@@ -251,7 +264,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   const roomLength = 12;
   const springY = 3.15;
   const bayDepth = 4;
-  const vaultRise = 1.18;
+  const vaultRise = 0.92;
   const bayCenters = [-4, 0, 4];
 
   // The film shows a long sequence of shallow cross-vaulted bays, not one
@@ -291,7 +304,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         const y = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2)) - 0.018;
         return new THREE.Vector3(x, y, localZ + centerZ);
       });
-      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 72, 0.018, 6, false);
+      return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 72, 0.008, 6, false);
     });
     return { surface, ribs };
   }), []);
@@ -308,43 +321,50 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     return new THREE.ShapeGeometry(shape);
   }, []);
 
-  // Herringbone oak parquet
-  const floorTexture = useMemo(() => {
-    const S = 1024;
-    const canvas = document.createElement("canvas");
-    canvas.width = S; canvas.height = S;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#b98a57"; ctx.fillRect(0, 0, S, S);
-    const L = 128, Wd = 32;
-    const tones = ["#c49563", "#b8864f", "#cc9f6c", "#ad7c48", "#c08e5a", "#d1a674"];
-    ctx.save(); ctx.translate(S / 2, S / 2); ctx.rotate(Math.PI / 4); ctx.translate(-S, -S);
-    for (let row = -2; row < (S * 2) / Wd + 2; row++) {
-      for (let col = -2; col < (S * 2) / L + 4; col++) {
-        const x = col * L + (row % 2) * 0 , y = row * Wd;
-        const drawPlank = (px: number, py: number, pw: number, ph: number) => {
-          ctx.fillStyle = tones[Math.floor(Math.random() * tones.length)];
-          ctx.fillRect(px, py, pw, ph);
-          ctx.strokeStyle = "rgba(60,35,15,0.45)"; ctx.lineWidth = 1.2; ctx.strokeRect(px, py, pw, ph);
-          for (let g = 0; g < 4; g++) {
-            ctx.strokeStyle = `rgba(90,55,25,${0.06 + Math.random() * 0.08})`; ctx.lineWidth = 0.7;
-            ctx.beginPath();
-            if (pw > ph) { const gy = py + Math.random() * ph; ctx.moveTo(px, gy); ctx.lineTo(px + pw, gy + (Math.random() - 0.5) * 3); }
-            else { const gx = px + Math.random() * pw; ctx.moveTo(gx, py); ctx.lineTo(gx + (Math.random() - 0.5) * 3, py + ph); }
-            ctx.stroke();
-          }
-        };
-        // herringbone: alternating horizontal/vertical planks offset per step
-        const ox = x + row * Wd, oy = y - col * 0;
-        if ((row + col) % 2 === 0) drawPlank(ox, oy, L, Wd); else drawPlank(ox, oy - L + Wd, Wd, L);
-      }
+  const sideLunetteGeometry = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-bayDepth / 2, 0);
+    for (let i = 0; i <= 64; i++) {
+      const z = -bayDepth / 2 + bayDepth * i / 64;
+      shape.lineTo(z, vaultRise * Math.sqrt(Math.max(0, 1 - (z / (bayDepth / 2)) ** 2)));
     }
-    ctx.restore();
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2.5, 2.5);
-    tex.anisotropy = 8;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
+    shape.lineTo(-bayDepth / 2, 0);
+    return new THREE.ShapeGeometry(shape);
+  }, []);
+
+  // Continuous tessellation: each lattice cell has one horizontal and one vertical plank.
+  const floorTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    const L = 128, W = 32;
+    const tones = ["#b38a60", "#bd956d", "#c6a179", "#ae8256", "#c09a71"];
+    ctx.fillStyle = tones[0]; ctx.fillRect(0, 0, 1024, 1024);
+    const plank = (x: number, y: number, vertical: boolean, seed: number) => {
+      const width = vertical ? W : L, height = vertical ? L : W;
+      ctx.fillStyle = tones[Math.abs(seed) % tones.length];
+      ctx.fillRect(x, y, width, height);
+      ctx.strokeStyle = "rgba(64,43,25,0.3)"; ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, width, height);
+      ctx.strokeStyle = "rgba(80,50,30,0.09)";
+      for (let grain = 4; grain < W; grain += 5) {
+        ctx.beginPath();
+        ctx.moveTo(x + (vertical ? grain : 2), y + (vertical ? 2 : grain));
+        ctx.lineTo(x + (vertical ? grain + 1 : L - 2), y + (vertical ? L - 2 : grain + 1));
+        ctx.stroke();
+      }
+    };
+    for (let i = -10; i < 14; i++) for (let j = -36; j < 36; j++) {
+      const x = i * L + j * W, y = i * L - j * W;
+      plank(x, y, false, i * 17 + j * 7);
+      plank(x + L, y, true, i * 13 + j * 3);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(2, 3.5);
+    texture.anisotropy = 8; texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
   }, []);
 
   const wallColor = "#f6f3ec";
@@ -352,14 +372,19 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
   return (
     <group>
       <color attach="background" args={["#efe9dd"]} />
-      <hemisphereLight args={["#fffaf0", "#b98a57", 0.75]} />
-      <ambientLight intensity={0.35} color="#fff2dc" />
-      <directionalLight position={[3, 8, 4]} intensity={0.5} color="#fff4de" />
+      <Environment resolution={64}>
+        <Lightformer intensity={1.5} position={[0, 2, -5.8]} scale={[3, 3, 1]} />
+        <Lightformer intensity={0.75} position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} scale={[7, 12, 1]} color="#f0e6d6" />
+      </Environment>
+      <hemisphereLight args={["#ffffff", "#e7dfd3", 1.5]} />
+      <ambientLight intensity={0.8} color="#ffffff" />
+      <directionalLight position={[0, 2.5, -5]} intensity={1.8} color="#ffffff" />
+      {bayCenters.map((z) => <pointLight key={`bounce-${z}`} position={[0, 2.5, z]} intensity={5} distance={7} decay={2} color="#fffaf4" />)}
 
       {/* Herringbone parquet */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} onClick={() => setFocusedId(null)} receiveShadow>
         <planeGeometry args={[roomWidth, roomLength]} />
-        <meshStandardMaterial map={floorTexture} roughness={0.55} />
+        <meshStandardMaterial map={floorTexture ?? undefined} roughness={0.55} />
       </mesh>
 
       {/* White plastered walls */}
@@ -385,15 +410,23 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </mesh>
       ))}
 
+      {/* Solid plaster above each side wall closes the barrel lunettes. */}
+      {bayCenters.flatMap((z, index) => [-1, 1].map((side) => (
+        <mesh key={`side-lunette-${index}-${side}`} geometry={sideLunetteGeometry}
+          position={[side * 3.4, springY, z]} rotation={[0, -side * Math.PI / 2, 0]}>
+          <meshStandardMaterial color={wallColor} roughness={0.95} side={THREE.DoubleSide} />
+        </mesh>
+      )))}
+
       {/* Three shallow plaster bays reproduce the rhythm visible in the film. */}
       {vaultBays.map((bay, bayIndex) => (
         <group key={`vault-bay-${bayIndex}`}>
           <mesh geometry={bay.surface} receiveShadow>
-            <meshStandardMaterial color="#f8f5ef" roughness={0.98} side={THREE.DoubleSide} />
+            <meshStandardMaterial color="#faf9f5" roughness={0.98} side={THREE.DoubleSide} />
           </mesh>
           {bay.ribs.map((geometry, ribIndex) => (
             <mesh key={`vault-rib-${bayIndex}-${ribIndex}`} geometry={geometry}>
-              <meshStandardMaterial color="#ddd7cd" roughness={1} />
+              <meshStandardMaterial color="#f3f0e9" roughness={1} />
             </mesh>
           ))}
         </group>
@@ -442,10 +475,10 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       </group>
 
       {/* Gallery spots on artworks */}
-      {artworks.map((art) => (
+      {featuredArtworks.map((art) => (
         <spotLight
           key={`l-${art.id}`}
-          position={[art.position[0] * 0.5, 3.45, art.position[2] * 0.5]}
+          position={[art.position[0] * 0.6, 2.95, art.position[2]]}
           target-position={art.position}
           angle={0.45}
           penumbra={0.8}
@@ -471,7 +504,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
 function CameraRig({ focusedId }: { focusedId: string | null }) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
-  const targetLookAt = useRef(new THREE.Vector3(0, 1.55, -1.4));
+  const targetLookAt = useRef(new THREE.Vector3(0, 1.8, -1.4));
   const config = useGalleryConfig();
 
   useEffect(() => {
@@ -492,13 +525,18 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       anchor.y = camera.position.y;
       targetLookAt.current.copy(anchor);
     } else {
-      targetLookAt.current.set(0, 1.55, -1.4);
+      targetLookAt.current.set(0, 1.8, -1.4);
     }
   }, [focusedId, camera, config.focusDistance]);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!controlsRef.current) return;
-    controlsRef.current.target.lerp(targetLookAt.current, 0.1);
+    controlsRef.current.target.lerp(targetLookAt.current, 1 - Math.exp(-7 * Math.min(delta, 0.05)));
+    if (!focusedId) {
+      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -3.1, 3.1);
+      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -5.6, 5.6);
+      camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.15, 2.6);
+    }
     controlsRef.current.update();
   });
 
@@ -517,7 +555,7 @@ function CameraRig({ focusedId }: { focusedId: string | null }) {
       maxDistance={focusedId ? (config.mobile ? 4.5 : 6) : 6}
       minPolarAngle={Math.PI * 0.18}
       maxPolarAngle={Math.PI * 0.62}
-      target={[0, 1.55, -1.4]}
+      target={[0, 1.8, -1.4]}
       autoRotate={false}
       zoomSpeed={config.mobile ? 0.8 : 1.2}
     />
@@ -542,7 +580,7 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
     () =>
       mobile
         ? { focusDistance: 3.2, focusScale: 0.85, fov: 65, mobile: true }
-        : { focusDistance: 4.2, focusScale: 1.05, fov: 55, mobile: false },
+        : { focusDistance: 4.2, focusScale: 1.05, fov: 64, mobile: false },
     [mobile]
   );
 
@@ -592,17 +630,15 @@ const VRGallery = ({ className = "" }: VRGalleryProps) => {
               <>
                 <span className="font-semibold truncate">{focusedArt.title}</span>
                 <span className="opacity-60 truncate hidden sm:inline">— {focusedArt.artist}</span>
-                <button
+                <Button
                   onClick={() => setFocusedId(null)}
                   className="ml-1 rounded-full bg-primary text-primary-foreground px-4 py-1 sm:px-3 sm:py-0.5 text-sm sm:text-[11px] hover:opacity-90 transition shrink-0 min-h-[32px] sm:min-h-0"
                 >
                   Nazaj
-                </button>
+                </Button>
               </>
             ) : (
-              <span className="opacity-75 truncate">
-                Vrtite z miško · zoom s kolescem · kliknite sliko za detajl
-              </span>
+              <span className="opacity-75 truncate">Lučka & Avgust · Galerija 360°</span>
             )}
           </div>
         </div>
