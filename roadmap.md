@@ -3,3 +3,4 @@
 
 - [x] Ponovno ekstrahiraj goste sekvence filma in določi dejansko arhitekturno obliko galerije.
 - [ ] Rekonstruiraj 3D galerijo po ugotovljenem tlorisu, obokih in odprtinah ter jo preveri.
+- [ ] Ponovno primerjaj galerijo s filmom, popravi oboke in preveri ogled slik ter zoom.
