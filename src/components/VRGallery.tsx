@@ -238,15 +238,15 @@ function TrackLight({ x }: { x: number }) {
 
 function EndWall({ entrance }: { entrance: boolean }) {
   const halfOpening = entrance ? 1.18 : 1.05;
-  const archSpring = 2.15;
+  const archSpring = 1.85;
   const { wall, reveal } = useMemo(() => {
     const shape = new THREE.Shape();
     shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
     shape.lineTo(3.4, 3.15); shape.lineTo(-3.4, 3.15); shape.closePath();
     const hole = new THREE.Path();
-    hole.moveTo(-halfOpening, -0.01); hole.lineTo(-halfOpening, archSpring);
+    hole.moveTo(-halfOpening, 0.015); hole.lineTo(-halfOpening, archSpring);
     hole.absarc(0, archSpring, halfOpening, Math.PI, 0, true);
-    hole.lineTo(halfOpening, -0.01); hole.closePath();
+    hole.lineTo(halfOpening, 0.015); hole.closePath();
     shape.holes.push(hole);
     const arch = new THREE.Shape();
     arch.moveTo(-halfOpening - 0.12, 0); arch.lineTo(-halfOpening - 0.12, archSpring);
