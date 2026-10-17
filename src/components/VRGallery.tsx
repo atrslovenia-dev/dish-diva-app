@@ -259,7 +259,7 @@ function EndWall({ entrance }: { entrance: boolean }) {
     return { wall: new THREE.ShapeGeometry(shape, 64), reveal: new THREE.ExtrudeGeometry(arch, { depth, bevelEnabled: false, curveSegments: 48 }) };
   }, [halfOpening]);
   return (
-    <group position={[0, 0, entrance ? -6 : 6]} rotation={[0, entrance ? 0 : Math.PI, 0]}>
+    <group position={[0, 0, -6]}>
       <mesh geometry={wall}>
         <meshStandardMaterial color="#f6f3ec" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
@@ -273,6 +273,57 @@ function EndWall({ entrance }: { entrance: boolean }) {
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}><planeGeometry args={[3.4, 3.2]} /><meshStandardMaterial color="#b99165" roughness={0.65} /></mesh>
         <mesh position={[0, 3.2, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[3.4, 3.2]} /><meshStandardMaterial color="#f6f3ec" /></mesh>
         <pointLight position={[0, 2.6, 0]} intensity={5} distance={5} />
+      </group>
+    </group>
+  );
+}
+
+// Street entrance as seen in the film: a rectangular door beside one shop window.
+function EntranceWall() {
+  const door = { x0: -2.3, x1: -1.15, y0: 0, y1: 2.35 };
+  const win = { x0: -0.3, x1: 2.5, y0: 0.6, y1: 2.35 };
+  const depth = 0.6;
+  const wall = useMemo(() => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0); shape.lineTo(3.4, 2.9); shape.lineTo(-3.4, 2.9); shape.closePath();
+    for (const r of [door, win]) {
+      const h = new THREE.Path();
+      h.moveTo(r.x0, Math.max(r.y0, 0.01)); h.lineTo(r.x1, Math.max(r.y0, 0.01)); h.lineTo(r.x1, r.y1); h.lineTo(r.x0, r.y1); h.closePath();
+      shape.holes.push(h);
+    }
+    return new THREE.ShapeGeometry(shape);
+  }, []);
+  const reveal = (r: typeof door, key: string) => {
+    const w = r.x1 - r.x0, h = r.y1 - r.y0, cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2;
+    const m = <meshStandardMaterial color="#e5e2da" roughness={0.9} />;
+    return <group key={key}>
+      <mesh position={[r.x0, cy, -depth / 2]}><boxGeometry args={[0.01, h, depth]} />{m}</mesh>
+      <mesh position={[r.x1, cy, -depth / 2]}><boxGeometry args={[0.01, h, depth]} />{m}</mesh>
+      <mesh position={[cx, r.y1, -depth / 2]}><boxGeometry args={[w, 0.01, depth]} />{m}</mesh>
+      {r.y0 > 0 && <mesh position={[cx, r.y0, -depth / 2]}><boxGeometry args={[w, 0.01, depth]} />{m}</mesh>}
+    </group>;
+  };
+  const frame = "#2f2a26";
+  return (
+    <group position={[0, 0, 6]} rotation={[0, Math.PI, 0]}>
+      <mesh geometry={wall}><meshStandardMaterial color="#f6f3ec" roughness={0.95} side={THREE.DoubleSide} /></mesh>
+      {reveal(door, "d")}{reveal(win, "w")}
+      {/* street daylight */}
+      <mesh position={[0, 1.6, -depth - 0.6]}><planeGeometry args={[7, 3.4]} /><meshBasicMaterial color="#e9eef0" /></mesh>
+      {/* door: dark frame, glass upper, wooden lower panel */}
+      <group position={[(door.x0 + door.x1) / 2, 0, -depth + 0.06]}>
+        <mesh position={[0, 0.45, 0]}><boxGeometry args={[1.1, 0.9, 0.05]} /><meshStandardMaterial color="#6b4a33" roughness={0.6} /></mesh>
+        <mesh position={[0, 1.62, 0]}><planeGeometry args={[1.05, 1.44]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.35} roughness={0.1} /></mesh>
+        {[-0.55, 0.55].map((x) => <mesh key={x} position={[x, 1.175, 0]}><boxGeometry args={[0.06, 2.35, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
+        <mesh position={[0, 2.32, 0]}><boxGeometry args={[1.15, 0.06, 0.07]} /><meshStandardMaterial color={frame} /></mesh>
+        <mesh position={[0.42, 1.05, 0.06]}><boxGeometry args={[0.03, 0.22, 0.03]} /><meshStandardMaterial color="#b9a06a" metalness={0.8} roughness={0.3} /></mesh>
+      </group>
+      {/* shop window: single pane with thin dark frame and display sill */}
+      <group position={[(win.x0 + win.x1) / 2, 0, -depth + 0.06]}>
+        <mesh position={[0, 1.475, 0]}><planeGeometry args={[2.75, 1.7]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.3} roughness={0.1} /></mesh>
+        {[-1.4, 1.4].map((x) => <mesh key={x} position={[x, 1.475, 0]}><boxGeometry args={[0.06, 1.75, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
+        {[0.62, 2.33].map((y) => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[2.85, 0.06, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
+        <mesh position={[0, 0.6, depth / 2 - 0.06]}><boxGeometry args={[2.8, 0.04, depth]} /><meshStandardMaterial color="#e9e5dd" /></mesh>
       </group>
     </group>
   );
@@ -417,8 +468,8 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </mesh>
       ))}
       <EndWall entrance />
-      <EndWall entrance={false} />
-
+      <EntranceWall />
+      
       {/* Semicircular end faces visible above the window and passage */}
       {[
         { p: [0, springY, -5.99], r: 0 },
