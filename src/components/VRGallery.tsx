@@ -224,7 +224,7 @@ function Armchair({ position, rotation = 0 }: { position: [number, number, numbe
 function TrackLight({ x }: { x: number }) {
   const heads = [-4.6, -2.3, 0, 2.3, 4.6];
   return (
-    <group position={[x, 3.02, 0]}>
+    <group position={[x, 3.3, 0]}>
       <mesh><boxGeometry args={[0.04, 0.035, 10.8]} /><meshStandardMaterial color="#e7e2d8" roughness={0.55} metalness={0.2} /></mesh>
       {heads.map((z, i) => (
         <group key={i} position={[0, -0.1, z]} rotation={[z < 0 ? -0.45 : 0.45, 0, 0]}>
@@ -237,13 +237,13 @@ function TrackLight({ x }: { x: number }) {
 }
 
 function EndWall({ entrance }: { entrance: boolean }) {
-  const halfOpening = entrance ? 0.95 : 0.9;
-  const archSpring = 1.95;
-  const depth = 0.72;
+  const halfOpening = 0.85;
+  const archSpring = 1.98;
+  const depth = 0.9;
   const { wall, reveal } = useMemo(() => {
     const shape = new THREE.Shape();
     shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
-    shape.lineTo(3.4, 2.7); shape.lineTo(-3.4, 2.7); shape.closePath();
+    shape.lineTo(3.4, 2.9); shape.lineTo(-3.4, 2.9); shape.closePath();
     const hole = new THREE.Path();
     hole.moveTo(-halfOpening, 0.015); hole.lineTo(-halfOpening, archSpring);
     hole.absarc(0, archSpring, halfOpening, Math.PI, 0, true);
@@ -281,9 +281,9 @@ function EndWall({ entrance }: { entrance: boolean }) {
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
   const roomWidth = 6.8;
   const roomLength = 12;
-  const springY = 2.7;
+  const springY = 2.9;
   const bayDepth = 4;
-  const vaultRise = 1.9;
+  const vaultRise = 2.15;
   const bayCenters = [-4, 0, 4];
 
   // The film shows a long sequence of shallow cross-vaulted bays, not one
