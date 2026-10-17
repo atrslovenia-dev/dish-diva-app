@@ -237,12 +237,13 @@ function TrackLight({ x }: { x: number }) {
 }
 
 function EndWall({ entrance }: { entrance: boolean }) {
-  const halfOpening = entrance ? 1.18 : 1.05;
-  const archSpring = 1.85;
+  const halfOpening = entrance ? 0.95 : 0.9;
+  const archSpring = 1.95;
+  const depth = 0.72;
   const { wall, reveal } = useMemo(() => {
     const shape = new THREE.Shape();
     shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
-    shape.lineTo(3.4, 3.15); shape.lineTo(-3.4, 3.15); shape.closePath();
+    shape.lineTo(3.4, 2.7); shape.lineTo(-3.4, 2.7); shape.closePath();
     const hole = new THREE.Path();
     hole.moveTo(-halfOpening, 0.015); hole.lineTo(-halfOpening, archSpring);
     hole.absarc(0, archSpring, halfOpening, Math.PI, 0, true);
@@ -255,31 +256,24 @@ function EndWall({ entrance }: { entrance: boolean }) {
     arch.lineTo(halfOpening, archSpring);
     arch.absarc(0, archSpring, halfOpening, 0, Math.PI, false);
     arch.lineTo(-halfOpening, 0); arch.closePath();
-    return { wall: new THREE.ShapeGeometry(shape, 64), reveal: new THREE.ExtrudeGeometry(arch, { depth: 0.48, bevelEnabled: false, curveSegments: 48 }) };
+    return { wall: new THREE.ShapeGeometry(shape, 64), reveal: new THREE.ExtrudeGeometry(arch, { depth, bevelEnabled: false, curveSegments: 48 }) };
   }, [halfOpening]);
   return (
     <group position={[0, 0, entrance ? -6 : 6]} rotation={[0, entrance ? 0 : Math.PI, 0]}>
       <mesh geometry={wall}>
         <meshStandardMaterial color="#f6f3ec" roughness={0.95} side={THREE.DoubleSide} />
       </mesh>
-      <mesh geometry={reveal} position={[0, 0, -0.48]}>
+      <mesh geometry={reveal} position={[0, 0, -depth]}>
         <meshStandardMaterial color="#e5e2da" roughness={0.9} />
       </mesh>
-      {entrance ? <group position={[0, 0, -0.42]}>
-        <mesh position={[0, 1.48, -0.01]}>
-          <planeGeometry args={[2.34, 2.95]} />
-          <meshStandardMaterial color="#b5d3d4" emissive="#d1e6df" emissiveIntensity={0.3} roughness={0.35} />
-        </mesh>
-        {[-1.14, 0, 1.14].map((x) => <mesh key={x} position={[x, 1.4, 0.02]}>
-          <boxGeometry args={[0.05, 2.8, 0.08]} /><meshStandardMaterial color="#3a4849" roughness={0.55} />
-        </mesh>)}
-        <mesh position={[0, 0.055, 0.12]}><boxGeometry args={[2.3, 0.11, 0.65]} /><meshStandardMaterial color="#9c7372" /></mesh>
-        <mesh position={[0, 2.8, 0.02]}><boxGeometry args={[2.3, 0.05, 0.08]} /><meshStandardMaterial color="#3a4849" /></mesh>
-      </group> : <group position={[0, 0, -2]}>
-        <mesh position={[0, 1.65, -1.5]}><planeGeometry args={[3.2, 3.3]} /><meshStandardMaterial color="#e9e5dd" /></mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[3.2, 3]} /><meshStandardMaterial color="#b99165" roughness={0.65} /></mesh>
-        <pointLight position={[0, 2.7, -0.5]} intensity={4} distance={5} />
-      </group>}
+      <group position={[0, 0, -depth - 1.6]}>
+        <mesh position={[0, 1.6, -1.6]}><planeGeometry args={[3.4, 3.2]} /><meshStandardMaterial color="#f3efe6" roughness={0.95} /></mesh>
+        {entrance && <mesh position={[0.6, 1.55, -1.58]}><planeGeometry args={[0.9, 1.5]} /><meshStandardMaterial color="#cfe3ea" emissive="#e8f2f2" emissiveIntensity={0.6} /></mesh>}
+        {[-1.7, 1.7].map((x) => <mesh key={x} position={[x, 1.6, 0]} rotation={[0, x < 0 ? Math.PI / 2 : -Math.PI / 2, 0]}><planeGeometry args={[3.2, 3.2]} /><meshStandardMaterial color="#efeae0" /></mesh>)}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}><planeGeometry args={[3.4, 3.2]} /><meshStandardMaterial color="#b99165" roughness={0.65} /></mesh>
+        <mesh position={[0, 3.2, 0]} rotation={[Math.PI / 2, 0, 0]}><planeGeometry args={[3.4, 3.2]} /><meshStandardMaterial color="#f6f3ec" /></mesh>
+        <pointLight position={[0, 2.6, 0]} intensity={5} distance={5} />
+      </group>
     </group>
   );
 }
@@ -287,9 +281,9 @@ function EndWall({ entrance }: { entrance: boolean }) {
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
   const roomWidth = 6.8;
   const roomLength = 12;
-  const springY = 3.15;
+  const springY = 2.7;
   const bayDepth = 4;
-  const vaultRise = 0.92;
+  const vaultRise = 1.9;
   const bayCenters = [-4, 0, 4];
 
   // The film shows a long sequence of shallow cross-vaulted bays, not one
