@@ -286,9 +286,9 @@ function EndWall({ entrance }: { entrance: boolean }) {
 
 // Street entrance as seen in the film: a rectangular door beside one shop window.
 function EntranceWall() {
-  // This wall is rotated: positive local x is left when looking out from inside.
-  const door = { x0: 1.15, x1: 2.3, y0: 0, y1: 2.35 };
-  const win = { x0: -2.5, x1: -0.3, y0: 0.45, y1: 2.35 };
+  // Looking out from inside: door left, single display window right.
+  const door = { x0: -2.3, x1: -1.15, y0: 0, y1: 2.35 };
+  const win = { x0: 0.3, x1: 2.5, y0: 0.45, y1: 2.35 };
   const depth = 0.6;
   const wall = useMemo(() => {
     const shape = new THREE.Shape();
@@ -474,7 +474,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
         </mesh>
       )))}
 
-      {/* Three shallow plaster bays reproduce the rhythm visible in the film. */}
+      {/* Two broad plaster bays descend toward the middle of the wall height. */}
       {vaultBays.map((bay, bayIndex) => (
         <group key={`vault-bay-${bayIndex}`}>
           <mesh geometry={bay.surface} receiveShadow>
