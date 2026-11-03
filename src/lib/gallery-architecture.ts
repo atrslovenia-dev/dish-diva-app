@@ -2,10 +2,10 @@
 export const galleryArchitecture = {
   width: 6.8,
   length: 12,
-  bayDepth: 4,
+  bayDepth: 6,
   springHeight: 2.25,
   vaultRise: 2.05,
-  bayCenters: [-4, 0, 4],
+  bayCenters: [-3, 3],
 };
 
 export function vaultArcHeight(offset: number, halfSpan: number) {
