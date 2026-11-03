@@ -4,6 +4,7 @@ import { OrbitControls, Text, Environment, Lightformer } from "@react-three/drei
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import { galleryImages } from "@/data/gallery";
+import { galleryArchitecture, vaultArcHeight, vaultHeight } from "@/lib/gallery-architecture";
 
 import akr0086 from "@/assets/gallery/AKR_0086.jpg";
 import akr0137 from "@/assets/gallery/AKR_0137.jpg";
@@ -224,7 +225,7 @@ function Armchair({ position, rotation = 0 }: { position: [number, number, numbe
 function TrackLight({ x }: { x: number }) {
   const heads = [-4.6, -2.3, 0, 2.3, 4.6];
   return (
-    <group position={[x, 3.3, 0]}>
+    <group position={[x, 3, 0]}>
       <mesh><boxGeometry args={[0.04, 0.035, 10.8]} /><meshStandardMaterial color="#e7e2d8" roughness={0.55} metalness={0.2} /></mesh>
       {heads.map((z, i) => (
         <group key={i} position={[0, -0.1, z]} rotation={[z < 0 ? -0.45 : 0.45, 0, 0]}>
@@ -243,7 +244,12 @@ function EndWall({ entrance }: { entrance: boolean }) {
   const { wall, reveal } = useMemo(() => {
     const shape = new THREE.Shape();
     shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
-    shape.lineTo(3.4, 2.9); shape.lineTo(-3.4, 2.9); shape.closePath();
+    shape.lineTo(3.4, galleryArchitecture.springHeight);
+    for (let i = 0; i <= 64; i++) {
+      const x = 3.4 - 6.8 * i / 64;
+      shape.lineTo(x, galleryArchitecture.springHeight + vaultArcHeight(x, 3.4));
+    }
+    shape.closePath();
     const hole = new THREE.Path();
     hole.moveTo(-halfOpening, 0.015); hole.lineTo(-halfOpening, archSpring);
     hole.absarc(0, archSpring, halfOpening, Math.PI, 0, true);
@@ -280,12 +286,19 @@ function EndWall({ entrance }: { entrance: boolean }) {
 
 // Street entrance as seen in the film: a rectangular door beside one shop window.
 function EntranceWall() {
-  const door = { x0: -2.3, x1: -1.15, y0: 0, y1: 2.35 };
-  const win = { x0: -0.3, x1: 2.5, y0: 0.6, y1: 2.35 };
+  // This wall is rotated: positive local x is left when looking out from inside.
+  const door = { x0: 1.15, x1: 2.3, y0: 0, y1: 2.35 };
+  const win = { x0: -2.5, x1: -0.3, y0: 0.45, y1: 2.35 };
   const depth = 0.6;
   const wall = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0); shape.lineTo(3.4, 2.9); shape.lineTo(-3.4, 2.9); shape.closePath();
+    shape.moveTo(-3.4, 0); shape.lineTo(3.4, 0);
+    shape.lineTo(3.4, galleryArchitecture.springHeight);
+    for (let i = 0; i <= 64; i++) {
+      const x = 3.4 - 6.8 * i / 64;
+      shape.lineTo(x, galleryArchitecture.springHeight + vaultArcHeight(x, 3.4));
+    }
+    shape.closePath();
     for (const r of [door, win]) {
       const h = new THREE.Path();
       h.moveTo(r.x0, Math.max(r.y0, 0.01)); h.lineTo(r.x1, Math.max(r.y0, 0.01)); h.lineTo(r.x1, r.y1); h.lineTo(r.x0, r.y1); h.closePath();
@@ -310,32 +323,27 @@ function EntranceWall() {
       {reveal(door, "d")}{reveal(win, "w")}
       {/* street daylight */}
       <mesh position={[0, 1.6, -depth - 0.6]}><planeGeometry args={[7, 3.4]} /><meshBasicMaterial color="#e9eef0" /></mesh>
-      {/* door: dark frame, glass upper, wooden lower panel */}
+      {/* Rectangular dark-framed glazed street door, not an arched/wooden door. */}
       <group position={[(door.x0 + door.x1) / 2, 0, -depth + 0.06]}>
-        <mesh position={[0, 0.45, 0]}><boxGeometry args={[1.1, 0.9, 0.05]} /><meshStandardMaterial color="#6b4a33" roughness={0.6} /></mesh>
-        <mesh position={[0, 1.62, 0]}><planeGeometry args={[1.05, 1.44]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.35} roughness={0.1} /></mesh>
+        <mesh position={[0, 1.175, 0]}><planeGeometry args={[1.05, 2.25]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.25} roughness={0.1} /></mesh>
+        <mesh position={[0, 0.05, 0]}><boxGeometry args={[1.15, 0.1, 0.07]} /><meshStandardMaterial color={frame} /></mesh>
         {[-0.55, 0.55].map((x) => <mesh key={x} position={[x, 1.175, 0]}><boxGeometry args={[0.06, 2.35, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
         <mesh position={[0, 2.32, 0]}><boxGeometry args={[1.15, 0.06, 0.07]} /><meshStandardMaterial color={frame} /></mesh>
         <mesh position={[0.42, 1.05, 0.06]}><boxGeometry args={[0.03, 0.22, 0.03]} /><meshStandardMaterial color="#b9a06a" metalness={0.8} roughness={0.3} /></mesh>
       </group>
       {/* shop window: single pane with thin dark frame and display sill */}
       <group position={[(win.x0 + win.x1) / 2, 0, -depth + 0.06]}>
-        <mesh position={[0, 1.475, 0]}><planeGeometry args={[2.75, 1.7]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.3} roughness={0.1} /></mesh>
-        {[-1.4, 1.4].map((x) => <mesh key={x} position={[x, 1.475, 0]}><boxGeometry args={[0.06, 1.75, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
-        {[0.62, 2.33].map((y) => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[2.85, 0.06, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
-        <mesh position={[0, 0.6, depth / 2 - 0.06]}><boxGeometry args={[2.8, 0.04, depth]} /><meshStandardMaterial color="#e9e5dd" /></mesh>
+        <mesh position={[0, 1.4, 0]}><planeGeometry args={[2.14, 1.84]} /><meshStandardMaterial color="#cfe0e4" transparent opacity={0.3} roughness={0.1} /></mesh>
+        {[-1.1, 1.1].map((x) => <mesh key={x} position={[x, 1.4, 0]}><boxGeometry args={[0.06, 1.9, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
+        {[0.48, 2.33].map((y) => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[2.2, 0.06, 0.07]} /><meshStandardMaterial color={frame} /></mesh>)}
+        <mesh position={[0, 0.45, depth / 2 - 0.06]}><boxGeometry args={[2.2, 0.04, depth]} /><meshStandardMaterial color="#e9e5dd" /></mesh>
       </group>
     </group>
   );
 }
 
 function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; setFocusedId: (id: string | null) => void }) {
-  const roomWidth = 6.8;
-  const roomLength = 12;
-  const springY = 2.9;
-  const bayDepth = 4;
-  const vaultRise = 2.15;
-  const bayCenters = [-4, 0, 4];
+  const { width: roomWidth, length: roomLength, springHeight: springY, bayDepth, vaultRise, bayCenters } = galleryArchitecture;
 
   // The film shows a long sequence of shallow cross-vaulted bays, not one
   // square canopy. Each bay is the inner envelope of perpendicular barrels.
@@ -350,9 +358,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       const localZ = -halfD + (bayDepth * row) / segmentsZ;
       for (let col = 0; col <= segmentsX; col++) {
         const x = -halfW + (roomWidth * col) / segmentsX;
-        const barrelAcrossRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2));
-        const barrelAlongRoom = springY + vaultRise * Math.sqrt(Math.max(0, 1 - (localZ / halfD) ** 2));
-        const y = Math.max(barrelAcrossRoom, barrelAlongRoom);
+        const y = vaultHeight(x, localZ);
         positions.push(x, y, localZ + centerZ);
       }
     }
@@ -378,18 +384,6 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
     });
     return { surface, ribs };
   }), []);
-
-  const endLunetteGeometry = useMemo(() => {
-    const shape = new THREE.Shape();
-    const halfW = roomWidth / 2;
-    shape.moveTo(-halfW, 0);
-    for (let i = 0; i <= 48; i++) {
-      const x = -halfW + (roomWidth * i) / 48;
-      shape.lineTo(x, vaultRise * Math.sqrt(Math.max(0, 1 - (x / halfW) ** 2)));
-    }
-    shape.lineTo(-halfW, 0);
-    return new THREE.ShapeGeometry(shape);
-  }, []);
 
   const sideLunetteGeometry = useMemo(() => {
     const shape = new THREE.Shape();
@@ -470,15 +464,7 @@ function GalleryRoom({ focusedId, setFocusedId }: { focusedId: string | null; se
       <EndWall entrance />
       <EntranceWall />
       
-      {/* Semicircular end faces visible above the window and passage */}
-      {[
-        { p: [0, springY, -5.99], r: 0 },
-        { p: [0, springY, 5.99], r: Math.PI },
-      ].map((wall, i) => (
-        <mesh key={`lunette-${i}`} geometry={endLunetteGeometry} position={wall.p as [number, number, number]} rotation={[0, wall.r, 0]}>
-          <meshStandardMaterial color={wallColor} roughness={0.95} side={THREE.DoubleSide} />
-        </mesh>
-      ))}
+      {/* End walls include their full lunettes so openings are not filled above springing. */}
 
       {/* Solid plaster above each side wall closes the barrel lunettes. */}
       {bayCenters.flatMap((z, index) => [-1, 1].map((side) => (

@@ -1,2 +1,4 @@
 Render the virtual gallery as a long sequence of shallow cross-vaulted bays with visible diagonal groins and end lunettes, matching the film's architecture instead of using one square canopy.
 Close both side and end lunettes against the vaulted surface and construct arched openings with wall cutouts and deep reveals; this prevents floating canopies and flat painted-door substitutes.
+Keep estimated gallery dimensions and vault-height calculations in a shared architecture module so surfaces, wall closures, and proportion tests use the same geometry.
+Construct end walls and their lunettes as continuous cutout shapes so lowering vault springing never fills door or window openings.
